@@ -10,11 +10,18 @@ export interface ComicDialogue {
   soundChirp?: string;
 }
 
+export interface ComicCaptionCardData {
+  text: string;
+  speaker?: string;
+  position?: 'top-left' | 'top-right' | 'middle-left' | 'middle-right' | 'bottom-left' | 'bottom-right';
+  shadowColor?: string;
+}
+
 export interface ComicPanel {
   panelNumber: number;
   title: string;
   narrationBox: string;
-  thoughtMonologue?: string;    // Spider-Verse yellow notebook thought square
+  thoughtMonologue?: string;    // Spider-Verse thought card
   freezeFrameBadge?: string;   // e.g. "CODENAME: AGENT ZERO • EARTH-808"
   sceneEmoji: string;
   sceneDescription: string;
@@ -23,6 +30,7 @@ export interface ComicPanel {
   soundEffect: string;
   sfxColor: string;
   dialogues: ComicDialogue[];
+  captionCards?: ComicCaptionCardData[];
 }
 
 export interface ComicStory {
@@ -174,6 +182,11 @@ function generateHospitalStory(title: string, boss: string): ComicStory {
           { speaker: 'hero', speakerName: 'AGENT ZERO', avatar: '🕵️‍♂️', text: "Just grab the serum ledger and walk out. Clean, simple, no drama.", tailPosition: 'left', emotion: 'smug' },
           { speaker: 'ally', speakerName: 'HQ COMMS', avatar: '📻', text: 'Zero, their motion grid is cycling every 4 seconds! Step softly!', tailPosition: 'right' },
         ],
+        captionCards: [
+          { text: "EVEN THOUGH THE EMERGENCY PROTOCOLS LOCKED DOWN,", position: 'top-left' },
+          { text: "SHE HELPED ME MAP OUT THE SECTOR CIPHER CODES...", position: 'middle-right' },
+          { text: "...AND HOW I CAN INFILTRATE BEFORE THE SHUTDOWN PROTOCOL.", position: 'middle-right' },
+        ],
       },
       {
         panelNumber: 2,
@@ -191,6 +204,11 @@ function generateHospitalStory(title: string, boss: string): ComicStory {
           { speaker: 'hero', speakerName: 'AGENT ZERO', avatar: '😱', text: 'Who leaves a titanium defibrillator in the middle of a dark hallway?!', tailPosition: 'left', emotion: 'shocked' },
           { speaker: 'boss', speakerName: boss, avatar: '👨‍⚕️', text: 'SECURITY DRONES! BIO-QUARANTINE LOCKDOWN ON CORRIDOR B!', tailPosition: 'right', emotion: 'angry' },
         ],
+        captionCards: [
+          { text: "I SWORE TO ESCAPE THIS BIO-WARD AND EXPOSE THEIR SCHEME.", position: 'top-left' },
+          { text: "FROM THE CORRUPT, THE ORDERLIES, AND THE VIRAL CAGES...", position: 'middle-left' },
+          { text: "I SWORE TO SAVE THE PATIENTS WHO COULD NEVER FIGHT BACK.", position: 'bottom-right' },
+        ],
       },
       {
         panelNumber: 3,
@@ -207,6 +225,11 @@ function generateHospitalStory(title: string, boss: string): ComicStory {
         dialogues: [
           { speaker: 'ally', speakerName: 'HQ COMMS', avatar: '📻', text: 'Zero! Hack the sub-terminals and make for the ambulance bay NOW!', tailPosition: 'right', emotion: 'worried' },
           { speaker: 'hero', speakerName: 'AGENT ZERO', avatar: '😎', text: 'Tell the pilot to keep the engine warm. I’m taking the express route!', tailPosition: 'left', emotion: 'determined' },
+        ],
+        captionCards: [
+          { text: "THE HYDRAULIC BLAST SHUTTERS ARE SEALING THE ESCAPE ROUTE!", position: 'top-left' },
+          { text: "ZERO! HACK THE SUB-TERMINALS AND SPRINT FOR THE AMBULANCE BAY!", speaker: "HQ COMMS", position: 'middle-right' },
+          { text: "TELL THE PILOT TO KEEP THE ENGINES HOT. I'M LEAPING OUT!", speaker: "AGENT ZERO", position: 'bottom-right' },
         ],
       },
     ],
@@ -238,6 +261,11 @@ function generateRailwayStory(title: string, boss: string): ComicStory {
           { speaker: 'hero', speakerName: 'TRACK RUNNER', avatar: '🏃', text: 'Closing doors! Slide in sideways like a comic hero!', tailPosition: 'left', emotion: 'determined' },
           { speaker: 'narrator', speakerName: 'P.A. SYSTEM', avatar: '📢', text: 'ATTENTION: You have boarded the restricted Phantom Freight.', tailPosition: 'right' },
         ],
+        captionCards: [
+          { text: "EVEN THOUGH THE LAST EXPRESS TRAIN LEFT ME STRANDED,", position: 'top-left' },
+          { text: "THE AUTOMATED LAW ENFORCERS PATROLLED EVERY PLATFORM...", position: 'middle-right' },
+          { text: "...AND HOW I MUST SPRINT THE LINE TO UNLOCK THE GATES.", position: 'middle-right' },
+        ],
       },
       {
         panelNumber: 2,
@@ -255,6 +283,11 @@ function generateRailwayStory(title: string, boss: string): ComicStory {
           { speaker: 'hero', speakerName: 'TRACK RUNNER', avatar: '😵', text: 'That was definitely not a soft platform deceleration!', tailPosition: 'left', emotion: 'shocked' },
           { speaker: 'boss', speakerName: boss, avatar: '👮‍♂️', text: 'ALL SECTOR PATROLS! Electrify the third rail! Find the fugitive!', tailPosition: 'right', emotion: 'angry' },
         ],
+        captionCards: [
+          { text: "I SWORE TO TAKE THESE RAILS BACK FROM THE SYNDICATE.", position: 'top-left' },
+          { text: "FROM THE CONDUCTOR PATROLS, THE DRONES, AND THE LOCKDOWN...", position: 'middle-left' },
+          { text: "I SWORE I'D SURVIVE THIS SUBTERRANEAN NIGHT RUN.", position: 'bottom-right' },
+        ],
       },
       {
         panelNumber: 3,
@@ -271,6 +304,11 @@ function generateRailwayStory(title: string, boss: string): ComicStory {
         dialogues: [
           { speaker: 'ally', speakerName: 'HACKER PIXEL', avatar: '💻', text: 'I patched the switchboard! Collect the rail passes and book it!', tailPosition: 'right' },
           { speaker: 'hero', speakerName: 'TRACK RUNNER', avatar: '⚡', text: 'Watch your step, boss! I’m taking the express line home!', tailPosition: 'left', emotion: 'determined' },
+        ],
+        captionCards: [
+          { text: "ONE LIVE THIRD RAIL. SIX SECURITY DRONES. ZERO SUBWAY TOKENS.", position: 'top-left' },
+          { text: "PIXEL: I PATCHED THE SWITCHBOARD! GRAB THE RAIL PASSES!", speaker: "HACKER PIXEL", position: 'middle-right' },
+          { text: "WATCH YOUR STEP, DAN! I'M TAKING THE EXPRESS LINE HOME!", speaker: "TRACK RUNNER", position: 'bottom-right' },
         ],
       },
     ],
@@ -302,6 +340,11 @@ function generatePoliceStory(title: string, boss: string): ComicStory {
           { speaker: 'boss', speakerName: boss, avatar: '👮‍♂️', text: 'You’ll be looking at concrete walls for the next thirty years, hotshot.', tailPosition: 'right', emotion: 'smug' },
           { speaker: 'hero', speakerName: 'AGENT X', avatar: '😏', text: 'Fun fact: I picked your locks before you even finished reading my rights.', tailPosition: 'left', emotion: 'smug' },
         ],
+        captionCards: [
+          { text: "EVEN THOUGH THEY FRAMED ME BEHIND PRECINCT BARS,", position: 'top-left' },
+          { text: "THE CORRUPT COMMISSIONER THOUGHT I HAD NOWHERE LEFT TO RUN...", position: 'middle-right' },
+          { text: "...AND HOW ONE CIPHER KEY CAN CLEAR MY RECORD FOREVER.", position: 'middle-right' },
+        ],
       },
       {
         panelNumber: 2,
@@ -319,6 +362,11 @@ function generatePoliceStory(title: string, boss: string): ComicStory {
           { speaker: 'boss', speakerName: boss, avatar: '🤬', text: 'CODE RED! THE PRISONER IS OUT! SEAL EVERY CELL BLOCK!', tailPosition: 'right', emotion: 'angry' },
           { speaker: 'hero', speakerName: 'AGENT X', avatar: '🏃‍♂️', text: 'Thanks for the hospitality! Left you a five-star review on Yelp!', tailPosition: 'left', emotion: 'determined' },
         ],
+        captionCards: [
+          { text: "I SWORE TO BREAK OUT AND TAKE JUSTICE BACK FROM THE BAD GUYS.", position: 'top-left' },
+          { text: "FROM THE CORRUPT, THE CONSPIRATORS, AND THE SHADOW GUARDS...", position: 'middle-left' },
+          { text: "I SWORE TO EXPOSE THE TRUTH BEFORE THE GAVEL FALLS.", position: 'bottom-right' },
+        ],
       },
       {
         panelNumber: 3,
@@ -335,6 +383,11 @@ function generatePoliceStory(title: string, boss: string): ComicStory {
         dialogues: [
           { speaker: 'ally', speakerName: 'INSIDE INFORMANT', avatar: '🕵️', text: 'Evidence lockers are glowing! Grab the files to unlock the garage gate!', tailPosition: 'right' },
           { speaker: 'hero', speakerName: 'AGENT X', avatar: '👊', text: 'Time to turn this precinct upside down!', tailPosition: 'left', emotion: 'determined' },
+        ],
+        captionCards: [
+          { text: "RAIN SLICING THROUGH THE SKYLINE AS THE SIRENS CONVERGE.", position: 'top-left' },
+          { text: "INFORMANT: THE ROOFTOP EXTRACT IS HOT! GRAB THE EVIDENCE!", speaker: "INSIDE INFORMANT", position: 'middle-right' },
+          { text: "TELL THE COMMISSIONER HIS REIGN OVER THIS PRECINCT ENDS TONIGHT.", speaker: "AGENT X", position: 'bottom-right' },
         ],
       },
     ],
@@ -366,6 +419,11 @@ function generateBankStory(title: string, boss: string): ComicStory {
           { speaker: 'hero', speakerName: 'MASTER THIEF', avatar: '🐱‍👤', text: 'Grate cut. Dropping in like a feather. Silent as a shadow.', tailPosition: 'left', emotion: 'smug' },
           { speaker: 'ally', speakerName: 'SAFECRACKER RADIO', avatar: '📻', text: 'You have 60 seconds before the laser tripwires power back up!', tailPosition: 'right' },
         ],
+        captionCards: [
+          { text: "EVEN THOUGH THE TITANIUM VAULT DOORS ARE THREE FEET THICK,", position: 'top-left' },
+          { text: "THE ARMED CHIEF GUARD TRIPWIRED EVERY CORRIDOR WITH LASERS...", position: 'middle-right' },
+          { text: "...AND HOW I MUST CRACK THE ACCESS CODES BEFORE THE LOCKDOWN.", position: 'middle-right' },
+        ],
       },
       {
         panelNumber: 2,
@@ -375,30 +433,40 @@ function generateBankStory(title: string, boss: string): ComicStory {
         freezeFrameBadge: 'SURPRISE ENCOUNTER • GUARDS ALERTED',
         sceneEmoji: '💥 🧗‍♂️ 🚨',
         sceneDescription: 'Crash landing right into the middle of the heavy armed security patrol!',
-        bgGradient: 'linear-gradient(135deg, #5b1d06 0%, #170500 100%)',
+        bgGradient: 'linear-gradient(135deg, #451a03 0%, #170700 100%)',
         accentColor: '#f97316',
-        soundEffect: '💥 *THUUUUUMP-CRASH!*',
+        soundEffect: '💥 *CRASH-BOOM!*',
         sfxColor: '#ea580c',
         dialogues: [
-          { speaker: 'hero', speakerName: 'MASTER THIEF', avatar: '😵', text: 'Tada! ...Anyone order a pizza?!', tailPosition: 'left', emotion: 'shocked' },
-          { speaker: 'boss', speakerName: boss, avatar: '👮', text: 'INTRUDER IN THE VAULT WING! SEAL THE 4-SPOKE BLAST DOORS!', tailPosition: 'right', emotion: 'angry' },
+          { speaker: 'boss', speakerName: boss, avatar: '💂‍♂️', text: 'INTRUDER IN THE BULLION STORAGE! FIRE LASER NETS!', tailPosition: 'right', emotion: 'angry' },
+          { speaker: 'hero', speakerName: 'MASTER THIEF', avatar: '😬', text: 'I meant to do that! Dramatic entrance, 10 out of 10!', tailPosition: 'left', emotion: 'determined' },
+        ],
+        captionCards: [
+          { text: "I SWORE TO RETRIEVE THE STOLEN GOLD RESERVE AND GET OUT.", position: 'top-left' },
+          { text: "FROM THE GREEDY SYNDICATE, THE LASERS, AND THE ARMED GUARDS...", position: 'middle-left' },
+          { text: "I SWORE TO SLIP PAST THE SENSORS AND MAKE A CLEAN HEIST.", position: 'bottom-right' },
         ],
       },
       {
         panelNumber: 3,
-        title: 'CLEAN OUT THE VAULT',
-        narrationBox: 'HEAVY TITANIUM GRIDS SLAM! LASER BEAMS HUM TO MAXIMUM WATTAGE!',
-        thoughtMonologue: "They locked me in with fifty million dollars in gold bullion and an emergency exit across the room. Who's really trapped here?",
-        freezeFrameBadge: 'LEAP OF FAITH • CRACK THE VAULT',
-        sceneEmoji: '💰 💎 🏃‍♂️',
-        sceneDescription: 'Sprinting through laser nets, gathering gold ingots, and cracking the main door!',
-        bgGradient: 'linear-gradient(135deg, #0e2a1b 0%, #020e07 100%)',
-        accentColor: '#10b981',
-        soundEffect: '🔓 *KERRR-CHUNK!*',
+        title: 'LEAP INTO THE VAULT',
+        narrationBox: 'LASER TRIPWIRES POWER UP! GRAB THE BULLION AND SCRAM!',
+        thoughtMonologue: "No extraction team. Lasers humming. Just me, my dash boots, and the bullion pallets.",
+        freezeFrameBadge: 'MISSION OBJECTIVE: ESCAPE WITH RESERVE',
+        sceneEmoji: '💰 🔓 ⚡',
+        sceneDescription: 'Dashing through the laser maze with the master gold key in hand!',
+        bgGradient: 'linear-gradient(135deg, #091e3a 0%, #020710 100%)',
+        accentColor: '#ffd700',
+        soundEffect: '⚡ *ZZZZAP!*',
         sfxColor: '#ffd700',
         dialogues: [
-          { speaker: 'hero', speakerName: 'MASTER THIEF', avatar: '💰', text: 'Tactical dash primed. Time to cash out in style!', tailPosition: 'left', emotion: 'determined' },
-          { speaker: 'boss', speakerName: boss, avatar: '🚨', text: 'Deploy the chaser droids! Nobody takes that gold bullion!', tailPosition: 'right' },
+          { speaker: 'ally', speakerName: 'RADIO COMMS', avatar: '📻', text: 'Vault exit is unsealing! Grab the bullion crates and run!', tailPosition: 'right' },
+          { speaker: 'hero', speakerName: 'MASTER THIEF', avatar: '💎', text: 'Consider this vault officially liberated!', tailPosition: 'left', emotion: 'smug' },
+        ],
+        captionCards: [
+          { text: "THE TITANIUM VAULT LOCKS CLICK OPEN ONE BY ONE!", position: 'top-left' },
+          { text: "COMMS: LASER TRIPWIRES CYCLING! GRAB THE GOLD RESERVE!", speaker: "RADIO COMMS", position: 'middle-right' },
+          { text: "TELL THE HEIST CREW TO RUN HOT. I'M TAKING THE CEILING DROP!", speaker: "MASTER THIEF", position: 'bottom-right' },
         ],
       },
     ],

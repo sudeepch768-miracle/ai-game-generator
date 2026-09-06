@@ -1,51 +1,63 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { GameWorld } from '../types/game';
-import { generateComicStory, ComicStory, ComicPanel, ComicDialogue } from '../utils/comicStoryGenerator';
+import { generateComicStory, ComicStory, ComicPanel, ComicCaptionCardData } from '../utils/comicStoryGenerator';
 import { sound } from '../engine/sound';
-import { Play, ChevronRight, ChevronLeft, FastForward, BookOpen, Layers, Volume2, VolumeX, Sparkles, Zap, Flame, Radio } from 'lucide-react';
+import { ComicIllustration } from './ComicIllustration';
+import {
+  Play,
+  ChevronRight,
+  ChevronLeft,
+  FastForward,
+  BookOpen,
+  Layers,
+  Volume2,
+  VolumeX,
+  Sparkles,
+  Zap,
+  Camera,
+  Globe,
+  MessageSquare,
+  Flame,
+} from 'lucide-react';
 
 interface ComicPrologueModalProps {
   world: GameWorld;
   onStartGame: () => void;
   onClose?: () => void;
+  userImageUrl?: string;
 }
 
 export const ComicPrologueModal: React.FC<ComicPrologueModalProps> = ({
   world,
   onStartGame,
   onClose,
+  userImageUrl,
 }) => {
   const story: ComicStory = useMemo(() => generateComicStory(world), [world]);
-  const [currentPanelIndex, setCurrentPanelIndex] = useState<number>(0);
-  const [isStripMode, setIsStripMode] = useState<boolean>(false);
-  const [punchAnim, setPunchAnim] = useState<boolean>(false);
+  const [currentBeatIndex, setCurrentBeatIndex] = useState<number>(0);
+  const [isPageView, setIsPageView] = useState<boolean>(true); // Default to Page View (matches reference image!)
   const [soundMuted, setSoundMuted] = useState<boolean>(false);
-  const [panelAnimKey, setPanelAnimKey] = useState<number>(0);
+  const [punchAnim, setPunchAnim] = useState<boolean>(false);
+  const [activePage, setActivePage] = useState<number>(0); // Page 0 = Panels 1 & 2; Page 1 = Panel 3 / Climax
 
   const totalPanels = story.panels.length;
-  const currentPanel: ComicPanel = story.panels[currentPanelIndex];
+  const currentPanel: ComicPanel = story.panels[currentBeatIndex];
 
-  // Trigger sound effect on panel entry
+  // Divide panels into pages (2 panels per page, matching classic comic layout)
+  const pagePanels = useMemo(() => {
+    const pages: ComicPanel[][] = [];
+    for (let i = 0; i < story.panels.length; i += 2) {
+      pages.push(story.panels.slice(i, i + 2));
+    }
+    return pages;
+  }, [story.panels]);
+
+  // Audio effect on beat/page change
   useEffect(() => {
     if (!soundMuted) {
       sound.playComicPageTurn();
     }
-    setPanelAnimKey((k) => k + 1);
-  }, [currentPanelIndex, soundMuted]);
-
-  const handleNext = () => {
-    if (currentPanelIndex < totalPanels - 1) {
-      setCurrentPanelIndex((prev) => prev + 1);
-    } else {
-      handleLaunch();
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentPanelIndex > 0) {
-      setCurrentPanelIndex((prev) => prev - 1);
-    }
-  };
+  }, [currentBeatIndex, activePage, isPageView, soundMuted]);
 
   const handleLaunch = () => {
     if (!soundMuted) {
@@ -59,7 +71,7 @@ export const ComicPrologueModal: React.FC<ComicPrologueModalProps> = ({
       sound.playComicPunch();
     }
     setPunchAnim(true);
-    setTimeout(() => setPunchAnim(false), 450);
+    setTimeout(() => setPunchAnim(false), 400);
   };
 
   const handleToggleSound = () => {
@@ -72,63 +84,49 @@ export const ComicPrologueModal: React.FC<ComicPrologueModalProps> = ({
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        background: '#06040b',
+        background: '#04060d',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '20px 24px',
+        padding: '16px 18px',
         overflowY: 'auto',
         overflowX: 'hidden',
         color: '#ffffff',
         fontFamily: '"Chakra Petch", sans-serif',
-        // Layered Spider-Verse Ben-Day Dot Grid
+        // Spider-Verse Dot Matrix Grid
         backgroundImage: `
-          radial-gradient(rgba(0, 242, 254, 0.18) 1.5px, transparent 1.5px),
-          radial-gradient(rgba(255, 0, 85, 0.14) 1.5px, transparent 1.5px)
+          radial-gradient(rgba(0, 242, 254, 0.16) 1.5px, transparent 1.5px),
+          radial-gradient(rgba(225, 29, 72, 0.14) 1.5px, transparent 1.5px)
         `,
         backgroundSize: '24px 24px, 32px 32px',
         backgroundPosition: '0 0, 12px 12px',
-        animation: 'benDayScroll 30s linear infinite',
       }}
     >
-      {/* Spider-Verse Radial Speed Lines Overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          pointerEvents: 'none',
-          backgroundImage: `repeating-conic-gradient(from 0deg, rgba(255,255,255,0.03) 0deg 5deg, transparent 5deg 15deg)`,
-          animation: 'speedLines 8s ease-in-out infinite',
-          zIndex: 1,
-        }}
-      />
-
-      {/* TOP HEADER: Spider-Verse Dimension Bar & Controls */}
+      {/* ==================================================================== */}
+      {/* TOP HEADER: Universe Dimension Bar & Interactive Controls */}
+      {/* ==================================================================== */}
       <div
         style={{
           width: '100%',
-          maxWidth: '1200px',
+          maxWidth: '820px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '16px',
+          gap: '14px',
           flexWrap: 'wrap',
-          position: 'relative',
-          zIndex: 10,
-          marginBottom: '16px',
+          marginBottom: '14px',
+          zIndex: 20,
         }}
       >
-        {/* Universe Tag & Comic Title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          {/* Dimension Badge with Glitch */}
+        {/* Left Badge & Title */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div
             style={{
               background: '#000000',
               border: '2px solid #00f2fe',
-              boxShadow: '4px 4px 0 #ff0055, 0 0 15px rgba(0, 242, 254, 0.5)',
-              padding: '6px 12px',
-              borderRadius: '4px',
+              boxShadow: '3px 3px 0 #e11d48, 0 0 12px rgba(0, 242, 254, 0.5)',
+              padding: '4px 10px',
+              borderRadius: '2px',
               transform: 'skew(-3deg)',
               display: 'flex',
               alignItems: 'center',
@@ -138,11 +136,10 @@ export const ComicPrologueModal: React.FC<ComicPrologueModalProps> = ({
             <Zap size={14} color="#00f2fe" fill="#00f2fe" />
             <span
               style={{
-                fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
-                fontSize: '14px',
-                letterSpacing: '1.5px',
+                fontFamily: '"Bangers", cursive, sans-serif',
+                fontSize: '13px',
+                letterSpacing: '1.2px',
                 color: '#ffffff',
-                textShadow: '-1px -1px 0 #00f2fe, 1px 1px 0 #ff0055',
               }}
             >
               {story.universeTag || 'EARTH-808'}
@@ -150,27 +147,27 @@ export const ComicPrologueModal: React.FC<ComicPrologueModalProps> = ({
           </div>
 
           <div>
-            <div
+            <h1
               style={{
-                fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
-                fontSize: '26px',
-                letterSpacing: '2px',
-                color: '#ffffff',
-                textTransform: 'uppercase',
+                fontFamily: '"Bangers", cursive, sans-serif',
+                fontSize: '24px',
+                letterSpacing: '1.5px',
                 margin: 0,
                 lineHeight: 1.1,
-                textShadow: '-2px -2px 0 #00f2fe, 2px 2px 0 #ff0055, 0 0 20px rgba(0, 242, 254, 0.6)',
+                color: '#ffffff',
+                textTransform: 'uppercase',
+                textShadow: '-2px -2px 0 #00f2fe, 2px 2px 0 #e11d48',
               }}
             >
               {story.title}
-            </div>
-            <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.8px' }}>
+            </h1>
+            <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.6px' }}>
               {story.subtitle}
-            </div>
+            </p>
           </div>
         </div>
 
-        {/* Action Controls (Sound, Strip Mode, Skip) */}
+        {/* Right Navigation & Audio Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {/* Sound Toggle */}
           <button
@@ -178,654 +175,590 @@ export const ComicPrologueModal: React.FC<ComicPrologueModalProps> = ({
             onClick={handleToggleSound}
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
-              border: '2px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '6px',
-              padding: '8px 12px',
+              border: '1.5px solid rgba(255, 255, 255, 0.25)',
+              borderRadius: '4px',
+              padding: '6px 12px',
               color: soundMuted ? '#94a3b8' : '#00f2fe',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               fontSize: '11px',
-              fontWeight: 700,
+              fontWeight: 800,
             }}
-            title={soundMuted ? 'Unmute comic SFX' : 'Mute comic SFX'}
+            title={soundMuted ? 'Turn Sound ON' : 'Mute Sound'}
           >
-            {soundMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            {soundMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
             {soundMuted ? 'MUTED' : 'AUDIO ON'}
           </button>
 
-          {/* Mode Switch: Slideshow vs Full Strip */}
+          {/* View Mode Toggle: Comic Page vs Beat Slideshow */}
           <button
             type="button"
-            onClick={() => setIsStripMode(!isStripMode)}
+            onClick={() => setIsPageView(!isPageView)}
             style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '2px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '6px',
-              padding: '8px 14px',
+              background: isPageView ? '#0f172a' : 'rgba(255, 255, 255, 0.08)',
+              border: '1.5px solid #00f2fe',
+              boxShadow: '2px 2px 0 #e11d48',
+              borderRadius: '4px',
+              padding: '6px 12px',
               color: '#ffffff',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               fontSize: '11px',
-              fontWeight: 700,
+              fontWeight: 800,
               fontFamily: '"Chakra Petch", sans-serif',
             }}
           >
-            {isStripMode ? <BookOpen size={16} color="#ffd700" /> : <Layers size={16} color="#00f2fe" />}
-            {isStripMode ? 'CINEMATIC MODE' : 'COMIC WALL'}
+            {isPageView ? <Layers size={15} color="#00f2fe" /> : <BookOpen size={15} color="#facc15" />}
+            {isPageView ? 'PAGE VIEW' : 'BEATS VIEW'}
           </button>
 
-          {/* SKIP TO GAME BUTTON */}
+          {/* Fast Skip to Game */}
           <button
             type="button"
             onClick={handleLaunch}
             style={{
-              background: 'linear-gradient(135deg, #ff0055 0%, #ff5500 100%)',
-              border: '2px solid #000000',
-              boxShadow: '4px 4px 0 #000000, 0 0 20px rgba(255, 0, 85, 0.6)',
-              borderRadius: '8px',
-              padding: '8px 18px',
+              background: 'linear-gradient(135deg, #e11d48 0%, #f97316 100%)',
+              border: '1.5px solid #000000',
+              boxShadow: '3px 3px 0 #000000',
+              borderRadius: '4px',
+              padding: '6px 14px',
               color: '#ffffff',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              fontSize: '13px',
+              gap: '6px',
+              fontSize: '12px',
               fontWeight: 900,
-              fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
+              fontFamily: '"Bangers", cursive, sans-serif',
               letterSpacing: '1px',
-              transform: 'skew(-4deg)',
-              transition: 'transform 0.15s, box-shadow 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'skew(-4deg) scale(1.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'skew(-4deg) scale(1)';
+              transform: 'skew(-3deg)',
             }}
           >
-            <FastForward size={16} /> SKIP TO GAME
+            <FastForward size={14} /> SKIP
           </button>
         </div>
       </div>
 
-      {/* MAIN CINEMATIC STAGE */}
+      {/* ==================================================================== */}
+      {/* MAIN COMIC STAGE: Graphic Novel Layout (Exact Match to Screenshot!) */}
+      {/* ==================================================================== */}
       <div
-        key={panelAnimKey}
         style={{
           width: '100%',
-          maxWidth: '1200px',
-          flex: 1,
+          maxWidth: '780px',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
+          alignItems: 'center',
           position: 'relative',
           zIndex: 10,
-          animation: isStripMode ? 'none' : 'spiderVerseZoom 0.45s cubic-bezier(0.16, 1, 0.3, 1)',
-          transform: punchAnim ? 'scale(0.99) rotate(-0.5deg)' : 'scale(1) rotate(0deg)',
-          transition: 'transform 0.15s ease-out',
         }}
       >
-        {isStripMode ? (
-          /* Comic Wall Mode (all panels stacked in dynamic magazine format) */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', paddingBottom: '30px' }}>
-            {story.panels.map((panel) => (
-              <SpiderVersePanel
+        {isPageView ? (
+          /* ================================================================ */
+          /* 📖 GRAPHIC NOVEL PAGE VIEW (Matches User Uploaded Image Layout!) */
+          /* ================================================================ */
+          <div
+            style={{
+              width: '100%',
+              background: '#ffffff', // Clean white comic paper margins/gutters
+              border: '3px solid #000000',
+              boxShadow: '10px 10px 0px #000000, 0 0 35px rgba(0, 0, 0, 0.8)',
+              padding: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px', // White horizontal gutter between panels!
+              borderRadius: '4px',
+              transform: punchAnim ? 'scale(0.995)' : 'scale(1)',
+              transition: 'transform 0.15s ease',
+            }}
+          >
+            {/* The 2 Stacked Panels on the active comic page */}
+            {(pagePanels[activePage] || pagePanels[0]).map((panel, idx) => (
+              <GraphicNovelPanel
                 key={panel.panelNumber}
                 panel={panel}
-                totalPanels={totalPanels}
+                panelIndex={idx === 0 ? 0 : 1}
+                theme={story.theme}
                 heroCodename={story.heroCodename}
                 onSFXClick={handleSFXClick}
-                isFullWidth
+                userImageUrl={userImageUrl}
               />
             ))}
 
-            <div style={{ textAlign: 'center', marginTop: '10px' }}>
-              <button
-                type="button"
-                onClick={handleLaunch}
-                style={{
-                  background: 'linear-gradient(90deg, #00f2fe 0%, #ff0055 100%)',
-                  color: '#000000',
-                  border: '4px solid #000000',
-                  boxShadow: '6px 6px 0 #000000, 0 0 35px rgba(0, 242, 254, 0.7)',
-                  borderRadius: '14px',
-                  padding: '16px 48px',
-                  fontSize: '20px',
-                  fontWeight: 900,
-                  fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
-                  letterSpacing: '2px',
-                  cursor: 'pointer',
-                  transform: 'skew(-3deg)',
-                }}
-              >
-                🚀 LEAP OF FAITH // START MISSION!
-              </button>
+            {/* ============================================================ */}
+            {/* BOTTOM COMIC ISSUE FOOTER (Matches Reference Screenshot Footer!) */}
+            {/* ============================================================ */}
+            <div
+              style={{
+                background: '#090d16',
+                border: '1.5px solid #000000',
+                padding: '9px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '12px',
+                color: '#e2e8f0',
+                fontSize: '11px',
+                fontFamily: '"Comic Neue", "Chakra Petch", sans-serif',
+                fontWeight: 700,
+                letterSpacing: '0.6px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Camera size={13} color="#00f2fe" />
+                <span style={{ color: '#cbd5e1' }}>@SECTOR_DISPATCH</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Flame size={13} color="#ef4444" />
+                <span style={{ color: '#f87171' }}>{story.universeTag || 'EARTH-808'} • ISSUE #01</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <MessageSquare size={13} color="#facc15" />
+                <span style={{ color: '#cbd5e1' }}>PROTOCOL // {story.heroCodename}</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Globe size={13} color="#38bdf8" />
+                <span style={{ color: '#38bdf8' }}>REALITY-TO-PLAY.IO</span>
+              </div>
             </div>
           </div>
         ) : (
-          /* Cinematic Slideshow Mode (Full Focus with Spider-Verse Layout) */
-          <SpiderVersePanel
-            panel={currentPanel}
-            totalPanels={totalPanels}
-            heroCodename={story.heroCodename}
-            onSFXClick={handleSFXClick}
-            punchAnim={punchAnim}
-          />
+          /* ================================================================ */
+          /* 🎬 BEATS SLIDESHOW VIEW (Beat-by-Beat Focus Mode) */
+          /* ================================================================ */
+          <div
+            style={{
+              width: '100%',
+              background: '#ffffff',
+              border: '3px solid #000000',
+              boxShadow: '10px 10px 0px #000000, 0 0 35px rgba(0, 0, 0, 0.8)',
+              padding: '12px',
+              borderRadius: '4px',
+            }}
+          >
+            <GraphicNovelPanel
+              panel={currentPanel}
+              panelIndex={currentBeatIndex % 2}
+              theme={story.theme}
+              heroCodename={story.heroCodename}
+              onSFXClick={handleSFXClick}
+              userImageUrl={userImageUrl}
+              isSingleBeat
+            />
+          </div>
         )}
       </div>
 
-      {/* BOTTOM FOOTER: Progress Navigation & Big Action Button */}
-      {!isStripMode && (
-        <div
-          style={{
-            width: '100%',
-            maxWidth: '1200px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '16px',
-            position: 'relative',
-            zIndex: 10,
-            marginTop: '16px',
-            paddingTop: '12px',
-            borderTop: '2px solid rgba(255, 255, 255, 0.1)',
-          }}
-        >
-          {/* Back Button */}
-          <button
-            type="button"
-            onClick={handlePrev}
-            disabled={currentPanelIndex === 0}
-            style={{
-              background: currentPanelIndex === 0 ? 'rgba(255,255,255,0.05)' : '#1e293b',
-              color: currentPanelIndex === 0 ? '#475569' : '#ffffff',
-              border: '2px solid #000000',
-              boxShadow: currentPanelIndex === 0 ? 'none' : '4px 4px 0 #000000',
-              borderRadius: '8px',
-              padding: '10px 20px',
-              fontSize: '13px',
-              fontWeight: 800,
-              cursor: currentPanelIndex === 0 ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
-              letterSpacing: '1px',
-              opacity: currentPanelIndex === 0 ? 0.4 : 1,
-            }}
-          >
-            <ChevronLeft size={18} /> PREV BEAT
-          </button>
-
-          {/* Spider-Verse Segmented Progress Pill */}
+      {/* ==================================================================== */}
+      {/* BOTTOM CONTROLS BAR: Page Switching & Big "START MISSION" Button */}
+      {/* ==================================================================== */}
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '780px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '14px',
+          marginTop: '16px',
+          paddingTop: '12px',
+          borderTop: '1.5px solid rgba(255, 255, 255, 0.12)',
+          zIndex: 20,
+        }}
+      >
+        {isPageView ? (
+          /* Page View Navigation */
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {story.panels.map((p, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setCurrentPanelIndex(idx)}
-                style={{
-                  width: idx === currentPanelIndex ? '42px' : '14px',
-                  height: '12px',
-                  borderRadius: '6px',
-                  background: idx === currentPanelIndex ? '#00f2fe' : 'rgba(255, 255, 255, 0.2)',
-                  border: '2px solid #000000',
-                  boxShadow: idx === currentPanelIndex ? '0 0 12px #00f2fe' : 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  transform: idx === currentPanelIndex ? 'skew(-6deg) scale(1.1)' : 'skew(-6deg)',
-                }}
-                title={`Jump to panel ${idx + 1}`}
-              />
-            ))}
+            {pagePanels.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  disabled={activePage === 0}
+                  onClick={() => setActivePage((p) => Math.max(0, p - 1))}
+                  style={{
+                    background: activePage === 0 ? '#1e293b' : '#0f172a',
+                    color: activePage === 0 ? '#475569' : '#ffffff',
+                    border: '1.5px solid #000000',
+                    boxShadow: activePage === 0 ? 'none' : '3px 3px 0 #000000',
+                    borderRadius: '4px',
+                    padding: '8px 14px',
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    cursor: activePage === 0 ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <ChevronLeft size={16} /> PREV PAGE
+                </button>
+
+                <span style={{ fontSize: '12px', fontWeight: 800, color: '#94a3b8', letterSpacing: '0.8px' }}>
+                  PAGE {activePage + 1} / {pagePanels.length}
+                </span>
+
+                <button
+                  type="button"
+                  disabled={activePage >= pagePanels.length - 1}
+                  onClick={() => setActivePage((p) => Math.min(pagePanels.length - 1, p + 1))}
+                  style={{
+                    background: activePage >= pagePanels.length - 1 ? '#1e293b' : '#0f172a',
+                    color: activePage >= pagePanels.length - 1 ? '#475569' : '#ffffff',
+                    border: '1.5px solid #000000',
+                    boxShadow: activePage >= pagePanels.length - 1 ? 'none' : '3px 3px 0 #000000',
+                    borderRadius: '4px',
+                    padding: '8px 14px',
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    cursor: activePage >= pagePanels.length - 1 ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  NEXT PAGE <ChevronRight size={16} />
+                </button>
+              </>
+            )}
           </div>
-
-          {/* Next Beat or Final Mission Launch */}
-          {currentPanelIndex < totalPanels - 1 ? (
+        ) : (
+          /* Beat Slideshow Navigation */
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
               type="button"
-              onClick={handleNext}
+              disabled={currentBeatIndex === 0}
+              onClick={() => setCurrentBeatIndex((i) => Math.max(0, i - 1))}
               style={{
-                background: 'linear-gradient(90deg, #ffd700 0%, #ff9900 100%)',
-                color: '#000000',
-                border: '3px solid #000000',
-                boxShadow: '4px 4px 0 #000000, 0 0 20px rgba(255, 215, 0, 0.5)',
-                borderRadius: '8px',
-                padding: '10px 26px',
-                fontSize: '14px',
-                fontWeight: 900,
-                cursor: 'pointer',
+                background: currentBeatIndex === 0 ? '#1e293b' : '#0f172a',
+                color: currentBeatIndex === 0 ? '#475569' : '#ffffff',
+                border: '1.5px solid #000000',
+                boxShadow: currentBeatIndex === 0 ? 'none' : '3px 3px 0 #000000',
+                borderRadius: '4px',
+                padding: '8px 14px',
+                fontSize: '12px',
+                fontWeight: 800,
+                cursor: currentBeatIndex === 0 ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
-                letterSpacing: '1.5px',
-                transform: 'skew(-4deg)',
-                transition: 'transform 0.15s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'skew(-4deg) scale(1.05)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'skew(-4deg) scale(1)';
+                gap: '4px',
               }}
             >
-              NEXT BEAT <ChevronRight size={18} />
+              <ChevronLeft size={16} /> PREV BEAT
             </button>
-          ) : (
+
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#94a3b8', letterSpacing: '0.8px' }}>
+              BEAT {currentBeatIndex + 1} / {totalPanels}
+            </span>
+
             <button
               type="button"
-              onClick={handleLaunch}
+              disabled={currentBeatIndex >= totalPanels - 1}
+              onClick={() => setCurrentBeatIndex((i) => Math.min(totalPanels - 1, i + 1))}
               style={{
-                background: 'linear-gradient(90deg, #00f2fe 0%, #ff0055 100%)',
-                color: '#000000',
-                border: '3px solid #000000',
-                boxShadow: '5px 5px 0 #000000, 0 0 30px rgba(0, 242, 254, 0.8)',
-                borderRadius: '10px',
-                padding: '12px 32px',
-                fontSize: '15px',
-                fontWeight: 900,
-                cursor: 'pointer',
+                background: currentBeatIndex >= totalPanels - 1 ? '#1e293b' : '#0f172a',
+                color: currentBeatIndex >= totalPanels - 1 ? '#475569' : '#ffffff',
+                border: '1.5px solid #000000',
+                boxShadow: currentBeatIndex >= totalPanels - 1 ? 'none' : '3px 3px 0 #000000',
+                borderRadius: '4px',
+                padding: '8px 14px',
+                fontSize: '12px',
+                fontWeight: 800,
+                cursor: currentBeatIndex >= totalPanels - 1 ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
-                fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
-                letterSpacing: '2px',
-                transform: 'skew(-4deg)',
-                animation: 'pulse 1.6s infinite ease-in-out',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'skew(-4deg) scale(1.06)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'skew(-4deg) scale(1)';
+                gap: '4px',
               }}
             >
-              <Play size={18} fill="#000000" /> LEAP OF FAITH // ENTER SECTOR!
+              NEXT BEAT <ChevronRight size={16} />
             </button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ============================================================================
-// Spider-Verse Panel Subcomponent
-// ============================================================================
-interface SpiderVersePanelProps {
-  panel: ComicPanel;
-  totalPanels: number;
-  heroCodename: string;
-  onSFXClick: () => void;
-  punchAnim?: boolean;
-  isFullWidth?: boolean;
-}
-
-const SpiderVersePanel: React.FC<SpiderVersePanelProps> = ({
-  panel,
-  totalPanels,
-  heroCodename,
-  onSFXClick,
-  punchAnim,
-  isFullWidth,
-}) => {
-  return (
-    <div
-      style={{
-        background: 'rgba(10, 14, 26, 0.95)',
-        border: '4px solid #000000',
-        borderRadius: '14px',
-        boxShadow: `
-          8px 8px 0px #000000,
-          -4px -4px 0px rgba(0, 242, 254, 0.6),
-          4px 4px 25px rgba(255, 0, 85, 0.3)
-        `,
-        padding: '24px',
-        position: 'relative',
-        overflow: 'hidden',
-        backdropFilter: 'blur(12px)',
-        transform: punchAnim ? 'scale(0.99) rotate(-0.5deg)' : 'scale(1)',
-        transition: 'transform 0.15s ease',
-      }}
-    >
-      {/* Chromatic Top Corner Accent Slashes */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          width: '180px',
-          height: '6px',
-          background: 'linear-gradient(90deg, transparent 0%, #00f2fe 50%, #ff0055 100%)',
-        }}
-      />
-
-      {/* TOP ROW: Panel Number Tag & Freeze-Frame Badge */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '12px',
-          flexWrap: 'wrap',
-          marginBottom: '16px',
-        }}
-      >
-        {/* Panel Tag */}
-        <div
-          style={{
-            background: '#ff0055',
-            color: '#ffffff',
-            border: '2px solid #000000',
-            boxShadow: '3px 3px 0 #000000',
-            padding: '4px 14px',
-            fontSize: '12px',
-            fontWeight: 900,
-            letterSpacing: '1px',
-            fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
-            transform: 'skew(-6deg)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-          }}
-        >
-          <Sparkles size={13} />
-          PANEL {panel.panelNumber} // {totalPanels}: {panel.title}
-        </div>
-
-        {/* Freeze-Frame Hero Tag */}
-        {panel.freezeFrameBadge && (
-          <div
-            style={{
-              background: '#000000',
-              color: '#00f2fe',
-              border: '2px solid #00f2fe',
-              boxShadow: '3px 3px 0 #ff0055',
-              padding: '4px 12px',
-              fontSize: '11px',
-              fontWeight: 800,
-              letterSpacing: '1px',
-              fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
-              transform: 'skew(-4deg)',
-              textShadow: '0 0 8px #00f2fe',
-            }}
-          >
-            {panel.freezeFrameBadge}
           </div>
         )}
-      </div>
 
-      {/* SPIDER-VERSE YELLOW NOTEBOOK MONOLOGUE CARD (Miles voiceover thought box) */}
-      {panel.thoughtMonologue && (
-        <div
-          style={{
-            background: '#ffeb3b',
-            color: '#111827',
-            border: '3px solid #000000',
-            boxShadow: '5px 5px 0 #000000',
-            borderRadius: '4px',
-            padding: '12px 18px',
-            marginBottom: '18px',
-            position: 'relative',
-            transform: 'rotate(-0.8deg)',
-            backgroundImage: 'repeating-linear-gradient(#ffeb3b, #ffeb3b 22px, #facc15 23px, #ffeb3b 24px)',
-            lineHeight: '1.45',
-          }}
-        >
-          {/* Red Pin Icon / Tape effect */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '-8px',
-              left: '18px',
-              width: '16px',
-              height: '16px',
-              borderRadius: '50%',
-              background: '#ef4444',
-              border: '2px solid #000',
-              boxShadow: '1px 1px 0 #000',
-            }}
-          />
-
-          <div
-            style={{
-              fontSize: '10px',
-              fontWeight: 900,
-              color: '#92400e',
-              letterSpacing: '1px',
-              textTransform: 'uppercase',
-              marginBottom: '4px',
-              fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
-            }}
-          >
-            INTERNAL MONOLOGUE // {heroCodename}
-          </div>
-
-          <div
-            style={{
-              fontFamily: '"Fredoka", "Chakra Petch", sans-serif',
-              fontSize: '14px',
-              fontWeight: 700,
-              color: '#1c1917',
-              fontStyle: 'italic',
-            }}
-          >
-            "{panel.thoughtMonologue}"
-          </div>
-        </div>
-      )}
-
-      {/* LOCATION & NARRATIVE CAPTION STRIP */}
-      <div
-        style={{
-          background: 'rgba(0, 0, 0, 0.75)',
-          borderLeft: `5px solid ${panel.accentColor}`,
-          padding: '8px 16px',
-          fontSize: '12px',
-          color: '#e2e8f0',
-          fontWeight: 700,
-          marginBottom: '18px',
-          letterSpacing: '0.8px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-        }}
-      >
-        <Radio size={14} color={panel.accentColor} />
-        <span>{panel.narrationBox}</span>
-      </div>
-
-      {/* CENTER VIGNETTE: Visual Emojis + Giant 3D Action SFX Sticker */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px',
-          marginBottom: '20px',
-          flexWrap: 'wrap',
-          background: panel.bgGradient,
-          border: '3px solid #000000',
-          borderRadius: '12px',
-          padding: '16px 20px',
-          boxShadow: 'inset 0 0 30px rgba(0, 0, 0, 0.7)',
-        }}
-      >
-        {/* Scene Icons & Descriptive Subtext */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div
-            style={{
-              fontSize: '44px',
-              background: 'rgba(0, 0, 0, 0.6)',
-              border: '2px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '12px',
-              padding: '8px 16px',
-              lineHeight: 1,
-              textShadow: '0 0 20px rgba(0, 242, 254, 0.6)',
-            }}
-          >
-            {panel.sceneEmoji}
-          </div>
-
-          <div style={{ maxWidth: '420px', fontSize: '13px', color: '#f1f5f9', fontWeight: 600, lineHeight: 1.4 }}>
-            {panel.sceneDescription}
-          </div>
-        </div>
-
-        {/* GIANT 3D SPIDER-VERSE ACTION SOUND BADGE (Interactive!) */}
+        {/* Big Action Button: START GAME / LEAP OF FAITH */}
         <button
           type="button"
-          onClick={onSFXClick}
-          title="Click to rumble and trigger sound effect!"
+          onClick={handleLaunch}
           style={{
-            background: panel.sfxColor,
+            background: 'linear-gradient(90deg, #00f2fe 0%, #e11d48 100%)',
             color: '#000000',
-            border: '4px solid #000000',
-            boxShadow: `
-              3px 3px 0 #000,
-              6px 6px 0 #ff0055,
-              -3px -3px 0 #00f2fe
-            `,
+            border: '2.5px solid #000000',
+            boxShadow: '4px 4px 0 #000000, 0 0 24px rgba(0, 242, 254, 0.6)',
             borderRadius: '6px',
-            padding: '8px 18px',
-            fontSize: '18px',
+            padding: '10px 28px',
+            fontSize: '14px',
             fontWeight: 900,
-            fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
-            letterSpacing: '1.5px',
             cursor: 'pointer',
-            transform: 'rotate(-5deg) skew(-4deg)',
-            transition: 'transform 0.1s ease',
-            userSelect: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontFamily: '"Bangers", cursive, sans-serif',
+            letterSpacing: '1.5px',
+            transform: 'skew(-3deg)',
+            transition: 'transform 0.15s, box-shadow 0.15s',
           }}
-          onMouseDown={(e) => {
-            e.currentTarget.style.transform = 'rotate(3deg) skew(-2deg) scale(1.15)';
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'skew(-3deg) scale(1.04)';
           }}
-          onMouseUp={(e) => {
-            e.currentTarget.style.transform = 'rotate(-5deg) skew(-4deg) scale(1)';
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'skew(-3deg) scale(1)';
           }}
         >
-          {panel.soundEffect}
+          <Play size={16} fill="#000000" /> LEAP OF FAITH // ENTER SECTOR
         </button>
-      </div>
-
-      {/* DIALOGUE BUBBLES SECTION */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-        {panel.dialogues.map((dlg, idx) => (
-          <SpiderVerseSpeechBubble key={idx} dialogue={dlg} />
-        ))}
       </div>
     </div>
   );
 };
 
 // ============================================================================
-// Spider-Verse Speech Bubble Subcomponent
+// 🖼️ GRAPHIC NOVEL PANEL COMPONENT
 // ============================================================================
-interface SpiderVerseSpeechBubbleProps {
-  dialogue: ComicDialogue;
+interface GraphicNovelPanelProps {
+  panel: ComicPanel;
+  panelIndex: number; // 0 = top panel, 1 = bottom panel
+  theme: string;
+  heroCodename: string;
+  onSFXClick: () => void;
+  userImageUrl?: string;
+  isSingleBeat?: boolean;
 }
 
-const SpiderVerseSpeechBubble: React.FC<SpiderVerseSpeechBubbleProps> = ({ dialogue }) => {
-  const isHero = dialogue.speaker === 'hero';
-  const isBoss = dialogue.speaker === 'boss';
-  const isAlly = dialogue.speaker === 'ally';
+const GraphicNovelPanel: React.FC<GraphicNovelPanelProps> = ({
+  panel,
+  panelIndex,
+  theme,
+  heroCodename,
+  onSFXClick,
+  userImageUrl,
+  isSingleBeat,
+}) => {
+  // Extract or auto-derive the 2 to 3 caption cards for this panel
+  const captionCards: ComicCaptionCardData[] = useMemo(() => {
+    if (panel.captionCards && panel.captionCards.length > 0) {
+      return panel.captionCards;
+    }
 
-  let bubbleBg = '#ffffff';
-  let bubbleColor = '#000000';
-  let borderColor = '#000000';
-  let badgeBg = '#00f2fe';
-  let shadowColor = '#00f2fe';
+    // Auto-generate 3 caption cards from thoughtMonologue and dialogues:
+    const cards: ComicCaptionCardData[] = [];
 
-  if (isHero) {
-    bubbleBg = '#f0fdff';
-    borderColor = '#00f2fe';
-    badgeBg = '#00f2fe';
-    shadowColor = '#00f2fe';
-  } else if (isBoss) {
-    bubbleBg = '#fff1f2';
-    borderColor = '#ff0055';
-    badgeBg = '#ff0055';
-    shadowColor = '#ff0055';
-  } else if (isAlly) {
-    bubbleBg = '#fffbeb';
-    borderColor = '#f59e0b';
-    badgeBg = '#f59e0b';
-    shadowColor = '#f59e0b';
-  }
+    if (panelIndex === 0) {
+      // Top Panel Layout (matches Top Panel in user reference screenshot):
+      // Card 1: Top-Left (Monologue opening premise)
+      // Card 2: Middle-Right (Escalation)
+      // Card 3: Middle-Right lower (Resolve)
+      if (panel.thoughtMonologue) {
+        cards.push({
+          text: panel.thoughtMonologue.split('.')[0] + ',',
+          position: 'top-left',
+        });
+      } else {
+        cards.push({
+          text: panel.narrationBox || 'UNDERCOVER INFILTRATION IN PROGRESS...',
+          position: 'top-left',
+        });
+      }
 
-  const isAlignRight = dialogue.tailPosition === 'right' || isBoss;
+      if (panel.dialogues && panel.dialogues[0]) {
+        cards.push({
+          text: panel.dialogues[0].text,
+          speaker: panel.dialogues[0].speakerName,
+          position: 'middle-right',
+        });
+      }
+
+      if (panel.dialogues && panel.dialogues[1]) {
+        cards.push({
+          text: panel.dialogues[1].text,
+          speaker: panel.dialogues[1].speakerName,
+          position: 'middle-right',
+        });
+      } else {
+        cards.push({
+          text: '...AND HOW I CAN BE A FORCE FOR GOOD IN THIS SECTOR.',
+          position: 'middle-right',
+        });
+      }
+    } else {
+      // Bottom Panel Layout (matches Bottom Panel in user reference screenshot):
+      // Card 1: Top-Left (Oath)
+      // Card 2: Middle-Left (The Threat)
+      // Card 3: Bottom-Right (The Vow)
+      cards.push({
+        text: `I SWORE TO TAKE THIS ${theme.toUpperCase()} SECTOR BACK FROM THE BAD GUYS.`,
+        position: 'top-left',
+      });
+
+      cards.push({
+        text: 'FROM THE CORRUPT, THE VILE, AND THE EVIL SHADOW GUARDS...',
+        position: 'middle-left',
+      });
+
+      cards.push({
+        text: "I SWORE TO SAVE PEOPLE FROM THOSE WHO'D DO THEM HARM.",
+        position: 'bottom-right',
+      });
+    }
+
+    return cards;
+  }, [panel, panelIndex, theme]);
 
   return (
     <div
       style={{
-        display: 'flex',
-        flexDirection: isAlignRight ? 'row-reverse' : 'row',
-        alignItems: 'flex-start',
-        gap: '12px',
-        animation: 'bubblePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        width: '100%',
+        height: isSingleBeat ? '440px' : '380px',
+        border: '2px solid #000000',
+        position: 'relative',
+        overflow: 'hidden',
+        background: '#040711',
       }}
     >
-      {/* Avatar Pill with Chromatic Border */}
-      <div
+      {/* 1. Atmospheric Cinematic Illustration (Vector Art Backdrop) */}
+      <ComicIllustration
+        theme={theme}
+        panelIndex={panelIndex}
+        heroCodename={heroCodename}
+        userImageUrl={userImageUrl}
+      />
+
+      {/* 2. Interactive Sound FX Sticker (Spider-Verse Punch Badge) */}
+      <button
+        type="button"
+        onClick={onSFXClick}
+        title="Click to rumble sound effect!"
         style={{
-          width: '44px',
-          height: '44px',
-          borderRadius: '50%',
-          background: badgeBg,
-          border: '3px solid #000000',
-          boxShadow: `3px 3px 0 #000000, 0 0 12px ${shadowColor}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '22px',
-          flexShrink: 0,
+          position: 'absolute',
+          top: panelIndex === 0 ? '14px' : 'auto',
+          bottom: panelIndex === 0 ? 'auto' : '18px',
+          left: panelIndex === 0 ? 'auto' : '18px',
+          right: panelIndex === 0 ? '16px' : 'auto',
+          background: panel.sfxColor || '#ef4444',
+          color: '#000000',
+          border: '2px solid #000000',
+          boxShadow: '3px 3px 0 #000000',
+          borderRadius: '2px',
+          padding: '4px 10px',
+          fontSize: '13px',
+          fontWeight: 900,
+          fontFamily: '"Bangers", cursive, sans-serif',
+          letterSpacing: '1px',
+          cursor: 'pointer',
+          transform: 'rotate(-4deg)',
+          zIndex: 15,
+          userSelect: 'none',
         }}
       >
-        {dialogue.avatar}
-      </div>
+        {panel.soundEffect || '💥 *THWIP!*'}
+      </button>
 
-      {/* Speech Bubble Container */}
-      <div style={{ maxWidth: '80%', position: 'relative' }}>
-        {/* Speaker Name Tag */}
+      {/* 3. The Comic Caption Cards (Exact Match to User Reference Screenshot!) */}
+      {captionCards.map((card, idx) => (
+        <ComicCaptionCard key={idx} card={card} index={idx} panelIndex={panelIndex} />
+      ))}
+    </div>
+  );
+};
+
+// ============================================================================
+// 💬 COMIC CAPTION CARD (Exact match to the boxes in user's image!)
+// ============================================================================
+interface ComicCaptionCardProps {
+  card: ComicCaptionCardData;
+  index: number;
+  panelIndex: number;
+}
+
+const ComicCaptionCard: React.FC<ComicCaptionCardProps> = ({ card, index, panelIndex }) => {
+  // Compute positions across the panel matching the exact reference screenshot layout:
+  // In Panel 1:
+  // - Card 1: Top-Left
+  // - Card 2: Middle-Right
+  // - Card 3: Middle-Right lower
+  // In Panel 2:
+  // - Card 1: Top-Left
+  // - Card 2: Middle-Left
+  // - Card 3: Bottom-Right
+
+  let posStyle: React.CSSProperties = {
+    position: 'absolute',
+    maxWidth: '280px',
+    zIndex: 10,
+  };
+
+  if (panelIndex === 0) {
+    if (card.position === 'top-left' || index === 0) {
+      posStyle = { position: 'absolute', top: '22px', left: '20px', maxWidth: '270px' };
+    } else if (card.position === 'middle-right' && index === 1) {
+      posStyle = { position: 'absolute', top: '105px', right: '22px', maxWidth: '260px' };
+    } else {
+      posStyle = { position: 'absolute', top: '185px', right: '22px', maxWidth: '260px' };
+    }
+  } else {
+    if (card.position === 'top-left' || index === 0) {
+      posStyle = { position: 'absolute', top: '22px', left: '20px', maxWidth: '290px' };
+    } else if (card.position === 'middle-left' || index === 1) {
+      posStyle = { position: 'absolute', top: '105px', left: '20px', maxWidth: '280px' };
+    } else {
+      posStyle = { position: 'absolute', bottom: '22px', right: '22px', maxWidth: '300px' };
+    }
+  }
+
+  // Signature Red Block Offset Shadow (from user's uploaded reference image!)
+  const shadowColor = card.shadowColor || '#e11d48';
+
+  return (
+    <div
+      style={{
+        ...posStyle,
+        background: '#ffffff', // Crisp pure white card
+        border: '1.5px solid #000000', // Thin solid dark outline
+        borderRadius: '2px', // Sharp comic corners
+        boxShadow: `4px 4px 0px ${shadowColor}`, // Bold flat solid red 3D block offset!
+        padding: '8px 14px',
+        animation: 'bubblePop 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+        userSelect: 'none',
+      }}
+    >
+      {/* Optional Speaker / Identifier Tag */}
+      {card.speaker && (
         <div
           style={{
-            fontSize: '11px',
+            fontSize: '9px',
             fontWeight: 900,
-            color: '#cbd5e1',
-            marginBottom: '4px',
-            textAlign: isAlignRight ? 'right' : 'left',
-            fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
+            fontFamily: '"Bangers", cursive, sans-serif',
+            color: '#e11d48',
             letterSpacing: '1px',
-            textShadow: '1px 1px 0 #000',
+            textTransform: 'uppercase',
+            marginBottom: '2px',
           }}
         >
-          {dialogue.speakerName}
+          {card.speaker}
         </div>
+      )}
 
-        {/* Bubble Shape with Pointer Tail */}
-        <div
-          style={{
-            background: bubbleBg,
-            color: bubbleColor,
-            border: `3px solid ${borderColor}`,
-            borderRadius: '14px',
-            boxShadow: `4px 4px 0 #000000, 0 0 14px ${shadowColor}40`,
-            padding: '10px 16px',
-            fontSize: '14px',
-            fontWeight: 700,
-            lineHeight: '1.4',
-            fontFamily: '"Chakra Petch", sans-serif',
-            transform: isAlignRight ? 'skew(1.5deg)' : 'skew(-1.5deg)',
-          }}
-        >
-          {dialogue.text}
-        </div>
-      </div>
+      {/* Uppercase Comic Lettering Typography */}
+      <p
+        style={{
+          margin: 0,
+          fontFamily: '"Comic Neue", "Chakra Petch", sans-serif',
+          fontSize: '13px',
+          fontWeight: 700,
+          lineHeight: '1.35',
+          color: '#000000',
+          letterSpacing: '0.4px',
+          textTransform: 'uppercase',
+        }}
+      >
+        {card.text}
+      </p>
     </div>
   );
 };
