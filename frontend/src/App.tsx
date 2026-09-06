@@ -137,8 +137,7 @@ export const App: React.FC = () => {
         formData.append('difficulty', settings.difficulty);
         formData.append('map_size', settings.mapSize);
         formData.append('hazard_level', settings.hazardLevel);
-        // Only append theme if there's no active uploaded file, OR if user explicitly specified a prompt!
-        if (settings.theme && (!activeFile || settings.customPrompt)) {
+        if (settings.theme) {
           formData.append('theme', settings.theme);
         }
         if (settings.customPrompt) {

@@ -73,12 +73,12 @@ def analyze_and_generate_world(
     sample_str = (sample_id or "").lower()
     
     if not resolved_theme:
-        if any(w in prompt_str for w in ["railway", "train", "station", "subway", "metro", "transit", "locomotive", "track", "platform", "depot"]) or any(w in sample_str for w in ["railway", "train", "station", "subway", "metro"]):
-            resolved_theme = "railway"
+        if any(w in prompt_str for w in ["hospital", "haspital", "hopital", "hosp", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance", "stretcher", "ward", "health", "trauma", "triage", "icu", "er", "emergency"]) or any(w in sample_str for w in ["hospital", "clinic", "medical"]):
+            resolved_theme = "hospital"
         elif any(w in prompt_str for w in ["police", "cop", "precinct", "constable", "sheriff", "jail", "prison", "interrogation", "lockup", "detective"]):
             resolved_theme = "police"
-        elif any(w in prompt_str for w in ["hospital", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance"]):
-            resolved_theme = "hospital"
+        elif (any(w in prompt_str for w in ["railway", "train", "subway", "metro", "transit", "locomotive", "track", "platform", "depot"]) or ("station" in prompt_str and not any(x in prompt_str for x in ["police", "nurse", "aid", "space", "fire"]))) or any(w in sample_str for w in ["railway", "train", "station", "subway", "metro"]):
+            resolved_theme = "railway"
         elif any(w in prompt_str for w in ["kitchen", "restaurant", "chef", "cook", "dining", "bakery", "cafe", "bistro", "stove", "pantry"]):
             resolved_theme = "kitchen"
         elif any(w in prompt_str for w in ["airport", "airplane", "plane", "aircraft", "hangar", "runway", "tarmac", "terminal", "flight"]):

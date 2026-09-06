@@ -21,12 +21,13 @@ def classify_image_theme(
     """
     text_corpus = f"{custom_theme or ''} {custom_prompt or ''} {image_filename or ''}".lower()
 
-    if any(k in text_corpus for k in ("railway", "train", "station", "subway", "metro", "transit", "locomotive", "track", "platform", "depot")):
-        return "railway", "Grand Central Transit Hub", "#f59e0b"
+    # 1. Exact textual keyword matches - check specific facilities before generic 'station'
+    if any(k in text_corpus for k in ("hospital", "haspital", "hopital", "hosp", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance", "stretcher", "ward", "health", "trauma", "triage", "icu", "er", "emergency")):
+        return "hospital", "St. Jude Emergency Trauma Center", "#38bdf8"
     if any(k in text_corpus for k in ("police", "cop", "precinct", "constable", "sheriff", "jail", "prison", "interrogation", "lockup", "detective", "siren")):
         return "police", "Metropolitan Police Precinct 09", "#3b82f6"
-    if any(k in text_corpus for k in ("hospital", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance", "stretcher", "ward", "health", "trauma", "er")):
-        return "hospital", "St. Jude Emergency Trauma Center", "#38bdf8"
+    if any(k in text_corpus for k in ("railway", "train", "subway", "metro", "transit", "locomotive", "track", "platform", "depot")) or ("station" in text_corpus and not any(x in text_corpus for x in ("police", "nurse", "aid", "space", "fire"))):
+        return "railway", "Grand Central Transit Hub", "#f59e0b"
     if any(k in text_corpus for k in ("kitchen", "restaurant", "chef", "cook", "dining", "bakery", "cafe", "bistro", "stove", "pantry", "culinary")):
         return "kitchen", "Executive Culinary Kitchen", "#f97316"
     if any(k in text_corpus for k in ("airport", "airplane", "plane", "aircraft", "hangar", "runway", "tarmac", "terminal", "flight", "jetway")):
@@ -56,7 +57,8 @@ def classify_image_theme(
     if any(k in text_corpus for k in ("office", "desk", "work", "corporate", "cubicle", "keyboard")):
         return "office", "Corporate Executive Center", "#334155"
 
-    # 2. Deep Visual Pixel & HSV Analysis
+    # 2. Deep Visual Pixel & HSV Analysis (guarantee 3-channel RGB)
+    img = img.convert("RGB")
     w, h = img.size
     pixels = list(img.getdata())
     stride = max(1, len(pixels) // 1200)
@@ -110,11 +112,11 @@ def classify_image_theme(
     print(f"[CV Scene Classifier] Brightness={brightness:.1f}, ShadowRatio={shadow_ratio:.2f}, Purple={purple_ratio:.2f}, Gold={gold_ratio:.2f}, Blue={blue_ratio:.2f}, Green={green_ratio:.2f}")
 
     # Decision Matrix based purely on visual image content:
-    # Snow: blinding white/ice landscape
-    if brightness > 180 and shadow_ratio < 0.12:
+    # Snow: blinding white/ice landscape with cool blue tones
+    if brightness > 190 and shadow_ratio < 0.12 and (blue_ratio > 0.08 or avg_b > avg_r + 25):
         return "snow", "Glacial Frost Summit", "#38bdf8"
-    # Hospital: bright clean lighting (120-180), low/medium saturation, cool or clean palette
-    elif 120 <= brightness <= 180 and (blue_ratio > 0.04 or abs(avg_r - avg_b) < 30) and shadow_ratio < 0.35:
+    # Hospital: clean diffuse indoor lighting, low/medium saturation, cool or clean palette
+    elif (brightness >= 70 and (blue_ratio > 0.02 or abs(avg_r - avg_b) < 35) and shadow_ratio < 0.45):
         return "hospital", "St. Jude Emergency Trauma Center", "#38bdf8"
     # Volcano: intense red dominance
     elif avg_r > 135 and avg_r > avg_b * 1.5:
@@ -134,8 +136,8 @@ def classify_image_theme(
     # Nature: dominant foliage green
     elif green_ratio > 0.14:
         return "nature", "Wilderness Overgrown Sanctuary", "#15803d"
-    # Railway: dark industrial ballast/platform tones
-    elif brightness < 110 and abs(avg_r - avg_b) < 25 and abs(avg_g - avg_b) < 25:
+    # Railway: dark industrial ballast/platform tones with heavy shadows
+    elif brightness < 80 and shadow_ratio > 0.40 and abs(avg_r - avg_b) < 25 and abs(avg_g - avg_b) < 25:
         return "railway", "Metro Transit Platform", "#f59e0b"
     # Airport: tarmac slate/glass
     elif brightness >= 110 and abs(avg_r - avg_b) < 20 and blue_ratio > 0.03:

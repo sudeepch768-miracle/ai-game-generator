@@ -34,13 +34,54 @@ export interface ComicStory {
   panels: ComicPanel[];
 }
 
+const KNOWN_THEMES = new Set([
+  'hospital', 'railway', 'police', 'bank', 'snow', 'kitchen', 'airport',
+  'cyberpunk', 'haunted', 'volcano', 'desert', 'ocean', 'space',
+  'classroom', 'office', 'nature', 'dungeon'
+]);
+
 // Normalize theme string
 export function resolveTheme(world: GameWorld): string {
-  const combined = `${world.title || ''} ${world.description || ''} ${world.map?.theme || ''}`.toLowerCase();
+  // 1. Authoritative: world.map.theme if already set to a valid known theme
+  const rawMapTheme = (world.map?.theme || '').toLowerCase().trim();
+  if (KNOWN_THEMES.has(rawMapTheme)) {
+    return rawMapTheme;
+  }
 
-  if (/railway|train|subway|metro|transit|platform|locomotive|track/i.test(combined)) return 'railway';
-  if (/police|precinct|constable|cop|jail|prison|interrogation/i.test(combined)) return 'police';
-  if (/hospital|clinic|medical|doctor|nurse|surgery|patient|infirmary/i.test(combined)) return 'hospital';
+  // Check if map theme maps to one of known themes (e.g. haspital -> hospital)
+  if (/h[oa]spital|clinic|medical|doctor|nurse|surgery|patient|infirmary|ambulance|stretcher|ward|trauma|triage|icu|emergency/i.test(rawMapTheme)) return 'hospital';
+  if (/police|precinct|constable|cop|jail|prison|interrogation|sheriff/i.test(rawMapTheme)) return 'police';
+  if (/\brailway\b|\btrain\b|\bsubway\b|\bmetro\b|\btransit\b|\blocomotive\b|\bplatform\b|\bdepot\b/i.test(rawMapTheme) ||
+      (/\bstation\b/i.test(rawMapTheme) && !/police|nurse|aid|space|fire/i.test(rawMapTheme))) return 'railway';
+  if (/kitchen|restaurant|chef|cook|dining|bakery|cafe|pantry/i.test(rawMapTheme)) return 'kitchen';
+  if (/airport|airplane|plane|flight|hangar|runway|tarmac|terminal/i.test(rawMapTheme)) return 'airport';
+  if (/snow|ice|frost|glacier|arctic|winter|blizzard|penguin|yeti/i.test(rawMapTheme)) return 'snow';
+  if (/volcano|lava|magma|molten|inferno|caldera/i.test(rawMapTheme)) return 'volcano';
+  if (/desert|pyramid|tomb|dune|pharaoh|sand|egypt/i.test(rawMapTheme)) return 'desert';
+  if (/ocean|underwater|sea|abyss|aquatic|trench|submersible/i.test(rawMapTheme)) return 'ocean';
+  if (/space|alien|cosmic|galaxy|starship|void|orbit/i.test(rawMapTheme)) return 'space';
+  if (/haunt|ghost|phantom|crypt|specter|spooky|creepy|mansion|horror/i.test(rawMapTheme)) return 'haunted';
+  if (/bank|vault|heist|cash|bullion|gold|safe|robbery|teller/i.test(rawMapTheme)) return 'bank';
+  if (/cyber|tech|server|matrix|neon|hacker|mainframe/i.test(rawMapTheme)) return 'cyberpunk';
+  if (/class|school|lecture|auditorium|campus|university/i.test(rawMapTheme)) return 'classroom';
+  if (/office|cubicle|corporate|workstation|executive/i.test(rawMapTheme)) return 'office';
+  if (/nature|forest|jungle|grove|garden|overgrown/i.test(rawMapTheme)) return 'nature';
+  if (/dungeon|catacomb|castle|gargoyle|relic/i.test(rawMapTheme)) return 'dungeon';
+
+  // 2. Check palette floorTexture
+  const floorTexture = (world.palette?.floorTexture || '').toLowerCase().trim();
+  if (KNOWN_THEMES.has(floorTexture)) {
+    return floorTexture;
+  }
+
+  // 3. Fallback: inspect title, description, and enemy name
+  const combined = `${world.title || ''} ${world.description || ''} ${world.enemies?.[0]?.name || ''}`.toLowerCase();
+
+  // Hospital takes strict precedence over railway to eliminate nurse station / tracking overlap
+  if (/h[oa]spital|clinic|medical|doctor|nurse|surgery|patient|infirmary|ambulance|stretcher|ward|health|trauma|triage|icu|emergency/i.test(combined)) return 'hospital';
+  if (/police|precinct|constable|cop|jail|prison|interrogation|sheriff/i.test(combined)) return 'police';
+  if (/\brailway\b|\btrain\b|\bsubway\b|\bmetro\b|\btransit\b|\blocomotive\b|\bplatform\b|\bdepot\b/i.test(combined) ||
+      (/\bstation\b/i.test(combined) && !/police|nurse|aid|space|fire/i.test(combined))) return 'railway';
   if (/kitchen|restaurant|chef|cook|dining|bakery|cafe|pantry/i.test(combined)) return 'kitchen';
   if (/airport|airplane|plane|flight|hangar|runway|tarmac|terminal/i.test(combined)) return 'airport';
   if (/snow|ice|frost|glacier|arctic|winter|blizzard|penguin|yeti/i.test(combined)) return 'snow';
@@ -48,8 +89,8 @@ export function resolveTheme(world: GameWorld): string {
   if (/desert|pyramid|tomb|dune|pharaoh|sand|egypt/i.test(combined)) return 'desert';
   if (/ocean|underwater|sea|abyss|aquatic|trench|submersible/i.test(combined)) return 'ocean';
   if (/space|alien|cosmic|galaxy|starship|void|orbit/i.test(combined)) return 'space';
-  if (/haunt|ghost|phantom|crypt|specter|spooky|creepy|mansion/i.test(combined)) return 'haunted';
-  if (/bank|vault|heist|cash|bullion|gold|safe|robbery/i.test(combined)) return 'bank';
+  if (/haunt|ghost|phantom|crypt|specter|spooky|creepy|mansion|horror/i.test(combined)) return 'haunted';
+  if (/bank|vault|heist|cash|bullion|gold|safe|robbery|teller/i.test(combined)) return 'bank';
   if (/cyber|tech|server|matrix|neon|hacker|mainframe/i.test(combined)) return 'cyberpunk';
   if (/class|school|lecture|auditorium|campus|university/i.test(combined)) return 'classroom';
   if (/office|cubicle|corporate|workstation|executive/i.test(combined)) return 'office';

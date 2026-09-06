@@ -509,12 +509,13 @@ ENEMY_THEMES = {
 
 def resolve_theme_key(theme_str: str) -> str:
     t = (theme_str or "").lower()
-    if any(w in t for w in ["railway", "train", "station", "subway", "metro", "transit", "locomotive", "track", "platform", "depot"]):
-        return "railway"
+    if any(w in t for w in ["hospital", "haspital", "hopital", "hosp", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance", "stretcher", "ward", "health", "trauma", "triage", "icu", "er", "emergency"]):
+        return "hospital"
     if any(w in t for w in ["police", "cop", "precinct", "constable", "sheriff", "jail", "prison", "interrogation", "lockup", "detective"]):
         return "police"
-    if any(w in t for w in ["hospital", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance"]):
-        return "hospital"
+    if (any(w in t for w in ["railway", "train", "subway", "metro", "transit", "locomotive", "track", "platform", "depot"]) or
+        ("station" in t and not any(x in t for x in ["police", "nurse", "aid", "space", "fire"]))):
+        return "railway"
     if any(w in t for w in ["kitchen", "restaurant", "chef", "cook", "dining", "bakery", "cafe", "bistro", "stove", "pantry"]):
         return "kitchen"
     if any(w in t for w in ["airport", "airplane", "plane", "aircraft", "hangar", "runway", "tarmac", "terminal", "flight"]):
