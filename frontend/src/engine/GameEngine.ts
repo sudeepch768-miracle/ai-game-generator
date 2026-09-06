@@ -4,6 +4,60 @@ import { CanvasRenderer } from './renderer';
 import { sound } from './sound';
 import { getEquippedSkinId, addGems } from '../types/avatar';
 
+export interface DifficultyPersistence {
+  aggroDuration: number;
+  detectRangeMult: number;
+  speedMultiplier: number;
+  packAlertRadius: number;
+  stealthEvadeRate: number;
+  burstInterval: number;
+  burstSpeedMult: number;
+  leashDistance: number;
+}
+
+export const DIFFICULTY_PROFILES: Record<string, DifficultyPersistence> = {
+  easy: {
+    aggroDuration: 3.2,
+    detectRangeMult: 0.78,
+    speedMultiplier: 1.15,
+    packAlertRadius: 3.5,
+    stealthEvadeRate: 3.8,
+    burstInterval: 5.0,
+    burstSpeedMult: 1.15,
+    leashDistance: 6.5,
+  },
+  medium: {
+    aggroDuration: 6.0,
+    detectRangeMult: 1.0,
+    speedMultiplier: 1.42,
+    packAlertRadius: 6.5,
+    stealthEvadeRate: 2.5,
+    burstInterval: 3.5,
+    burstSpeedMult: 1.3,
+    leashDistance: 10.0,
+  },
+  hard: {
+    aggroDuration: 9.5,
+    detectRangeMult: 1.25,
+    speedMultiplier: 1.68,
+    packAlertRadius: 9.5,
+    stealthEvadeRate: 1.7,
+    burstInterval: 2.8,
+    burstSpeedMult: 1.45,
+    leashDistance: 15.0,
+  },
+  nightmare: {
+    aggroDuration: 16.0,
+    detectRangeMult: 1.45,
+    speedMultiplier: 1.92,
+    packAlertRadius: 15.0,
+    stealthEvadeRate: 1.1,
+    burstInterval: 2.0,
+    burstSpeedMult: 1.6,
+    leashDistance: 999.0,
+  },
+};
+
 export class GameEngine {
   private canvas: HTMLCanvasElement;
   private renderer: CanvasRenderer;
@@ -22,6 +76,7 @@ export class GameEngine {
   private stunProjectiles: StunProjectile[] = [];
   private nextTextId: number = 0;
   private lastExitWarningTime: number = 0;
+  private isExitUnlocked: boolean = false;
   public onStateChange?: (state: EngineState) => void;
   public onWin?: (score: number, timeLeft: number) => void;
   public onLose?: (reason: string, score: number) => void;
@@ -215,13 +270,13 @@ export class GameEngine {
     const { dx, dy, facing } = this.input.getMovementVector();
 
     if (this.input.isDashJustPressed() && player.dashCooldown <= 0) {
-      player.dashCooldown = 1.15;
+      player.dashCooldown = 0.85;
       player.isDashing = true;
-      player.invincibleTime = Math.max(player.invincibleTime || 0, 0.32);
+      player.invincibleTime = Math.max(player.invincibleTime || 0, 0.22);
       sound.playDash();
 
       const tileSize = this.world.map.tileSize;
-      const dashDist = tileSize * 2.8;
+      const dashDist = tileSize * 1.55; // Controllable, tight tactical dash
       let dashDx = dx;
       let dashDy = dy;
       if (dashDx === 0 && dashDy === 0) {
@@ -231,22 +286,25 @@ export class GameEngine {
         else if (player.facing === 'right') dashDx = 1;
       }
 
-      // Step along dash path
-      const steps = 6;
+      // Step along dash path with fixed increment to prevent compounding runaway
+      const steps = 4;
+      const stepIncX = (dashDx * dashDist) / steps;
+      const stepIncY = (dashDy * dashDist) / steps;
+
       for (let s = 1; s <= steps; s++) {
-        const stepX = player.x + (dashDx * dashDist * s) / steps;
-        const stepY = player.y + (dashDy * dashDist * s) / steps;
-        if (!this.checkCollision(stepX, player.y, player.width, player.height)) {
-          player.x = stepX;
+        const nextX = player.x + stepIncX;
+        const nextY = player.y + stepIncY;
+        if (!this.checkCollision(nextX, player.y, player.width, player.height)) {
+          player.x = nextX;
         }
-        if (!this.checkCollision(player.x, stepY, player.width, player.height)) {
-          player.y = stepY;
+        if (!this.checkCollision(player.x, nextY, player.width, player.height)) {
+          player.y = nextY;
         }
         this.spawnBurstParticles(player.x + player.width / 2, player.y + player.height / 2, '#00f2fe');
       }
 
       this.addFloatingText('💨 DASH!', player.x + player.width / 2, player.y - 14, '#00f2fe');
-      setTimeout(() => { player.isDashing = false; }, 200);
+      setTimeout(() => { player.isDashing = false; }, 160);
     }
 
     // 5. Player continuous movement & collision (stealth slows movement to 65%)
@@ -297,7 +355,8 @@ export class GameEngine {
     // 10. Check Interactions (NPCs, Terminals, and Sneak Takedowns)
     this.checkInteractions();
 
-    // 11. Exit Portal Check
+    // 11. Exit Unlock & Portal Check
+    this.checkExitUnlockState();
     this.checkExit();
 
     // 12. Floating texts and particles
@@ -431,6 +490,9 @@ export class GameEngine {
     const px = this.state.player.x + this.state.player.width / 2;
     const py = this.state.player.y + this.state.player.height / 2;
 
+    const diffKey = (this.world.difficulty || 'medium').toLowerCase();
+    const diff = DIFFICULTY_PROFILES[diffKey] || DIFFICULTY_PROFILES['medium'];
+
     // Stealth cuts detection range significantly (65% reduction!)
     const stealthFactor = this.state.isStealth ? 0.35 : 1.0;
 
@@ -460,16 +522,16 @@ export class GameEngine {
       const ey = enemy.y * tileSize + tileSize / 2;
       const distToPlayer = Math.hypot(px - ex, py - ey);
 
-      // Detection calculation
+      // Detection calculation scaled by difficulty vision multiplier
       const baseDetect = enemy.detectionRadius || (enemy.type === 'exit_guardian' ? 6.5 : (enemy.type === 'chaser' ? 5.5 : 4.5));
-      const detectRange = baseDetect * tileSize * stealthFactor;
+      const detectRange = baseDetect * diff.detectRangeMult * tileSize * stealthFactor;
       const inDirectVision = distToPlayer < detectRange;
 
       // 1. Hostile Alert Trigger & Swarm / Pack Beacon
       if (inDirectVision) {
         if (!enemy.isAlert || (enemy.aggroTimer || 0) <= 0) {
           enemy.isAlert = true;
-          enemy.aggroTimer = 8.0; // 8 seconds of relentless persistence!
+          enemy.aggroTimer = diff.aggroDuration; // Scaled to difficulty!
           enemy.lastKnownX = px;
           enemy.lastKnownY = py;
           sound.playAlert();
@@ -478,14 +540,14 @@ export class GameEngine {
           const alertIcon = enemy.type === 'exit_guardian' ? '👑 BOSS' : (enemy.type === 'chaser' ? '🐺 HUNTER' : '📡 SENTRY');
           this.addFloatingText(`🚨 ${alertIcon} TARGET LOCKED!`, ex, ey - 22, '#ff0844');
 
-          // Pack Hostility: Alert all nearby allies within 7.5 tiles!
+          // Pack Hostility: Alert nearby allies within difficulty pack radius
           for (const ally of this.world.enemies) {
             if (ally !== enemy && !ally.isStunned && (!ally.aggroTimer || ally.aggroTimer <= 0)) {
               const ax = ally.x * tileSize + tileSize / 2;
               const ay = ally.y * tileSize + tileSize / 2;
-              if (Math.hypot(ax - ex, ay - ey) < tileSize * 7.5) {
+              if (Math.hypot(ax - ex, ay - ey) < tileSize * diff.packAlertRadius) {
                 ally.isAlert = true;
-                ally.aggroTimer = 6.5;
+                ally.aggroTimer = diff.aggroDuration * 0.85;
                 ally.lastKnownX = px;
                 ally.lastKnownY = py;
                 this.addFloatingText('⚠️ REINFORCING!', ax, ay - 18, '#f59e0b');
@@ -494,7 +556,7 @@ export class GameEngine {
           }
         } else {
           // Keep persistence refreshed while in vision
-          enemy.aggroTimer = 8.0;
+          enemy.aggroTimer = diff.aggroDuration;
           enemy.lastKnownX = px;
           enemy.lastKnownY = py;
         }
@@ -507,8 +569,8 @@ export class GameEngine {
         // Player broke direct vision / ran away: persistence timer counts down
         if (!inDirectVision) {
           if (this.state.isStealth) {
-            // Stealth rapidly drops enemy aggro (active counterplay)
-            enemy.aggroTimer = (enemy.aggroTimer || 0) - dt * 2.8;
+            // Stealth rapidly drops enemy aggro (scaled counterplay)
+            enemy.aggroTimer = (enemy.aggroTimer || 0) - dt * diff.stealthEvadeRate;
             if (enemy.aggroTimer <= 0) {
               enemy.isAlert = false;
               enemy.aggroTimer = 0;
@@ -522,6 +584,16 @@ export class GameEngine {
               this.addFloatingText('❓ SEARCH ABANDONED', ex, ey - 18, '#94a3b8');
             }
           }
+
+          // Leash check: If enemy chased too far from post while out of vision, retreat!
+          const spawnX = (enemy.startX ?? enemy.x) * tileSize + tileSize / 2;
+          const spawnY = (enemy.startY ?? enemy.y) * tileSize + tileSize / 2;
+          const distFromSpawn = Math.hypot(spawnX - ex, spawnY - ey);
+          if (distFromSpawn > diff.leashDistance * tileSize) {
+            enemy.aggroTimer = 0;
+            enemy.isAlert = false;
+            this.addFloatingText('↩ RETURNING TO POST', ex, ey - 18, '#94a3b8');
+          }
         }
 
         // Pursue Target: Player if in direct vision, else last known position!
@@ -532,15 +604,15 @@ export class GameEngine {
         const distToTarget = Math.hypot(dirX, dirY);
 
         if (distToTarget > 6) {
-          // Hostile Speed Calculation with bursts
+          // Hostile Speed Calculation with bursts & difficulty scaling
           const baseSpeed = enemy.speed || (enemy.type === 'exit_guardian' ? 1.5 : (enemy.type === 'chaser' ? 1.45 : 1.3));
-          let hostileMult = enemy.type === 'exit_guardian' ? 1.7 : (enemy.type === 'chaser' ? 1.6 : 1.45);
+          let hostileMult = (enemy.type === 'exit_guardian' ? 1.4 : (enemy.type === 'chaser' ? 1.3 : 1.2)) * diff.speedMultiplier;
 
           // Periodic burst sprint
           enemy.burstTimer = (enemy.burstTimer || 0) + dt;
-          if (enemy.burstTimer > 3.2 && distToPlayer < tileSize * 4.5) {
-            hostileMult *= 1.35; // aggressive sprint lunge!
-            if (enemy.burstTimer > 3.8) {
+          if (enemy.burstTimer > diff.burstInterval && distToPlayer < tileSize * 4.5) {
+            hostileMult *= diff.burstSpeedMult;
+            if (enemy.burstTimer > diff.burstInterval + 0.6) {
               enemy.burstTimer = 0;
             }
           }
@@ -721,7 +793,7 @@ export class GameEngine {
           sound.playKey();
           this.addFloatingText(`🔑 KEY FOUND! +${totalVal}`, cx, cy - 10, '#f6d365');
         } else {
-          sound.playCollect();
+          sound.playCoinCollect();
           if (comboTier > 1) {
             this.addFloatingText(`🔥 x${comboTier} COMBO! +${totalVal}`, cx, cy - 12, '#ff9800');
           } else {
@@ -731,6 +803,36 @@ export class GameEngine {
 
         this.spawnBurstParticles(cx, cy, isKey ? '#ffd700' : '#00f2fe');
       }
+    }
+  }
+
+  private checkExitUnlockState() {
+    const required = this.world.objective.requiredItems || [];
+    const hasAllItems = required.every(
+      (itemId) => (this.state.collectedItems[itemId] || 0) > 0
+    );
+    const reqScore = this.world.objective.requiredScore || 0;
+    const hasReqScore = (this.state.levelScore !== undefined ? this.state.levelScore : this.state.score) >= reqScore;
+
+    const reqTerminals = this.world.objective.requiredTerminals || [];
+    const hasAllTerminals = reqTerminals.every((termId) => !!this.state.hackedTerminals[termId]);
+
+    const isUnlocked = hasAllItems && hasReqScore && hasAllTerminals;
+
+    if (isUnlocked && !this.isExitUnlocked) {
+      this.isExitUnlocked = true;
+      sound.playExitOpen();
+
+      const tileSize = this.world.map.tileSize;
+      const ex = this.world.exit.x * tileSize + tileSize / 2;
+      const ey = this.world.exit.y * tileSize + tileSize / 2;
+      this.spawnBurstParticles(ex, ey, '#43e97b');
+      this.spawnBurstParticles(ex, ey, '#f59e0b');
+      this.addFloatingText('🔓 EXIT DOOR UNLOCKED! ESCAPE NOW!', ex, ey - 24, '#43e97b');
+
+      const px = this.state.player.x + this.state.player.width / 2;
+      const py = this.state.player.y + this.state.player.height / 2;
+      this.addFloatingText('🔓 EXIT UNLOCKED!', px, py - 20, '#43e97b');
     }
   }
 
@@ -750,7 +852,7 @@ export class GameEngine {
         (itemId) => (this.state.collectedItems[itemId] || 0) > 0
       );
       const reqScore = this.world.objective.requiredScore || 0;
-      const hasReqScore = this.state.levelScore >= reqScore;
+      const hasReqScore = (this.state.levelScore !== undefined ? this.state.levelScore : this.state.score) >= reqScore;
 
       const reqTerminals = this.world.objective.requiredTerminals || [];
       const hasAllTerminals = reqTerminals.every((termId) => !!this.state.hackedTerminals[termId]);
@@ -825,6 +927,7 @@ export class GameEngine {
       this.state.currentLevel = nextLvlNum;
       this.state.nearbyInteractable = null;
       this.state.stunAmmo = this.state.maxStunAmmo;
+      this.isExitUnlocked = false;
 
       this.updateCamera();
       const px = this.state.player.x + playerWidth / 2;

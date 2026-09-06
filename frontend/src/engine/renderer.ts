@@ -1420,9 +1420,1127 @@ export class CanvasRenderer {
     const hasTerm = reqTerm.every((t) => !!state.hackedTerminals[t]);
 
     const isUnlocked = hasKey && hasScore && hasTerm;
-    const pulse = Math.sin(time * 4) * 3;
+    const theme = this.resolveExitTheme(world);
 
     ctx.save();
+
+    // Floor aura glow under door
+    const floorGlow = ctx.createRadialGradient(ex, ey, tileSize * 0.2, ex, ey, tileSize * 1.1);
+    if (isUnlocked) {
+      floorGlow.addColorStop(0, 'rgba(67, 233, 123, 0.45)');
+      floorGlow.addColorStop(0.6, 'rgba(16, 185, 129, 0.2)');
+      floorGlow.addColorStop(1, 'rgba(16, 185, 129, 0)');
+    } else {
+      floorGlow.addColorStop(0, 'rgba(239, 68, 68, 0.35)');
+      floorGlow.addColorStop(0.6, 'rgba(220, 38, 38, 0.15)');
+      floorGlow.addColorStop(1, 'rgba(220, 38, 38, 0)');
+    }
+    ctx.fillStyle = floorGlow;
+    ctx.beginPath();
+    ctx.arc(ex, ey, tileSize * 1.1, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Render theme-authentic custom door
+    switch (theme) {
+      case 'bank':
+        this.renderBankExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'hospital':
+        this.renderHospitalExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'railway':
+        this.renderRailwayExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'police':
+        this.renderPoliceExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'snow':
+        this.renderSnowExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'kitchen':
+        this.renderKitchenExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'airport':
+        this.renderAirportExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'haunted':
+        this.renderHauntedExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'cyberpunk':
+        this.renderCyberpunkExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'volcano':
+        this.renderVolcanoExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'desert':
+        this.renderDesertExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'ocean':
+        this.renderOceanExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'space':
+        this.renderSpaceExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'classroom':
+        this.renderClassroomExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'office':
+        this.renderOfficeExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'nature':
+        this.renderNatureExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'dungeon':
+        this.renderDungeonExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      default:
+        this.renderDefaultExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+    }
+
+    ctx.restore();
+  }
+
+  private resolveExitTheme(world: GameWorld): string {
+    const explicit = (world.map?.theme || (world as any).theme || '').toLowerCase().trim();
+    if (explicit && explicit !== 'default') return explicit;
+    const text = `${world.title || ''} ${world.description || ''}`.toLowerCase();
+    if (text.includes('bank') || text.includes('vault') || text.includes('heist') || text.includes('gold')) return 'bank';
+    if (text.includes('hospital') || text.includes('clinic') || text.includes('trauma') || text.includes('medical') || text.includes('ward')) return 'hospital';
+    if (text.includes('train') || text.includes('rail') || text.includes('station') || text.includes('metro') || text.includes('subway')) return 'railway';
+    if (text.includes('police') || text.includes('precinct') || text.includes('cop') || text.includes('jail') || text.includes('cell')) return 'police';
+    if (text.includes('snow') || text.includes('ice') || text.includes('arctic') || text.includes('frozen') || text.includes('glacier') || text.includes('blizzard') || text.includes('winter') || text.includes('penguin')) return 'snow';
+    if (text.includes('kitchen') || text.includes('cook') || text.includes('chef') || text.includes('restaurant') || text.includes('bakery') || text.includes('diner')) return 'kitchen';
+    if (text.includes('airport') || text.includes('flight') || text.includes('hangar') || text.includes('terminal') || text.includes('plane') || text.includes('jet')) return 'airport';
+    if (text.includes('haunted') || text.includes('ghost') || text.includes('spooky') || text.includes('mansion') || text.includes('cemetery') || text.includes('crypt')) return 'haunted';
+    if (text.includes('volcano') || text.includes('lava') || text.includes('magma') || text.includes('inferno') || text.includes('crater')) return 'volcano';
+    if (text.includes('desert') || text.includes('pyramid') || text.includes('dune') || text.includes('pharaoh') || text.includes('tomb') || text.includes('sand')) return 'desert';
+    if (text.includes('ocean') || text.includes('underwater') || text.includes('sea') || text.includes('sub') || text.includes('marine') || text.includes('coral') || text.includes('atlantis')) return 'ocean';
+    if (text.includes('space') || text.includes('star') || text.includes('galaxy') || text.includes('station') || text.includes('alien') || text.includes('orbit')) return 'space';
+    if (text.includes('classroom') || text.includes('school') || text.includes('academy') || text.includes('teacher') || text.includes('student')) return 'classroom';
+    if (text.includes('office') || text.includes('corporate') || text.includes('cubicle') || text.includes('firm') || text.includes('agency')) return 'office';
+    if (text.includes('nature') || text.includes('forest') || text.includes('jungle') || text.includes('grove') || text.includes('garden')) return 'nature';
+    if (text.includes('dungeon') || text.includes('castle') || text.includes('keep') || text.includes('fortress') || text.includes('catacomb')) return 'dungeon';
+    if (text.includes('cyber') || text.includes('neon') || text.includes('matrix') || text.includes('hacker') || text.includes('tech')) return 'cyberpunk';
+    return 'default';
+  }
+
+  private renderDoorBadge(ex: number, ey: number, tileSize: number, isUnlocked: boolean, label: string) {
+    const ctx = this.ctx;
+    const badgeY = ey - tileSize * 0.96;
+    const text = isUnlocked ? `🔓 ${label}` : `🔒 ${label}`;
+
+    ctx.font = 'bold 8px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    const metrics = ctx.measureText(text);
+    const bw = Math.max(76, metrics.width + 16);
+    const bh = 17;
+    const bx = ex - bw / 2;
+
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+    ctx.strokeStyle = isUnlocked ? '#10b981' : '#ef4444';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.rect(bx, badgeY, bw, bh);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = isUnlocked ? '#34d399' : '#f87171';
+    ctx.shadowColor = isUnlocked ? 'rgba(16, 185, 129, 0.8)' : 'rgba(239, 68, 68, 0.8)';
+    ctx.shadowBlur = 6;
+    ctx.fillText(text, ex, badgeY + 12);
+    ctx.shadowBlur = 0;
+  }
+
+  // 1. BANK: Heavy Circular Vault Door with Locking Bolts & Wheel
+  private renderBankExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const r = tileSize * 0.62;
+
+    // Outer gear frame with rivet studs
+    ctx.fillStyle = '#1e293b';
+    ctx.strokeStyle = isUnlocked ? '#10b981' : '#475569';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(ex, ey, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // 12 Perimeter heavy rivets
+    for (let i = 0; i < 12; i++) {
+      const angle = (i * Math.PI) / 6;
+      const rx = ex + Math.cos(angle) * (r - 4);
+      const ry = ey + Math.sin(angle) * (r - 4);
+      ctx.fillStyle = isUnlocked ? '#34d399' : '#94a3b8';
+      ctx.beginPath();
+      ctx.arc(rx, ry, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 4 Heavy Radial Deadbolts
+    const boltExt = isUnlocked ? 0 : 7;
+    for (let b = 0; b < 4; b++) {
+      const bAngle = (b * Math.PI) / 2;
+      const bx = ex + Math.cos(bAngle) * (r - 8);
+      const by = ey + Math.sin(bAngle) * (r - 8);
+      const bxEnd = ex + Math.cos(bAngle) * (r + boltExt);
+      const byEnd = ey + Math.sin(bAngle) * (r + boltExt);
+
+      ctx.strokeStyle = isUnlocked ? '#475569' : '#e2e8f0';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      ctx.lineTo(bxEnd, byEnd);
+      ctx.stroke();
+    }
+
+    // Vault Interior Portal (when unlocked, reveals golden chamber)
+    if (isUnlocked) {
+      const goldGlow = ctx.createRadialGradient(ex, ey, 2, ex, ey, r * 0.75);
+      goldGlow.addColorStop(0, '#fef08a');
+      goldGlow.addColorStop(0.5, '#ffd700');
+      goldGlow.addColorStop(1, '#b45309');
+      ctx.fillStyle = goldGlow;
+      ctx.beginPath();
+      ctx.arc(ex, ey, r * 0.72, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Gold sparkles
+      for (let s = 0; s < 5; s++) {
+        const sx = ex + Math.cos(time * 2 + s * 1.3) * (r * 0.45);
+        const sy = ey + Math.sin(time * 2.5 + s * 1.7) * (r * 0.45);
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(sx, sy, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else {
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(ex, ey, r * 0.72, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Central 4-spoke Turn Wheel
+    const wheelRot = isUnlocked ? time * 2.2 : 0;
+    ctx.strokeStyle = isUnlocked ? '#fef08a' : '#94a3b8';
+    ctx.lineWidth = 3;
+    for (let s = 0; s < 4; s++) {
+      const sa = wheelRot + (s * Math.PI) / 2;
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(ex + Math.cos(sa) * (r * 0.48), ey + Math.sin(sa) * (r * 0.48));
+      ctx.stroke();
+    }
+    ctx.fillStyle = isUnlocked ? '#10b981' : '#ef4444';
+    ctx.beginPath();
+    ctx.arc(ex, ey, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'VAULT');
+  }
+
+  // 2. HOSPITAL: Double Sliding Frosted Glass Doors with Emergency Cross
+  private renderHospitalExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.25;
+    const h = tileSize * 1.35;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+    const slide = isUnlocked ? tileSize * 0.32 : 0;
+
+    // Outer door jamb casing
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(x - 3, y - 4, w + 6, h + 6);
+
+    // Corridor interior behind doors (bright clinic lights)
+    ctx.fillStyle = isUnlocked ? '#e2e8f0' : '#0f172a';
+    ctx.fillRect(x, y, w, h);
+    if (isUnlocked) {
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
+      ctx.fillRect(x, y, w, h);
+    }
+
+    // Overhead Sensor Bar & Strobe Beacon
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(x - 4, y - 10, w + 8, 8);
+    const beaconPulse = Math.sin(time * 6) > 0;
+    ctx.fillStyle = isUnlocked ? '#10b981' : (beaconPulse ? '#ef4444' : '#7f1d1d');
+    ctx.beginPath();
+    ctx.arc(ex, y - 6, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Left Sliding Glass Door Leaf
+    const leafW = w / 2 - 2;
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.45)';
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2;
+    ctx.fillRect(x - slide, y, leafW, h);
+    ctx.strokeRect(x - slide, y, leafW, h);
+
+    // Right Sliding Glass Door Leaf
+    ctx.fillRect(ex + 2 + slide, y, leafW, h);
+    ctx.strokeRect(ex + 2 + slide, y, leafW, h);
+
+    // Medical Cross Icon
+    const crossX = isUnlocked ? ex : ex;
+    const crossY = ey;
+    const arm = 9;
+    const thick = 4.5;
+    ctx.fillStyle = isUnlocked ? '#10b981' : '#ef4444';
+    // Horizontal arm
+    ctx.fillRect(crossX - arm, crossY - thick / 2, arm * 2, thick);
+    // Vertical arm
+    ctx.fillRect(crossX - thick / 2, crossY - arm, thick, arm * 2);
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'HOSPITAL');
+  }
+
+  // 3. RAILWAY: Metro Turnstile Gate & Illuminated Subway Tunnel
+  private renderRailwayExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.3;
+    const h = tileSize * 1.35;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+
+    // Tunnel Arch Background
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.arc(ex, y + h * 0.45, w * 0.5, Math.PI, 0);
+    ctx.lineTo(x + w, y + h);
+    ctx.lineTo(x, y + h);
+    ctx.closePath();
+    ctx.fill();
+
+    // Track Rails
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(ex - 12, y + h * 0.3);
+    ctx.lineTo(ex - 16, y + h);
+    ctx.moveTo(ex + 12, y + h * 0.3);
+    ctx.lineTo(ex + 16, y + h);
+    ctx.stroke();
+
+    // Sleepers (Ties)
+    ctx.strokeStyle = '#78350f';
+    ctx.lineWidth = 2.5;
+    for (let i = 0; i < 3; i++) {
+      const sy = y + h * 0.45 + i * 11;
+      ctx.beginPath();
+      ctx.moveTo(ex - 18, sy);
+      ctx.lineTo(ex + 18, sy);
+      ctx.stroke();
+    }
+
+    if (isUnlocked) {
+      // Illuminated Train Headlights in the Tunnel
+      const trainGlow = ctx.createRadialGradient(ex, y + h * 0.4, 2, ex, y + h * 0.4, 22);
+      trainGlow.addColorStop(0, '#fef08a');
+      trainGlow.addColorStop(0.5, 'rgba(254, 240, 138, 0.4)');
+      trainGlow.addColorStop(1, 'rgba(254, 240, 138, 0)');
+      ctx.fillStyle = trainGlow;
+      ctx.beginPath();
+      ctx.arc(ex, y + h * 0.4, 22, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(ex - 7, y + h * 0.4, 3, 0, Math.PI * 2);
+      ctx.arc(ex + 7, y + h * 0.4, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Turnstile Stanchions
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(x, y + h * 0.35, 9, h * 0.65);
+    ctx.fillRect(x + w - 9, y + h * 0.35, 9, h * 0.65);
+
+    // Turnstile Barrier Paddle
+    if (!isUnlocked) {
+      ctx.strokeStyle = '#f97316';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(x + 9, y + h * 0.65);
+      ctx.lineTo(ex, y + h * 0.72);
+      ctx.moveTo(x + w - 9, y + h * 0.65);
+      ctx.lineTo(ex, y + h * 0.72);
+      ctx.stroke();
+    }
+
+    // Signal Light
+    ctx.fillStyle = isUnlocked ? '#10b981' : '#ef4444';
+    ctx.beginPath();
+    ctx.arc(ex, y + 4, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'METRO');
+  }
+
+  // 4. POLICE: Reinforced Precinct Cell Gate with Strobe Siren
+  private renderPoliceExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.25;
+    const h = tileSize * 1.35;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+    const lift = isUnlocked ? tileSize * 0.42 : 0;
+
+    // Dark Cell Frame
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(x - 3, y - 4, w + 6, h + 6);
+
+    // Cell Interior (warm light if unlocked)
+    ctx.fillStyle = isUnlocked ? '#fef3c7' : '#090d16';
+    ctx.fillRect(x, y, w, h);
+
+    // Alternating Police Siren Bar
+    const isBlueStrobe = Math.sin(time * 10) > 0;
+    ctx.fillStyle = isBlueStrobe ? '#3b82f6' : '#1e3a8a';
+    ctx.fillRect(ex - 14, y - 10, 12, 6);
+    ctx.fillStyle = !isBlueStrobe ? '#ef4444' : '#7f1d1d';
+    ctx.fillRect(ex + 2, y - 10, 12, 6);
+
+    // Rebar Bars
+    const barCount = 5;
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 3;
+    for (let b = 1; b <= barCount; b++) {
+      const bx = x + (w / (barCount + 1)) * b;
+      ctx.beginPath();
+      ctx.moveTo(bx, y - lift);
+      ctx.lineTo(bx, y + h - lift);
+      ctx.stroke();
+    }
+
+    // Padlock in center
+    if (!isUnlocked) {
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(ex - 6, ey - 4, 12, 10);
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(ex, ey - 4, 5, Math.PI, 0);
+      ctx.stroke();
+    }
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'PRECINCT');
+  }
+
+  // 5. SNOW: Glacial Ice Cavern Arch with Aurora Borealis Borehole
+  private renderSnowExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const r = tileSize * 0.62;
+
+    // Icy cavern outer stones
+    ctx.fillStyle = '#0369a1';
+    ctx.strokeStyle = '#7dd3fc';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(ex, ey, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Hanging Icicles
+    ctx.fillStyle = '#e0f2fe';
+    for (let ic = -3; ic <= 3; ic++) {
+      const ix = ex + ic * 7;
+      const iy = ey - r + 3;
+      ctx.beginPath();
+      ctx.moveTo(ix - 3, iy);
+      ctx.lineTo(ix + 3, iy);
+      ctx.lineTo(ix, iy + 9);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (isUnlocked) {
+      // Swirling Aurora Portal
+      const auroraRot = time * 2;
+      const aurora = ctx.createRadialGradient(ex, ey, 2, ex, ey, r * 0.72);
+      aurora.addColorStop(0, '#ffffff');
+      aurora.addColorStop(0.35, '#38bdf8');
+      aurora.addColorStop(0.7, '#a855f7');
+      aurora.addColorStop(1, '#0284c7');
+      ctx.fillStyle = aurora;
+      ctx.beginPath();
+      ctx.arc(ex, ey, r * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Rotating aurora spiral arms
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.lineWidth = 2;
+      for (let arm = 0; arm < 3; arm++) {
+        const a = auroraRot + (arm * Math.PI * 2) / 3;
+        ctx.beginPath();
+        ctx.arc(ex, ey, r * 0.45, a, a + 1.2);
+        ctx.stroke();
+      }
+    } else {
+      // Frozen Ice Wall
+      ctx.fillStyle = '#0284c7';
+      ctx.beginPath();
+      ctx.arc(ex, ey, r * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Frost fracture cracks
+      ctx.strokeStyle = '#bae6fd';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(ex - 12, ey - 8);
+      ctx.lineTo(ex, ey);
+      ctx.lineTo(ex + 10, ey - 10);
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(ex + 4, ey + 12);
+      ctx.stroke();
+    }
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'GLACIER');
+  }
+
+  // 6. KITCHEN: Restaurant Stainless Steel Push Doors with Portholes
+  private renderKitchenExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.25;
+    const h = tileSize * 1.35;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+    const openGap = isUnlocked ? tileSize * 0.3 : 0;
+
+    // Wood / Stainless Frame
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(x - 3, y - 4, w + 6, h + 6);
+
+    // Warm Kitchen interior behind doors
+    ctx.fillStyle = isUnlocked ? '#fef3c7' : '#0f172a';
+    ctx.fillRect(x, y, w, h);
+
+    if (isUnlocked) {
+      // Golden culinary glow
+      const glow = ctx.createRadialGradient(ex, ey, 2, ex, ey, w * 0.6);
+      glow.addColorStop(0, '#f59e0b');
+      glow.addColorStop(1, 'rgba(245, 158, 11, 0.15)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(x, y, w, h);
+
+      // Steam plumes
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      for (let st = 0; st < 3; st++) {
+        const sx = ex - 8 + st * 8 + Math.sin(time * 3 + st) * 3;
+        const sy = y + h * 0.35 - (st * 4);
+        ctx.beginPath();
+        ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Left Stainless Door Leaf
+    const leafW = w / 2 - 1;
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(x - openGap, y, leafW, h);
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(x - openGap, y, leafW, h);
+
+    // Right Stainless Door Leaf
+    ctx.fillRect(ex + 1 + openGap, y, leafW, h);
+    ctx.strokeRect(ex + 1 + openGap, y, leafW, h);
+
+    // Circular Porthole Windows
+    ctx.fillStyle = isUnlocked ? '#fef08a' : '#1e293b';
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x + leafW * 0.5 - openGap, ey - 4, 6, 0, Math.PI * 2);
+    ctx.arc(ex + 1 + openGap + leafW * 0.5, ey - 4, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Brass Push-Plates
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(x + leafW * 0.2 - openGap, ey + 10, leafW * 0.6, 5);
+    ctx.fillRect(ex + 1 + openGap + leafW * 0.2, ey + 10, leafW * 0.6, 5);
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'PANTRY');
+  }
+
+  // 7. AIRPORT: Jetway Boarding Gate with Skybridge Scanner
+  private renderAirportExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.25;
+    const h = tileSize * 1.35;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+    const slide = isUnlocked ? tileSize * 0.28 : 0;
+
+    // Modern White Gate Casing
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(x - 3, y - 4, w + 6, h + 6);
+    ctx.fillStyle = isUnlocked ? '#0284c7' : '#0f172a';
+    ctx.fillRect(x, y, w, h);
+
+    if (isUnlocked) {
+      // Runway blue lights visible in skybridge
+      for (let r = 0; r < 4; r++) {
+        const rx = ex - 10 + (r % 2) * 20;
+        const ry = y + h * 0.35 + Math.floor(r / 2) * 14;
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(rx, ry, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Sliding Glass Panels
+    const panelW = w / 2 - 2;
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.4)';
+    ctx.fillRect(x - slide, y, panelW, h);
+    ctx.fillRect(ex + 2 + slide, y, panelW, h);
+
+    // Laser Barricade (when locked)
+    if (!isUnlocked) {
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#ef4444';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(x, ey);
+      ctx.lineTo(x + w, ey);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    // Boarding Kiosk Scanner
+    ctx.fillStyle = isUnlocked ? '#10b981' : '#f59e0b';
+    ctx.fillRect(x - 5, y + h * 0.55, 4, 12);
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'GATE 12A');
+  }
+
+  // 8. HAUNTED: Spiked Gothic Portcullis & Gargoyle Crypt Arch
+  private renderHauntedExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.25;
+    const h = tileSize * 1.35;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+    const lift = isUnlocked ? tileSize * 0.45 : 0;
+
+    // Stone Archway
+    ctx.fillStyle = '#1e1b4b';
+    ctx.fillRect(x - 3, y - 4, w + 6, h + 6);
+    ctx.fillStyle = isUnlocked ? '#064e3b' : '#030712';
+    ctx.fillRect(x, y, w, h);
+
+    if (isUnlocked) {
+      // Eerie Emerald Mist
+      const mistGlow = ctx.createRadialGradient(ex, ey, 2, ex, ey, w * 0.6);
+      mistGlow.addColorStop(0, 'rgba(52, 211, 153, 0.6)');
+      mistGlow.addColorStop(1, 'rgba(16, 185, 129, 0)');
+      ctx.fillStyle = mistGlow;
+      ctx.fillRect(x, y, w, h);
+    }
+
+    // Spiked Portcullis Lattice
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2.5;
+    // Vertical spiked bars
+    for (let b = 1; b <= 4; b++) {
+      const bx = x + (w / 5) * b;
+      ctx.beginPath();
+      ctx.moveTo(bx, y - lift);
+      ctx.lineTo(bx, y + h - 6 - lift);
+      // Spike tip
+      ctx.lineTo(bx, y + h - lift);
+      ctx.stroke();
+    }
+    // Horizontal crossbars
+    for (let hb = 1; hb <= 3; hb++) {
+      const hby = y + (h / 4) * hb - lift;
+      ctx.beginPath();
+      ctx.moveTo(x, hby);
+      ctx.lineTo(x + w, hby);
+      ctx.stroke();
+    }
+
+    // Glowing Gargoyle Skull Kept at Lintel
+    ctx.fillStyle = isUnlocked ? '#10b981' : '#a855f7';
+    ctx.beginPath();
+    ctx.arc(ex, y + 2, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'CRYPT');
+  }
+
+  // 9. CYBERPUNK: Holographic Hex-Shield & Matrix Airlock
+  private renderCyberpunkExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const r = tileSize * 0.62;
+
+    // Carbon Frame
+    ctx.fillStyle = '#030712';
+    ctx.strokeStyle = isUnlocked ? '#00f2fe' : '#f43f5e';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(ex, ey, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    if (isUnlocked) {
+      // Hyperspace Quantum Vortex
+      const vortex = ctx.createRadialGradient(ex, ey, 2, ex, ey, r * 0.8);
+      vortex.addColorStop(0, '#ffffff');
+      vortex.addColorStop(0.4, '#00f2fe');
+      vortex.addColorStop(0.8, '#8b5cf6');
+      vortex.addColorStop(1, '#0284c7');
+      ctx.fillStyle = vortex;
+      ctx.beginPath();
+      ctx.arc(ex, ey, r * 0.75, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Pulsing Neon Rings
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      const pulseR = (time * 18) % (r * 0.65);
+      ctx.beginPath();
+      ctx.arc(ex, ey, pulseR, 0, Math.PI * 2);
+      ctx.stroke();
+    } else {
+      // Red Holographic Hex Grid Barrier
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.18)';
+      ctx.beginPath();
+      ctx.arc(ex, ey, r * 0.75, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Horizontal Laser Scanline
+      const scanY = ey + Math.sin(time * 5) * (r * 0.6);
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#f43f5e';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(ex - r * 0.6, scanY);
+      ctx.lineTo(ex + r * 0.6, scanY);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'AIRLOCK');
+  }
+
+  // 10. VOLCANO: Obsidian Pillars & Parted Magma Waterfall Gate
+  private renderVolcanoExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.25;
+    const h = tileSize * 1.35;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+
+    // Dark Basalt Pillars
+    ctx.fillStyle = '#18181b';
+    ctx.fillRect(x - 4, y - 4, 8, h + 8);
+    ctx.fillRect(x + w - 4, y - 4, 8, h + 8);
+
+    if (isUnlocked) {
+      // Cooled Stepped Obsidian Passage with glowing orange embers
+      ctx.fillStyle = '#27272a';
+      ctx.fillRect(x + 4, y, w - 8, h);
+
+      ctx.fillStyle = '#ea580c';
+      for (let em = 0; em < 5; em++) {
+        const exx = ex - 10 + Math.sin(time * 3 + em) * 12;
+        const eyy = y + h * 0.2 + em * 7;
+        ctx.beginPath();
+        ctx.arc(exx, eyy, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else {
+      // Boiling Magma Curtain
+      const magma = ctx.createLinearGradient(ex, y, ex, y + h);
+      magma.addColorStop(0, '#fef08a');
+      magma.addColorStop(0.3, '#ea580c');
+      magma.addColorStop(1, '#dc2626');
+      ctx.fillStyle = magma;
+      ctx.fillRect(x + 4, y, w - 8, h);
+
+      // Bubbles
+      ctx.fillStyle = '#ffffff';
+      for (let b = 0; b < 4; b++) {
+        const bx = ex - 8 + b * 5 + Math.sin(time * 6 + b) * 2;
+        const by = y + h * 0.7 + Math.cos(time * 5 + b) * 4;
+        ctx.beginPath();
+        ctx.arc(bx, by, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'MAGMA');
+  }
+
+  // 11. DESERT: Pharaoh Tomb Pylon & Golden Scarab Arch
+  private renderDesertExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.3;
+    const h = tileSize * 1.35;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+
+    // Sandstone Sloping Pylon Pillars
+    ctx.fillStyle = '#d97706';
+    ctx.beginPath();
+    ctx.moveTo(x, y + h);
+    ctx.lineTo(x + 4, y);
+    ctx.lineTo(x + 12, y);
+    ctx.lineTo(x + 16, y + h);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(x + w, y + h);
+    ctx.lineTo(x + w - 4, y);
+    ctx.lineTo(x + w - 12, y);
+    ctx.lineTo(x + w - 16, y + h);
+    ctx.closePath();
+    ctx.fill();
+
+    // Central Chamber
+    if (isUnlocked) {
+      // Golden Treasury Interior
+      const gold = ctx.createRadialGradient(ex, ey, 2, ex, ey, w * 0.55);
+      gold.addColorStop(0, '#fef08a');
+      gold.addColorStop(0.6, '#ffd700');
+      gold.addColorStop(1, '#92400e');
+      ctx.fillStyle = gold;
+      ctx.fillRect(x + 12, y + 6, w - 24, h - 6);
+    } else {
+      // Sealed Inscribed Slab
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(x + 12, y + 6, w - 24, h - 6);
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x + 14, y + 8, w - 28, h - 10);
+    }
+
+    // Golden Winged Scarab Disc at Lintel
+    ctx.fillStyle = isUnlocked ? '#ffd700' : '#b45309';
+    ctx.beginPath();
+    ctx.arc(ex, y + 4, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'TOMB');
+  }
+
+  // 12. OCEAN: Watertight Submarine Bulkhead Pressure Hatch
+  private renderOceanExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const r = tileSize * 0.62;
+
+    // Bronze Outer Bulkhead Ring
+    ctx.fillStyle = '#78350f';
+    ctx.strokeStyle = isUnlocked ? '#0284c7' : '#d97706';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(ex, ey, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // 8 Marine Studs
+    for (let i = 0; i < 8; i++) {
+      const a = (i * Math.PI) / 4;
+      ctx.fillStyle = '#fde68a';
+      ctx.beginPath();
+      ctx.arc(ex + Math.cos(a) * (r - 4), ey + Math.sin(a) * (r - 4), 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (isUnlocked) {
+      // Deep Ocean Turquoise Water
+      const water = ctx.createRadialGradient(ex, ey, 2, ex, ey, r * 0.7);
+      water.addColorStop(0, '#bae6fd');
+      water.addColorStop(0.5, '#0284c7');
+      water.addColorStop(1, '#075985');
+      ctx.fillStyle = water;
+      ctx.beginPath();
+      ctx.arc(ex, ey, r * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Rising bubbles
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      for (let bb = 0; bb < 4; bb++) {
+        const bx = ex - 6 + bb * 4 + Math.sin(time * 4 + bb) * 2;
+        const by = ey + 8 - ((time * 15 + bb * 8) % (r * 0.9));
+        ctx.beginPath();
+        ctx.arc(bx, by, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else {
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.arc(ex, ey, r * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Heavy 6-spoke Brass Turning Wheel
+    const wheelRot = isUnlocked ? time * 2 : 0;
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2.5;
+    for (let s = 0; s < 6; s++) {
+      const sa = wheelRot + (s * Math.PI) / 3;
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(ex + Math.cos(sa) * (r * 0.45), ey + Math.sin(sa) * (r * 0.45));
+      ctx.stroke();
+    }
+    ctx.fillStyle = isUnlocked ? '#10b981' : '#ef4444';
+    ctx.beginPath();
+    ctx.arc(ex, ey, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'HATCH');
+  }
+
+  // 13. SPACE: Starship Hydraulic Blast Doors with Hazard Chevrons
+  private renderSpaceExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.25;
+    const h = tileSize * 1.35;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+    const slide = isUnlocked ? tileSize * 0.32 : 0;
+
+    // Titanium Casing with Hazard Chevrons
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(x - 4, y - 4, w + 8, h + 8);
+
+    // Hazard Stripes on frame
+    ctx.fillStyle = '#eab308';
+    for (let hz = 0; hz < 4; hz++) {
+      ctx.fillRect(x - 4, y + hz * 12, 4, 6);
+      ctx.fillRect(x + w, y + hz * 12, 4, 6);
+    }
+
+    // Cosmic Portal Background
+    ctx.fillStyle = isUnlocked ? '#020617' : '#090d16';
+    ctx.fillRect(x, y, w, h);
+
+    if (isUnlocked) {
+      // Starfield dots
+      for (let st = 0; st < 6; st++) {
+        const sx = x + 4 + (st * 7) % (w - 8);
+        const sy = y + 4 + (st * 9) % (h - 8);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(sx, sy, 2, 2);
+      }
+    }
+
+    // Heavy Blast Plates
+    const plateW = w / 2 - 1;
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(x - slide, y, plateW, h);
+    ctx.fillRect(ex + 1 + slide, y, plateW, h);
+
+    // Hydraulic Pistons
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(x - slide + 4, y + 4, 4, 8);
+    ctx.fillRect(ex + 1 + slide + plateW - 8, y + 4, 4, 8);
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'AIRLOCK');
+  }
+
+  // 14. CLASSROOM: Oak Hallway Double Doors with Chalkboard Header
+  private renderClassroomExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.25;
+    const h = tileSize * 1.35;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+    const openGap = isUnlocked ? tileSize * 0.3 : 0;
+
+    // Frame
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(x - 3, y - 4, w + 6, h + 6);
+
+    // Courtyard sunshine behind doors
+    ctx.fillStyle = isUnlocked ? '#fef08a' : '#1e1b4b';
+    ctx.fillRect(x, y, w, h);
+
+    // Left Oak Door
+    const dw = w / 2 - 1;
+    ctx.fillStyle = '#92400e';
+    ctx.fillRect(x - openGap, y, dw, h);
+    ctx.strokeRect(x - openGap, y, dw, h);
+
+    // Right Oak Door
+    ctx.fillRect(ex + 1 + openGap, y, dw, h);
+    ctx.strokeRect(ex + 1 + openGap, y, dw, h);
+
+    // Wire-Glass Panes
+    ctx.fillStyle = 'rgba(254, 240, 138, 0.4)';
+    ctx.fillRect(x + 4 - openGap, y + 6, dw - 8, 14);
+    ctx.fillRect(ex + 5 + openGap, y + 6, dw - 8, 14);
+
+    // Brass Push-Bars
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(x + 4 - openGap, ey + 4, dw - 8, 4);
+    ctx.fillRect(ex + 5 + openGap, ey + 4, dw - 8, 4);
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'DISMISSAL');
+  }
+
+  // 15. OFFICE: Corporate Frosted Glass Suite Doors
+  private renderOfficeExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.25;
+    const h = tileSize * 1.35;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+    const slide = isUnlocked ? tileSize * 0.28 : 0;
+
+    // Aluminum Frame
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(x - 3, y - 4, w + 6, h + 6);
+
+    // Lobby interior
+    ctx.fillStyle = isUnlocked ? '#e2e8f0' : '#0f172a';
+    ctx.fillRect(x, y, w, h);
+
+    // Frosted Glass Panels
+    const pw = w / 2 - 2;
+    ctx.fillStyle = 'rgba(203, 213, 225, 0.55)';
+    ctx.fillRect(x - slide, y, pw, h);
+    ctx.fillRect(ex + 2 + slide, y, pw, h);
+
+    // Vertical Chrome Handles
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(ex - 4 - slide, ey - 10, 2.5, 20);
+    ctx.fillRect(ex + 2 + slide, ey - 10, 2.5, 20);
+
+    // Wall RFID Card Reader
+    ctx.fillStyle = isUnlocked ? '#10b981' : '#ef4444';
+    ctx.beginPath();
+    ctx.arc(x - 5, ey, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'SUITE');
+  }
+
+  // 16. NATURE: Ancient Mossy Tree Root Archway & Floral Grove
+  private renderNatureExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const r = tileSize * 0.62;
+
+    // Twisted Root Arch
+    ctx.fillStyle = '#451a03';
+    ctx.strokeStyle = '#15803d';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.arc(ex, ey, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    if (isUnlocked) {
+      // Sunlit Meadow Opening
+      const meadow = ctx.createRadialGradient(ex, ey, 2, ex, ey, r * 0.72);
+      meadow.addColorStop(0, '#fef08a');
+      meadow.addColorStop(0.5, '#86efac');
+      meadow.addColorStop(1, '#15803d');
+      ctx.fillStyle = meadow;
+      ctx.beginPath();
+      ctx.arc(ex, ey, r * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Fireflies
+      ctx.fillStyle = '#ffffff';
+      for (let f = 0; f < 4; f++) {
+        const fx = ex + Math.cos(time * 3 + f * 1.5) * (r * 0.4);
+        const fy = ey + Math.sin(time * 3 + f * 1.8) * (r * 0.4);
+        ctx.beginPath();
+        ctx.arc(fx, fy, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else {
+      // Thorny Brambles blocking entry
+      ctx.fillStyle = '#292524';
+      ctx.beginPath();
+      ctx.arc(ex, ey, r * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#713f12';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(ex - r * 0.5, ey - r * 0.3);
+      ctx.lineTo(ex + r * 0.5, ey + r * 0.3);
+      ctx.moveTo(ex - r * 0.5, ey + r * 0.3);
+      ctx.lineTo(ex + r * 0.5, ey - r * 0.3);
+      ctx.stroke();
+
+      // Red thorns
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(ex, ey, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'GROVE');
+  }
+
+  // 17. DUNGEON: Castle Iron-Banded Fortress Gate with Torches
+  private renderDungeonExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.25;
+    const h = tileSize * 1.35;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+    const openGap = isUnlocked ? tileSize * 0.32 : 0;
+
+    // Stone Frame
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(x - 4, y - 4, w + 8, h + 8);
+
+    // Stairway to freedom behind gates
+    ctx.fillStyle = isUnlocked ? '#38bdf8' : '#0c0a09';
+    ctx.fillRect(x, y, w, h);
+
+    // Left Gate Leaf
+    const leafW = w / 2 - 1;
+    ctx.fillStyle = '#44403c';
+    ctx.fillRect(x - openGap, y, leafW, h);
+
+    // Right Gate Leaf
+    ctx.fillRect(ex + 1 + openGap, y, leafW, h);
+
+    // Iron Banding
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(x - openGap, y + 6, leafW, 4);
+    ctx.fillRect(x - openGap, y + h - 10, leafW, 4);
+    ctx.fillRect(ex + 1 + openGap, y + 6, leafW, 4);
+    ctx.fillRect(ex + 1 + openGap, y + h - 10, leafW, 4);
+
+    // Massive Crossbeam (when locked)
+    if (!isUnlocked) {
+      ctx.fillStyle = '#78350f';
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1.5;
+      ctx.fillRect(x + 4, ey - 4, w - 8, 8);
+      ctx.strokeRect(x + 4, ey - 4, w - 8, 8);
+    }
+
+    // Torch on wall sconce
+    const flameY = y + 4 + Math.sin(time * 8) * 1.5;
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    ctx.arc(x - 5, flameY, 3, 0, Math.PI * 2);
+    ctx.arc(x + w + 5, flameY, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'GATE');
+  }
+
+  // 18. DEFAULT: Sci-Fi Quantum Energy Gate
+  private renderDefaultExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const pulse = Math.sin(time * 4) * 3;
 
     // Portal Floor Rings
     ctx.strokeStyle = isUnlocked ? '#43e97b' : '#ff0844';
@@ -1436,13 +2554,7 @@ export class CanvasRenderer {
     ctx.arc(ex, ey, tileSize * 0.65, 0, Math.PI * 2);
     ctx.fill();
 
-    // Portal Core Icon
-    ctx.fillStyle = isUnlocked ? '#43e97b' : '#ff0844';
-    ctx.font = 'bold 9px "Press Start 2P", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(isUnlocked ? 'EXIT' : 'LOCKED', ex, ey - tileSize * 0.9);
-
-    ctx.restore();
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'PORTAL');
   }
 
   private renderCollectibles(world: GameWorld, tileSize: number, time: number) {
