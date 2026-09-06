@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { GameWorld, EngineState } from '../types/game';
+import { GameWorld, EngineState, Difficulty } from '../types/game';
 import { GameEngine } from '../engine/GameEngine';
 import { HUD } from './HUD';
 import { DialogueBox } from './DialogueBox';
@@ -23,7 +23,7 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
   const [engineState, setEngineState] = useState<EngineState | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showComicPrologue, setShowComicPrologue] = useState(false);
+  const [showComicPrologue, setShowComicPrologue] = useState(true);
   const [isWon, setIsWon] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [gameOverReason, setGameOverReason] = useState('');
@@ -88,7 +88,19 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
     };
   }, [initEngine]);
 
-  const handleStartPlay = () => {
+  const handleStartPlay = (selectedDifficulty?: Difficulty) => {
+    if (selectedDifficulty) {
+      world.difficulty = selectedDifficulty;
+      if (selectedDifficulty === 'easy') {
+        world.timeLimit = (world.timeLimit || 90) + 25;
+      } else if (selectedDifficulty === 'hard') {
+        world.timeLimit = Math.min(world.timeLimit || 90, 50);
+      } else if (selectedDifficulty === 'nightmare') {
+        world.timeLimit = Math.min(world.timeLimit || 90, 35);
+      }
+      initEngine();
+    }
+    setShowComicPrologue(false);
     setIsPlaying(true);
     if (engineRef.current) {
       engineRef.current.start();
@@ -175,24 +187,21 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
         />
       )}
 
-      {/* Game Ready Modal (Start Screen) */}
+      {/* Game Ready Modal (Start Screen fallback if comic closed without launch) */}
       {!isPlaying && isReady && !showComicPrologue && (
         <GameStartModal
           world={world}
-          onPlay={() => setShowComicPrologue(true)}
+          onPlay={(diff) => handleStartPlay(diff)}
           onViewComic={() => setShowComicPrologue(true)}
         />
       )}
 
-      {/* Comic Origin Story Prologue Cutscene */}
+      {/* Comic Origin Story Prologue Cutscene - Compulsory on First Launch */}
       {!isPlaying && showComicPrologue && (
         <ComicPrologueModal
           world={world}
-          onStartGame={() => {
-            setShowComicPrologue(false);
-            handleStartPlay();
-          }}
-          onClose={() => setShowComicPrologue(false)}
+          onStartGame={(diff) => handleStartPlay(diff)}
+          onClose={() => handleStartPlay()}
         />
       )}
 

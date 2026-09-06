@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { GameWorld } from '../types/game';
+import { GameWorld, Difficulty } from '../types/game';
 import { generateComicStory, ComicStory, ComicPanel, ComicCaptionCardData } from '../utils/comicStoryGenerator';
 import { sound } from '../engine/sound';
 import { ComicIllustration } from './ComicIllustration';
@@ -7,7 +7,6 @@ import {
   Play,
   ChevronRight,
   ChevronLeft,
-  FastForward,
   BookOpen,
   Layers,
   Volume2,
@@ -22,7 +21,7 @@ import {
 
 interface ComicPrologueModalProps {
   world: GameWorld;
-  onStartGame: () => void;
+  onStartGame: (difficulty?: Difficulty) => void;
   onClose?: () => void;
   userImageUrl?: string;
 }
@@ -34,6 +33,7 @@ export const ComicPrologueModal: React.FC<ComicPrologueModalProps> = ({
   userImageUrl,
 }) => {
   const story: ComicStory = useMemo(() => generateComicStory(world), [world]);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(world.difficulty || 'medium');
   const [currentBeatIndex, setCurrentBeatIndex] = useState<number>(0);
   const [isPageView, setIsPageView] = useState<boolean>(true); // Default to Page View (matches reference image!)
   const [soundMuted, setSoundMuted] = useState<boolean>(false);
@@ -63,7 +63,7 @@ export const ComicPrologueModal: React.FC<ComicPrologueModalProps> = ({
     if (!soundMuted) {
       sound.playComicPunch();
     }
-    onStartGame();
+    onStartGame(selectedDifficulty);
   };
 
   const handleSFXClick = () => {
@@ -216,29 +216,40 @@ export const ComicPrologueModal: React.FC<ComicPrologueModalProps> = ({
             {isPageView ? 'PAGE VIEW' : 'BEATS VIEW'}
           </button>
 
-          {/* Fast Skip to Game */}
+          {/* Small Subtle Skip Button */}
           <button
             type="button"
             onClick={handleLaunch}
             style={{
-              background: 'linear-gradient(135deg, #e11d48 0%, #f97316 100%)',
-              border: '1.5px solid #000000',
-              boxShadow: '3px 3px 0 #000000',
-              borderRadius: '4px',
-              padding: '6px 14px',
-              color: '#ffffff',
+              background: 'transparent',
+              border: '1px solid rgba(255, 255, 255, 0.22)',
+              borderRadius: '16px',
+              padding: '4px 10px',
+              color: '#94a3b8',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              fontSize: '12px',
-              fontWeight: 900,
-              fontFamily: '"Bangers", cursive, sans-serif',
-              letterSpacing: '1px',
-              transform: 'skew(-3deg)',
+              gap: '4px',
+              fontSize: '11px',
+              fontWeight: 600,
+              fontFamily: '"Chakra Petch", sans-serif',
+              letterSpacing: '0.5px',
+              transition: 'all 0.15s ease',
             }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#ffffff';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#94a3b8';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.22)';
+              e.currentTarget.style.background = 'transparent';
+            }}
+            title="Skip prologue and enter sector immediately"
           >
-            <FastForward size={14} /> SKIP
+            <span>Skip prologue</span>
+            <ChevronRight size={12} />
           </button>
         </div>
       </div>
@@ -482,37 +493,95 @@ export const ComicPrologueModal: React.FC<ComicPrologueModalProps> = ({
           </div>
         )}
 
-        {/* Big Action Button: START GAME / LEAP OF FAITH */}
-        <button
-          type="button"
-          onClick={handleLaunch}
-          style={{
-            background: 'linear-gradient(90deg, #00f2fe 0%, #e11d48 100%)',
-            color: '#000000',
-            border: '2.5px solid #000000',
-            boxShadow: '4px 4px 0 #000000, 0 0 24px rgba(0, 242, 254, 0.6)',
-            borderRadius: '6px',
-            padding: '10px 28px',
-            fontSize: '14px',
-            fontWeight: 900,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontFamily: '"Bangers", cursive, sans-serif',
-            letterSpacing: '1.5px',
-            transform: 'skew(-3deg)',
-            transition: 'transform 0.15s, box-shadow 0.15s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'skew(-3deg) scale(1.04)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'skew(-3deg) scale(1)';
-          }}
-        >
-          <Play size={16} fill="#000000" /> LEAP OF FAITH // ENTER SECTOR
-        </button>
+        {/* Right side: Difficulty Selector Pills + Action Button */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Difficulty / Challenge Selector */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'rgba(0, 0, 0, 0.65)',
+              padding: '4px 8px',
+              borderRadius: '6px',
+              border: '1.5px solid #1e293b',
+            }}
+          >
+            <span style={{ fontSize: '10px', fontWeight: 800, color: '#94a3b8', letterSpacing: '0.8px', marginRight: '2px' }}>
+              CHALLENGE:
+            </span>
+            {(['easy', 'medium', 'hard', 'nightmare'] as Difficulty[]).map((diff) => {
+              const isSelected = selectedDifficulty === diff;
+              const colors: Record<Difficulty, string> = {
+                easy: '#22c55e',
+                medium: '#eab308',
+                hard: '#f97316',
+                nightmare: '#ef4444',
+              };
+              const labels: Record<Difficulty, string> = {
+                easy: '🟢 EASY',
+                medium: '🟡 MED',
+                hard: '🔴 HARD',
+                nightmare: '💀 NIGHTMARE',
+              };
+              return (
+                <button
+                  key={diff}
+                  type="button"
+                  onClick={() => setSelectedDifficulty(diff)}
+                  style={{
+                    background: isSelected ? colors[diff] : 'transparent',
+                    color: isSelected ? '#000000' : '#cbd5e1',
+                    border: `1.5px solid ${isSelected ? colors[diff] : 'rgba(255, 255, 255, 0.15)'}`,
+                    borderRadius: '4px',
+                    padding: '4px 8px',
+                    fontSize: '10px',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    fontFamily: '"Chakra Petch", sans-serif',
+                    letterSpacing: '0.5px',
+                    boxShadow: isSelected ? `0 0 10px ${colors[diff]}66` : 'none',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {labels[diff]}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Big Action Button: START GAME / LEAP OF FAITH */}
+          <button
+            type="button"
+            onClick={handleLaunch}
+            style={{
+              background: 'linear-gradient(90deg, #00f2fe 0%, #e11d48 100%)',
+              color: '#000000',
+              border: '2.5px solid #000000',
+              boxShadow: '4px 4px 0 #000000, 0 0 24px rgba(0, 242, 254, 0.6)',
+              borderRadius: '6px',
+              padding: '10px 24px',
+              fontSize: '14px',
+              fontWeight: 900,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontFamily: '"Bangers", cursive, sans-serif',
+              letterSpacing: '1.5px',
+              transform: 'skew(-3deg)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'skew(-3deg) scale(1.04)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'skew(-3deg) scale(1)';
+            }}
+          >
+            <Play size={16} fill="#000000" /> LEAP OF FAITH // ENTER SECTOR
+          </button>
+        </div>
       </div>
     </div>
   );
