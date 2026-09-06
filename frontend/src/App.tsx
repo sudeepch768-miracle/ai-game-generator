@@ -23,7 +23,8 @@ import {
   DEMO_NATURE,
   DEMO_OFFICE
 } from './demoGames';
-import { GameWorld, CustomGameSettings } from './types/game';
+import { GameWorld, CustomGameSettings, Difficulty } from './types/game';
+import { RecommendationItem } from './data/recommendations';
 
 type AppView = 'landing' | 'upload' | 'game';
 
@@ -34,6 +35,13 @@ export const App: React.FC = () => {
   const [previewUrl, setPreviewUrl] = useState<string | undefined>();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
+  const [initialCreationPreset, setInitialCreationPreset] = useState<{
+    sampleId?: string;
+    prompt?: string;
+    theme?: string;
+    difficulty?: Difficulty;
+    previewUrl?: string;
+  } | undefined>(undefined);
   React.useEffect(() => {
     // Optional stored user API key
   }, []);
@@ -69,6 +77,22 @@ export const App: React.FC = () => {
     setSelectedFile(null);
     setSelectedSampleId(undefined);
     setPreviewUrl(undefined);
+    setInitialCreationPreset(undefined);
+    setGameSessionId(Date.now());
+    setView('upload');
+  };
+
+  const handleCreateWithPreset = (rec: RecommendationItem) => {
+    setSelectedFile(null);
+    setSelectedSampleId(rec.id);
+    setPreviewUrl(rec.sampleUrl);
+    setInitialCreationPreset({
+      sampleId: rec.id,
+      prompt: rec.title,
+      theme: rec.theme || rec.id,
+      difficulty: rec.suggestedDifficulty,
+      previewUrl: rec.sampleUrl,
+    });
     setGameSessionId(Date.now());
     setView('upload');
   };
@@ -77,6 +101,7 @@ export const App: React.FC = () => {
     setSelectedFile(null);
     setSelectedSampleId(undefined);
     setPreviewUrl(undefined);
+    setInitialCreationPreset(undefined);
     setGameSessionId(Date.now());
     setView('landing');
   };
@@ -448,6 +473,7 @@ export const App: React.FC = () => {
         <LandingPage
           onCreateGame={handleCreateNew}
           onPlayDemo={handlePlayDemo}
+          onCreateWithPreset={handleCreateWithPreset}
           onOpenShop={() => setShowShopModal(true)}
         />
       )}
@@ -460,6 +486,7 @@ export const App: React.FC = () => {
             onGenerate={handleGenerateGame}
             onCancel={handleExitToMenu}
             isLoading={isGenerating}
+            initialPreset={initialCreationPreset}
           />
         </div>
       )}

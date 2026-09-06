@@ -5,7 +5,6 @@ import {
   Key,
   Shield,
   Sliders,
-  Lightbulb,
   ArrowRight,
   Ghost,
   Building2,
@@ -22,122 +21,28 @@ interface ImageUploaderProps {
   ) => void;
   onCancel: () => void;
   isLoading: boolean;
+  initialPreset?: {
+    sampleId?: string;
+    prompt?: string;
+    theme?: string;
+    difficulty?: Difficulty;
+    previewUrl?: string;
+  };
 }
-
-const RECOMMENDATIONS = [
-  {
-    id: 'hospital',
-    icon: '🏥',
-    title: 'Emergency Trauma Center',
-    tag: 'HOSPITAL WARD HEIST',
-    theme: 'hospital',
-    promptIdea: 'Photo of a hospital ward, patient beds, vitals monitors, surgical lamps',
-    desc: 'Infiltrate trauma wards, evade the Chief Medical Inspector & orderly patrols, and gather medical kits!',
-    sampleUrl: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600&auto=format&fit=crop&q=80',
-    suggestedDifficulty: 'medium' as Difficulty,
-  },
-  {
-    id: 'railway',
-    icon: '🚆',
-    title: 'Metro Transit Station',
-    tag: 'TRANSIT HEIST',
-    theme: 'railway',
-    promptIdea: 'Photo of a train station, metro platform, tracks, turnstiles',
-    desc: 'Bypass transit turnstiles, ticket kiosks, and train tracks guarded by transit security marshalls!',
-    sampleUrl: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=600&auto=format&fit=crop&q=80',
-    suggestedDifficulty: 'medium' as Difficulty,
-  },
-  {
-    id: 'police',
-    icon: '🚨',
-    title: 'Police Precinct 9',
-    tag: 'PRECINCT LOCKDOWN',
-    theme: 'police',
-    promptIdea: 'Photo of a police station, holding cells, booking desk, flashing beacons',
-    desc: 'Bypass police constables with flashing shoulder strobes, unlock holding cells, and seize evidence dossiers!',
-    sampleUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&auto=format&fit=crop&q=80',
-    suggestedDifficulty: 'hard' as Difficulty,
-  },
-  {
-    id: 'snow',
-    icon: '❄️',
-    title: 'Frost Mountain Glacier',
-    tag: 'ARCTIC EXPEDITION',
-    theme: 'snow',
-    promptIdea: 'Photo of snow-capped mountains, glacial ice floes, penguin colonies',
-    desc: 'Trek across frozen crevasses, meet adorable waddling emperor penguins, and evade territorial frost yetis!',
-    sampleUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&auto=format&fit=crop&q=80',
-    suggestedDifficulty: 'medium' as Difficulty,
-  },
-  {
-    id: 'bank',
-    icon: '🏦',
-    title: 'Bank Vault Heist',
-    tag: 'HIGH-SECURITY HEIST',
-    theme: 'bank',
-    promptIdea: 'Photo of a bank vault, reinforced doors, security cameras',
-    desc: 'Infiltrate massive 4-spoke bank vault blast doors, collect gold bullion ingots and cash stacks!',
-    sampleUrl: 'https://images.unsplash.com/photo-1501167786227-4cba60f6d58f?w=600&auto=format&fit=crop&q=80',
-    suggestedDifficulty: 'nightmare' as Difficulty,
-  },
-  {
-    id: 'desk',
-    icon: '☕',
-    title: 'Messy Office Desk',
-    tag: 'PUZZLE LABYRINTH',
-    theme: 'office',
-    promptIdea: 'Photo of a desk with laptop, mugs, books, and cables',
-    desc: 'Mugs and notebooks turn into towering wall barriers, pens into barricades, and your mouse into the power terminal!',
-    sampleUrl: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=600&auto=format&fit=crop&q=80',
-    suggestedDifficulty: 'medium' as Difficulty,
-  },
-  {
-    id: 'living_room',
-    icon: '🛋️',
-    title: 'Living Room "Floor Is Lava"',
-    tag: 'SURVIVAL RUN',
-    theme: 'nature',
-    promptIdea: 'Photo of couch, coffee table, rug, TV unit',
-    desc: 'Furniture becomes high-ground stepping stones while robotic vacuum drones patrol the perilous floor tiles!',
-    sampleUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=80',
-    suggestedDifficulty: 'hard' as Difficulty,
-  },
-  {
-    id: 'cyber',
-    icon: '💻',
-    title: 'Cyber Server Lockdown',
-    tag: 'HIGH-TECH HEIST',
-    theme: 'cyberpunk',
-    promptIdea: 'Photo of server racks, cables, and monitors',
-    desc: 'Terminal arrays become impenetrable clusters guarded by high-voltage security patrol drones!',
-    sampleUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&auto=format&fit=crop&q=80',
-    suggestedDifficulty: 'nightmare' as Difficulty,
-  },
-  {
-    id: 'classroom',
-    icon: '🎓',
-    title: 'Auditorium Lockdown',
-    tag: 'CLASSIC ESCAPE',
-    theme: 'classroom',
-    promptIdea: 'Photo of lecture hall or classroom',
-    desc: 'Rows of student desks create natural maze paths. Speak to the professor and escape before the bell!',
-    sampleUrl: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&auto=format&fit=crop&q=80',
-    suggestedDifficulty: 'easy' as Difficulty,
-  },
-];
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
   onImageSelected,
   onGenerate,
   onCancel,
   isLoading,
+  initialPreset,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [selectedSample, setSelectedSample] = useState<string | null>(null);
-  const [customPrompt, setCustomPrompt] = useState<string>('');
-  const [selectedTheme, setSelectedTheme] = useState<string>('');
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialPreset?.previewUrl || null);
+  const [selectedSample, setSelectedSample] = useState<string | null>(initialPreset?.sampleId || null);
+  const [customPrompt, setCustomPrompt] = useState<string>(initialPreset?.prompt || '');
+  const [selectedTheme, setSelectedTheme] = useState<string>(initialPreset?.theme || '');
 
   // Default to user's saved Gemini key if available
   const [apiKey, setApiKey] = useState<string>(
@@ -189,16 +94,6 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     setSelectedTheme('');
     if (fileInputRef.current) fileInputRef.current.value = '';
     onImageSelected(null, undefined);
-  };
-
-  const handleSelectRecommendation = (rec: typeof RECOMMENDATIONS[0]) => {
-    setSelectedFile(null);
-    setSelectedSample(rec.id);
-    setPreviewUrl(rec.sampleUrl);
-    setDifficulty(rec.suggestedDifficulty);
-    setSelectedTheme(rec.theme || rec.id);
-    setCustomPrompt(rec.title);
-    onImageSelected(null, rec.id);
   };
 
   const handleSaveApiKey = (key: string) => {
@@ -408,76 +303,6 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             </span>
           </div>
         )}
-      </div>
-
-      {/* RECOMMENDATIONS & CREATIVE IDEAS */}
-      <div style={{ marginBottom: '20px' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          fontSize: '13px',
-          fontWeight: 700,
-          color: '#f6d365',
-          marginBottom: '10px',
-        }}>
-          <Lightbulb size={16} /> RECOMMENDATIONS & WHAT YOU CAN CREATE (CLICK TO LOAD):
-        </div>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-          gap: '8px',
-        }}>
-          {RECOMMENDATIONS.map((rec) => {
-            const isSelected = selectedSample === rec.id;
-            return (
-              <div
-                key={rec.id}
-                onClick={() => handleSelectRecommendation(rec)}
-                style={{
-                  borderRadius: '12px',
-                  border: `2px solid ${isSelected ? '#00f2fe' : 'rgba(255, 255, 255, 0.1)'}`,
-                  background: isSelected ? 'rgba(0, 242, 254, 0.16)' : 'rgba(255, 255, 255, 0.04)',
-                  padding: '10px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isSelected) e.currentTarget.style.borderColor = 'rgba(0, 242, 254, 0.6)';
-                }}
-                onMouseLeave={(e) => {
-                  if (!isSelected) e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '18px' }}>{rec.icon}</span>
-                    <span style={{
-                      fontSize: '8px',
-                      fontWeight: 700,
-                      color: rec.suggestedDifficulty === 'nightmare' ? '#ff0844' : '#ffd700',
-                      background: 'rgba(0,0,0,0.4)',
-                      padding: '2px 5px',
-                      borderRadius: '6px',
-                    }}>
-                      {rec.suggestedDifficulty.toUpperCase()}
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: isSelected ? '#00f2fe' : '#ffffff', marginBottom: '2px' }}>
-                    {rec.title}
-                  </div>
-                  <div style={{ fontSize: '9px', color: '#94a3b8', lineHeight: '1.2' }}>
-                    {rec.desc}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
 
       {/* DIFFICULTY SELECTION */}

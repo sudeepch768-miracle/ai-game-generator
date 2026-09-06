@@ -1,16 +1,47 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Camera, Gamepad2, Sparkles, Zap, Play, Shield, Compass, Shirt } from 'lucide-react';
-import { ALL_DEMO_GAMES, DEMO_HAUNTED } from '../demoGames';
+import {
+  ALL_DEMO_GAMES,
+  DEMO_HAUNTED,
+  DEMO_HOSPITAL,
+  DEMO_RAILWAY,
+  DEMO_POLICE,
+  DEMO_SNOW,
+  DEMO_BANK,
+  DEMO_KITCHEN,
+  DEMO_AIRPORT,
+  DEMO_CYBER,
+  DEMO_CLASSROOM,
+  DEMO_VOLCANO,
+  DEMO_DESERT,
+} from '../demoGames';
+import { RECOMMENDATIONS, RecommendationItem } from '../data/recommendations';
 import { GameWorld } from '../types/game';
 import { getGemBalance } from '../types/avatar';
+
+const DEMO_MAP: Record<string, GameWorld> = {
+  DEMO_HOSPITAL,
+  DEMO_RAILWAY,
+  DEMO_POLICE,
+  DEMO_SNOW,
+  DEMO_BANK,
+  DEMO_KITCHEN,
+  DEMO_AIRPORT,
+  DEMO_CYBER,
+  DEMO_HAUNTED,
+  DEMO_CLASSROOM,
+  DEMO_VOLCANO,
+  DEMO_DESERT,
+};
 
 interface LandingPageProps {
   onCreateGame: () => void;
   onPlayDemo: (game: GameWorld) => void;
+  onCreateWithPreset?: (rec: RecommendationItem) => void;
   onOpenShop?: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDemo, onOpenShop }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDemo, onCreateWithPreset, onOpenShop }) => {
   const miniCanvasRef = useRef<HTMLCanvasElement>(null);
   const [gemCount, setGemCount] = useState<number>(0);
 
@@ -330,6 +361,150 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           <Gamepad2 size={20} />
           🎮 QUICK PLAY DEMO
         </button>
+      </div>
+
+      {/* RECOMMENDATIONS & CREATIVE IDEAS (ONLY ON HOMEPAGE) */}
+      <div style={{ maxWidth: '980px', width: '100%', marginBottom: '44px' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          fontSize: '13px',
+          fontWeight: 700,
+          color: '#f6d365',
+          marginBottom: '16px',
+          letterSpacing: '1px',
+        }}>
+          <Sparkles size={16} color="#f6d365" /> RECOMMENDED THEMES & WHAT YOU CAN CREATE:
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '14px',
+        }}>
+          {RECOMMENDATIONS.map((rec) => (
+            <div
+              key={rec.id}
+              style={{
+                background: 'rgba(15, 23, 42, 0.85)',
+                border: '1px solid rgba(0, 242, 254, 0.25)',
+                borderRadius: '16px',
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-3px)';
+                e.currentTarget.style.borderColor = '#00f2fe';
+                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0, 242, 254, 0.25)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(0, 242, 254, 0.25)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '24px' }}>{rec.icon}</span>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <span style={{
+                      fontSize: '9px',
+                      fontWeight: 800,
+                      color: rec.suggestedDifficulty === 'nightmare' ? '#ff0844' : (rec.suggestedDifficulty === 'hard' ? '#f59e0b' : '#43e97b'),
+                      background: 'rgba(0, 0, 0, 0.5)',
+                      padding: '3px 7px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                    }}>
+                      {rec.suggestedDifficulty.toUpperCase()}
+                    </span>
+                    <span style={{
+                      fontSize: '9px',
+                      fontWeight: 700,
+                      color: '#00f2fe',
+                      background: 'rgba(0, 242, 254, 0.1)',
+                      padding: '3px 7px',
+                      borderRadius: '8px',
+                    }}>
+                      {rec.tag}
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ fontSize: '15px', fontWeight: 800, color: '#ffffff', marginBottom: '6px' }}>
+                  {rec.title}
+                </div>
+
+                <div style={{ fontSize: '12px', color: '#94a3b8', lineHeight: '1.4', marginBottom: '10px' }}>
+                  {rec.desc}
+                </div>
+
+                <div style={{
+                  fontSize: '11px',
+                  color: '#e2e8f0',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  padding: '6px 10px',
+                  borderRadius: '8px',
+                  fontStyle: 'italic',
+                  marginBottom: '12px',
+                }}>
+                  💡 {rec.promptIdea}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => onCreateWithPreset && onCreateWithPreset(rec)}
+                  style={{
+                    flex: 1,
+                    background: 'linear-gradient(90deg, #ff007f, #7928ca)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '10px',
+                    padding: '9px 12px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '5px',
+                    boxShadow: '0 4px 12px rgba(255, 0, 127, 0.3)',
+                  }}
+                >
+                  <Sparkles size={13} /> Create with Idea
+                </button>
+
+                {DEMO_MAP[rec.demoGameKey] && (
+                  <button
+                    onClick={() => onPlayDemo(DEMO_MAP[rec.demoGameKey])}
+                    style={{
+                      background: 'rgba(67, 233, 123, 0.15)',
+                      color: '#43e97b',
+                      border: '1px solid #43e97b',
+                      borderRadius: '10px',
+                      padding: '9px 12px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '5px',
+                    }}
+                  >
+                    <Play size={12} fill="#43e97b" /> Quick Play
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Quick Launch Pre-Baked Worlds */}
