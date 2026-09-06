@@ -833,6 +833,97 @@ class SoundManager {
       osc.stop(t + 0.19);
     });
   }
+
+  playComicPageTurn() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const filter = this.ctx.createBiquadFilter();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(320, now);
+    osc.frequency.exponentialRampToValueAtTime(140, now + 0.14);
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(1800, now);
+    filter.frequency.exponentialRampToValueAtTime(400, now + 0.14);
+
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.sfxGain || this.ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.15);
+  }
+
+  playComicPunch() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    // Low sub thump
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(220, now);
+    osc.frequency.exponentialRampToValueAtTime(50, now + 0.22);
+
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain || this.ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.23);
+
+    // Punch snap high crackle
+    const snap = this.ctx.createOscillator();
+    const snapGain = this.ctx.createGain();
+    snap.type = 'square';
+    snap.frequency.setValueAtTime(800, now);
+    snap.frequency.exponentialRampToValueAtTime(120, now + 0.08);
+
+    snapGain.gain.setValueAtTime(0.15, now);
+    snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+    snap.connect(snapGain);
+    snapGain.connect(this.sfxGain || this.ctx.destination);
+
+    snap.start(now);
+    snap.stop(now + 0.09);
+  }
+
+  playComicBlip() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(520 + Math.random() * 180, now);
+
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain || this.ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.06);
+  }
 }
 
 export const sound = new SoundManager();

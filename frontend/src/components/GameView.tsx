@@ -6,6 +6,7 @@ import { DialogueBox } from './DialogueBox';
 import { GameStartModal } from './GameStartModal';
 import { GameOverModal } from './GameOverModal';
 import { AvatarShopModal } from './AvatarShopModal';
+import { ComicPrologueModal } from './ComicPrologueModal';
 import { sound } from '../engine/sound';
 
 interface GameViewProps {
@@ -22,6 +23,7 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
   const [engineState, setEngineState] = useState<EngineState | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showComicPrologue, setShowComicPrologue] = useState(false);
   const [isWon, setIsWon] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [gameOverReason, setGameOverReason] = useState('');
@@ -98,6 +100,7 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
     setIsWon(false);
     setIsGameOver(false);
     setIsPlaying(false);
+    setShowComicPrologue(false);
     setShowShop(false);
     initEngine();
   };
@@ -173,8 +176,24 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
       )}
 
       {/* Game Ready Modal (Start Screen) */}
-      {!isPlaying && isReady && (
-        <GameStartModal world={world} onPlay={handleStartPlay} />
+      {!isPlaying && isReady && !showComicPrologue && (
+        <GameStartModal
+          world={world}
+          onPlay={() => setShowComicPrologue(true)}
+          onViewComic={() => setShowComicPrologue(true)}
+        />
+      )}
+
+      {/* Comic Origin Story Prologue Cutscene */}
+      {!isPlaying && showComicPrologue && (
+        <ComicPrologueModal
+          world={world}
+          onStartGame={() => {
+            setShowComicPrologue(false);
+            handleStartPlay();
+          }}
+          onClose={() => setShowComicPrologue(false)}
+        />
       )}
 
       {/* Win Screen / Game Over Screen */}
