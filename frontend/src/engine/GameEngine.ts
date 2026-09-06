@@ -81,6 +81,14 @@ export class GameEngine {
   public onWin?: (score: number, timeLeft: number) => void;
   public onLose?: (reason: string, score: number) => void;
 
+  public getStartingHealthForWorld(world: GameWorld): number {
+    const diff = (world.difficulty || 'medium').toLowerCase();
+    if (diff === 'nightmare') return 1;
+    if (diff === 'hard') return 2;
+    if (diff === 'easy') return 4;
+    return 3;
+  }
+
   constructor(
     canvas: HTMLCanvasElement,
     world: GameWorld,
@@ -99,16 +107,13 @@ export class GameEngine {
     const playerWidth = tileSize * 0.7;
     const playerHeight = tileSize * 0.7;
 
-    let startingHealth = 3;
+    const startingHealth = this.getStartingHealthForWorld(world);
     let initialTime = world.timeLimit || 90;
     if (world.difficulty === 'nightmare') {
-      startingHealth = 1;
       initialTime = Math.min(initialTime, 45);
     } else if (world.difficulty === 'hard') {
-      startingHealth = 2;
       initialTime = Math.min(initialTime, 65);
     } else if (world.difficulty === 'easy') {
-      startingHealth = 4;
       initialTime = initialTime + 30;
     }
 
@@ -929,10 +934,17 @@ export class GameEngine {
       this.state.stunAmmo = this.state.maxStunAmmo;
       this.isExitUnlocked = false;
 
+      // Lives reset for every level
+      const levelStartingHealth = this.getStartingHealthForWorld(this.world);
+      this.state.health = levelStartingHealth;
+      this.state.maxHealth = levelStartingHealth;
+
       this.updateCamera();
       const px = this.state.player.x + playerWidth / 2;
       const py = this.state.player.y + playerHeight / 2;
       this.addFloatingText(`🚀 LEVEL ${nextLvlNum} / ${this.state.maxLevels}: ${this.world.title}`, px, py - 30, '#00f2fe');
+      this.addFloatingText(`❤️ LIVES RESTORED! (${levelStartingHealth}/${levelStartingHealth})`, px, py - 48, '#ff007f');
+      this.spawnBurstParticles(px, py, '#ff007f');
 
       if (this.world.npcs && this.world.npcs.length > 0) {
         const npc = this.world.npcs[0];
