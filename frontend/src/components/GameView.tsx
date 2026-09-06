@@ -94,6 +94,7 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
   };
 
   const handleRestart = () => {
+    sound.stopBGM(0.1);
     setIsWon(false);
     setIsGameOver(false);
     setIsPlaying(false);
@@ -111,6 +112,12 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
     const next = !soundEnabled;
     setSoundEnabled(next);
     sound.enabled = next;
+    sound.bgmEnabled = next;
+    if (next) {
+      sound.resumeBGM();
+    } else {
+      sound.pauseBGM();
+    }
   };
 
   const handleDismissDialogue = () => {

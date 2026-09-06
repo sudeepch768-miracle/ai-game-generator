@@ -106,6 +106,7 @@ export class GameEngine {
     this.isRunning = true;
     this.input.attach();
     this.lastTime = performance.now();
+    sound.startBGM(this.world.map?.theme || 'default');
     this.loop = this.loop.bind(this);
     this.animFrameId = requestAnimationFrame(this.loop);
   }
@@ -113,16 +114,31 @@ export class GameEngine {
   stop() {
     this.isRunning = false;
     this.input.detach();
+    sound.stopBGM(0.3);
     cancelAnimationFrame(this.animFrameId);
   }
 
   togglePause() {
-    this.state.isPaused = !this.state.isPaused;
+    this.setPaused(!this.state.isPaused);
+  }
+
+  setPaused(paused: boolean) {
+    this.state.isPaused = paused;
+    if (paused) {
+      sound.pauseBGM();
+    } else {
+      sound.resumeBGM();
+    }
     this.notifyState();
   }
 
   setMuted(muted: boolean) {
     sound.enabled = !muted;
+    if (muted) {
+      sound.pauseBGM();
+    } else {
+      sound.resumeBGM();
+    }
   }
 
   closeDialogue() {
@@ -822,6 +838,7 @@ export class GameEngine {
           text: npc.dialogue,
         };
       }
+      sound.startBGM(this.world.map?.theme || 'default');
     } else {
       this.triggerWin();
     }
@@ -980,11 +997,6 @@ export class GameEngine {
     if (ctx) {
       this.renderer = new CanvasRenderer(ctx, width, height);
     }
-  }
-
-  public setPaused(paused: boolean) {
-    this.state.isPaused = paused;
-    this.notifyState();
   }
 
   public dismissDialogue() {

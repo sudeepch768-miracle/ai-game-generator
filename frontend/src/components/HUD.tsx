@@ -254,22 +254,27 @@ export const HUD: React.FC<HUDProps> = ({
             </span>
           </div>
 
-          {/* Sound Toggle */}
+          {/* Sound & Music Toggle */}
           <button
             onClick={onToggleSound}
-            title={soundEnabled ? 'Mute Sound' : 'Enable Sound'}
+            title={soundEnabled ? 'Mute Background Music & Sound Effects' : 'Enable Background Music & Sound Effects'}
             style={{
-              background: 'transparent',
-              border: 'none',
-              color: soundEnabled ? '#00f2fe' : '#64748b',
+              background: soundEnabled ? 'rgba(0, 242, 254, 0.12)' : 'rgba(239, 68, 68, 0.15)',
+              border: `1px solid ${soundEnabled ? 'rgba(0, 242, 254, 0.4)' : 'rgba(239, 68, 68, 0.4)'}`,
+              color: soundEnabled ? '#00f2fe' : '#ef4444',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              padding: '4px',
-              borderRadius: '6px',
+              gap: '5px',
+              padding: '4px 8px',
+              borderRadius: '8px',
+              fontSize: '11px',
+              fontWeight: 700,
+              transition: 'all 0.15s ease',
             }}
           >
-            {soundEnabled ? <Volume2 size={17} /> : <VolumeX size={17} />}
+            {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+            <span>{soundEnabled ? '🎵 MUSIC ON' : 'MUTED'}</span>
           </button>
 
           {/* Pause Button */}
