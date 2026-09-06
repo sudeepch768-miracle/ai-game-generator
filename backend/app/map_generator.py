@@ -864,12 +864,23 @@ def generate_procedural_level(
                     )
                 )
 
-    # 9. THEMATIC ENEMIES: Large in number, highly hostile, relentless persistence!
+    # 9. THEMATIC ENEMIES: Scaled to chosen difficulty and level
     enemies: List[Enemy] = []
 
-    diff_mult = 0.85 if difficulty == "easy" else (1.25 if difficulty == "nightmare" else (1.15 if difficulty == "hard" else 1.0))
+    if difficulty == "easy":
+        diff_mult = 0.60
+        detect_mult = 0.65
+    elif difficulty == "medium":
+        diff_mult = 0.80
+        detect_mult = 0.85
+    elif difficulty == "hard":
+        diff_mult = 1.00
+        detect_mult = 1.00
+    else:  # nightmare
+        diff_mult = 1.20
+        detect_mult = 1.15
 
-    # 🚨 EXIT GUARDIAN (Stationed directly guarding the exit portal!)
+    # 🚨 EXIT GUARDIAN (Stationed directly guarding the exit portal)
     guardian_x = max(2, min(mw - 3, ex - 2 if ex > 4 else ex + 2))
     guardian_y = ey
     enemies.append(
@@ -880,8 +891,8 @@ def generate_procedural_level(
             x=guardian_x,
             y=guardian_y,
             patrolRange=3,
-            speed=round(1.5 * diff_mult, 2),
-            detectionRadius=6.5,
+            speed=round(1.10 * diff_mult, 2),
+            detectionRadius=round(5.5 * detect_mult, 1),
             isAlert=False,
             spriteTheme=theme_cfg.get("guardian_sprite", "monster"),
             bodyShape=theme_cfg.get("guardian_shape", "golem_titan"),
@@ -892,13 +903,15 @@ def generate_procedural_level(
         )
     )
 
-    # Chaser Enemies (Larger in number: 3 in L1, 4-5 in L2, 6-7 in L3)
+    # Chaser Enemies: balanced count per difficulty and level
     if difficulty == "easy":
+        chaser_count = 1 if level_num == 1 else (1 if level_num == 2 else 2)
+    elif difficulty == "medium":
+        chaser_count = 1 if level_num == 1 else (2 if level_num == 2 else 2)
+    elif difficulty == "hard":
+        chaser_count = 2 if level_num == 1 else (2 if level_num == 2 else 3)
+    else:  # nightmare
         chaser_count = 2 if level_num == 1 else (3 if level_num == 2 else 4)
-    elif difficulty in ("hard", "nightmare"):
-        chaser_count = 4 if level_num == 1 else (6 if level_num == 2 else 7)
-    else:
-        chaser_count = 3 if level_num == 1 else (4 if level_num == 2 else 6)
 
     # Candidate rooms for chasers (excluding spawn room to avoid immediate unfair hits)
     chaser_rooms = [r for r in (key_rooms + middle_rooms + rooms) if r.tag != "spawn"]
@@ -919,8 +932,8 @@ def generate_procedural_level(
                 x=cx,
                 y=cy,
                 patrolRange=5,
-                speed=round(1.45 * diff_mult, 2),
-                detectionRadius=5.5,
+                speed=round(1.00 * diff_mult, 2),
+                detectionRadius=round(4.8 * detect_mult, 1),
                 isAlert=False,
                 spriteTheme=theme_cfg.get("chaser_sprite", "monster"),
                 bodyShape=theme_cfg.get("chaser_shape", "quadruped_beast"),
@@ -929,13 +942,15 @@ def generate_procedural_level(
             )
         )
 
-    # Patrol Scouts / Sentries along corridors & choke points (Larger in number: 3 in L1, 4 in L2, 5 in L3)
+    # Patrol Scouts / Sentries along corridors (fewer enemies to allow tactical maneuvering)
     if difficulty == "easy":
-        patrol_count = 2 if level_num == 1 else (3 if level_num == 2 else 4)
-    elif difficulty in ("hard", "nightmare"):
-        patrol_count = 4 if level_num == 1 else (5 if level_num == 2 else 6)
-    else:
-        patrol_count = 3 if level_num == 1 else (4 if level_num == 2 else 5)
+        patrol_count = 0 if level_num == 1 else (1 if level_num == 2 else 1)
+    elif difficulty == "medium":
+        patrol_count = 1 if level_num == 1 else (1 if level_num == 2 else 2)
+    elif difficulty == "hard":
+        patrol_count = 1 if level_num == 1 else (2 if level_num == 2 else 2)
+    else:  # nightmare
+        patrol_count = 2 if level_num == 1 else (2 if level_num == 2 else 3)
 
     walkable_coords = []
     for wy in range(2, mh - 2):
@@ -957,8 +972,8 @@ def generate_procedural_level(
                 x=p_pos[0],
                 y=p_pos[1],
                 patrolRange=5,
-                speed=round(1.3 * diff_mult, 2),
-                detectionRadius=4.5,
+                speed=round(0.85 * diff_mult, 2),
+                detectionRadius=round(3.8 * detect_mult, 1),
                 isAlert=False,
                 spriteTheme=theme_cfg.get("patrol_sprite", "laser"),
                 bodyShape=theme_cfg.get("patrol_shape", "mechanical_turret"),
@@ -967,9 +982,16 @@ def generate_procedural_level(
             )
         )
 
-    # 10. BALANCED HIGH SCORE QUOTAS (Requires finding ~85% of map collectibles)
-    score_thresholds = {1: 130, 2: 170, 3: 200}
-    req_score = score_thresholds.get(level_num, 130)
+    # 10. FAIR SCORE QUOTAS SCALED TO DIFFICULTY
+    if difficulty == "easy":
+        score_thresholds = {1: 80, 2: 100, 3: 120}
+    elif difficulty == "medium":
+        score_thresholds = {1: 100, 2: 130, 3: 150}
+    elif difficulty == "hard":
+        score_thresholds = {1: 120, 2: 150, 3: 180}
+    else:  # nightmare
+        score_thresholds = {1: 140, 2: 170, 3: 200}
+    req_score = score_thresholds.get(level_num, 100)
 
     obj_parts = [f"Score {req_score}+ pts"]
     if required_items:
@@ -987,8 +1009,8 @@ def generate_procedural_level(
         description=obj_desc
     )
 
-    time_limits = {"easy": 140, "medium": 110, "hard": 85, "nightmare": 60}
-    time_limit = time_limits.get(difficulty, 110)
+    time_limits = {"easy": 160, "medium": 120, "hard": 90, "nightmare": 70}
+    time_limit = time_limits.get(difficulty, 120)
 
     # NPC Guide in spawn room
     guide_names = {

@@ -92,12 +92,33 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
     if (selectedDifficulty) {
       world.difficulty = selectedDifficulty;
       if (selectedDifficulty === 'easy') {
-        world.timeLimit = (world.timeLimit || 90) + 25;
+        world.timeLimit = Math.max(world.timeLimit || 90, 140);
+        if (world.objective && world.objective.requiredScore && world.objective.requiredScore > 100) {
+          world.objective.requiredScore = 80;
+        }
+      } else if (selectedDifficulty === 'medium') {
+        world.timeLimit = Math.max(world.timeLimit || 90, 110);
       } else if (selectedDifficulty === 'hard') {
-        world.timeLimit = Math.min(world.timeLimit || 90, 50);
+        world.timeLimit = Math.min(world.timeLimit || 90, 65);
       } else if (selectedDifficulty === 'nightmare') {
-        world.timeLimit = Math.min(world.timeLimit || 90, 35);
+        world.timeLimit = Math.min(world.timeLimit || 90, 45);
       }
+
+      // Propagate to all campaign levels if present
+      if (world.levels && world.levels.length > 0) {
+        world.levels.forEach((lvl, idx) => {
+          lvl.difficulty = selectedDifficulty;
+          if (selectedDifficulty === 'easy') {
+            lvl.timeLimit = Math.max(lvl.timeLimit || 90, 140);
+            if (lvl.objective && lvl.objective.requiredScore && lvl.objective.requiredScore > 100) {
+              lvl.objective.requiredScore = idx === 0 ? 80 : (idx === 1 ? 100 : 120);
+            }
+          } else if (selectedDifficulty === 'medium') {
+            lvl.timeLimit = Math.max(lvl.timeLimit || 90, 110);
+          }
+        });
+      }
+
       initEngine();
     }
     setShowComicPrologue(false);

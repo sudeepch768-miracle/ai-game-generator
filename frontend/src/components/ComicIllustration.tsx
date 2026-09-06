@@ -9,950 +9,994 @@ interface ComicIllustrationProps {
 }
 
 export const ComicIllustration: React.FC<ComicIllustrationProps> = ({
-  theme,
-  panelIndex,
-  userImageUrl,
-  showPhotoFilter,
+  theme, panelIndex, userImageUrl, showPhotoFilter,
 }) => {
-  // If user uploaded a photo and photo mode is active, render the photo with comic halftone/ink styling
   if (userImageUrl && showPhotoFilter) {
     return (
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: `url(${userImageUrl})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          filter: 'contrast(140%) saturate(130%) brightness(0.85)',
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'radial-gradient(rgba(0,0,0,0.35) 1.5px, transparent 1.5px)',
-            backgroundSize: '4px 4px',
-            mixBlendMode: 'multiply',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0px, transparent 2px, transparent 8px)',
-          }}
-        />
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${userImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'contrast(140%) saturate(130%) brightness(0.85)' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(0,0,0,0.35) 1.5px, transparent 1.5px)', backgroundSize: '4px 4px', mixBlendMode: 'multiply' }} />
       </div>
     );
   }
-
-  // Theme-specific comic artwork with authentic comic character models
-  const isHospital = theme === 'hospital';
-  const isRailway = theme === 'railway';
-  const isBank = theme === 'bank';
-  const isPolice = theme === 'police';
-  const isSnow = theme === 'snow';
-  const isCyberpunk = theme === 'cyberpunk';
-  const isHaunted = theme === 'haunted';
-  const isSpace = theme === 'space';
-
-  if (isHospital) {
-    return panelIndex === 0 ? <HospitalInfiltratorScene /> : <HospitalEnforcerBossScene />;
-  }
-
-  if (isRailway) {
-    return panelIndex === 0 ? <RailwayRunnerScene /> : <RailwayConductorBossScene />;
-  }
-
-  if (isBank) {
-    return panelIndex === 0 ? <BankThiefSuspensionScene /> : <BankLaserSprintScene />;
-  }
-
-  if (isPolice) {
-    return panelIndex === 0 ? <PoliceNoirLockpickScene /> : <PoliceRooftopPursuitScene />;
-  }
-
-  if (isSnow) {
-    return panelIndex === 0 ? <SnowIceClimbScene /> : <SnowBlizzardWolfScene />;
-  }
-
-  if (isCyberpunk) {
-    return panelIndex === 0 ? <CyberRunnerGargoyleScene /> : <CyberDroneSkirmishScene />;
-  }
-
-  if (isHaunted) {
-    return panelIndex === 0 ? <HauntedInvestigatorScene /> : <HauntedWraithEncounterScene />;
-  }
-
-  if (isSpace) {
-    return panelIndex === 0 ? <SpaceAirlockEVAClimbScene /> : <SpaceZeroGLaserScene />;
-  }
-
-  // Default / City Graphic Novel Scene (Rooftop Moon & Skyscraper Ledge)
-  return panelIndex === 0 ? <NightRooftopMoonScene /> : <SkyscraperHighAngleScene />;
+  if (theme === 'hospital') return panelIndex === 0 ? <HospitalPanel1 /> : <HospitalPanel2 />;
+  if (theme === 'railway') return panelIndex === 0 ? <RailwayPanel1 /> : <RailwayPanel2 />;
+  if (theme === 'bank') return panelIndex === 0 ? <BankPanel1 /> : <BankPanel2 />;
+  if (theme === 'police') return panelIndex === 0 ? <PolicePanel1 /> : <PolicePanel2 />;
+  if (theme === 'snow') return panelIndex === 0 ? <SnowPanel1 /> : <SnowPanel2 />;
+  if (theme === 'cyberpunk') return panelIndex === 0 ? <CyberPanel1 /> : <CyberPanel2 />;
+  if (theme === 'haunted') return panelIndex === 0 ? <HauntedPanel1 /> : <HauntedPanel2 />;
+  if (theme === 'space') return panelIndex === 0 ? <SpacePanel1 /> : <SpacePanel2 />;
+  return panelIndex === 0 ? <DefaultPanel1 /> : <DefaultPanel2 />;
 };
 
-// ============================================================================
-// 🏥 THEME 1: HOSPITAL BIO-WING
-// ============================================================================
+// ═══════════════════════════════════════════════════════════════
+// SVG style helper
+const S = { width: '100%', height: '100%', position: 'absolute' as const, inset: 0 };
 
-// Panel 1: Agent Zero in tactical stealth gear crouched on an overhead pipe
-const HospitalInfiltratorScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+// ═══════════════════════════════════════════════════════════════
+// 🏥 HOSPITAL
+// ═══════════════════════════════════════════════════════════════
+const HospitalPanel1: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <defs>
-      <linearGradient id="hospHall" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#040e17" />
-        <stop offset="60%" stopColor="#081e2f" />
-        <stop offset="100%" stopColor="#02080d" />
-      </linearGradient>
-      <linearGradient id="suitDark" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#1e293b" />
-        <stop offset="60%" stopColor="#0f172a" />
-        <stop offset="100%" stopColor="#020617" />
-      </linearGradient>
-      <linearGradient id="cyanVisor" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stopColor="#ffffff" />
-        <stop offset="40%" stopColor="#38bdf8" />
-        <stop offset="100%" stopColor="#0284c7" />
-      </linearGradient>
-      <radialGradient id="lampCone" cx="50%" cy="0%" r="90%">
-        <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.45" />
-        <stop offset="70%" stopColor="#0284c7" stopOpacity="0.1" />
-        <stop offset="100%" stopColor="#000000" stopOpacity="0" />
-      </radialGradient>
+      <linearGradient id="hh" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#040e17" /><stop offset="100%" stopColor="#02080d" /></linearGradient>
+      <radialGradient id="lc" cx="50%" cy="0%" r="90%"><stop offset="0%" stopColor="#38bdf8" stopOpacity="0.45" /><stop offset="100%" stopColor="#000" stopOpacity="0" /></radialGradient>
     </defs>
-
-    {/* Background Corridor Perspective */}
-    <rect width="800" height="480" fill="url(#hospHall)" />
-    <path d="M0 0 L320 200 L320 300 L0 480 Z" fill="#081826" stroke="#00f2fe" strokeWidth="1" opacity="0.8" />
-    <path d="M800 0 L480 200 L480 300 L800 480 Z" fill="#081826" stroke="#00f2fe" strokeWidth="1" opacity="0.8" />
-
-    {/* Distant Sealed Bio-Lab Blast Door */}
+    <rect width="800" height="480" fill="url(#hh)" />
+    <path d="M0 0 L320 200 L320 300 L0 480Z" fill="#081826" stroke="#00f2fe" strokeWidth="1" opacity="0.8" />
+    <path d="M800 0 L480 200 L480 300 L800 480Z" fill="#081826" stroke="#00f2fe" strokeWidth="1" opacity="0.8" />
     <rect x="320" y="200" width="160" height="100" fill="#02060b" stroke="#38bdf8" strokeWidth="2.5" />
     <line x1="400" y1="200" x2="400" y2="300" stroke="#38bdf8" strokeWidth="2" />
-    {/* Yellow/Black Caution Stripes */}
     <rect x="325" y="290" width="150" height="8" fill="#facc15" />
-    <line x1="335" y1="290" x2="345" y2="298" stroke="#000" strokeWidth="2" />
-    <line x1="355" y1="290" x2="365" y2="298" stroke="#000" strokeWidth="2" />
-    <line x1="375" y1="290" x2="385" y2="298" stroke="#000" strokeWidth="2" />
-    <line x1="395" y1="290" x2="405" y2="298" stroke="#000" strokeWidth="2" />
-    <line x1="415" y1="290" x2="425" y2="298" stroke="#000" strokeWidth="2" />
-    <line x1="435" y1="290" x2="445" y2="298" stroke="#000" strokeWidth="2" />
-
-    {/* Overhead Surgical Spotlight Cone */}
     <ellipse cx="400" cy="50" rx="120" ry="18" fill="#0369a1" stroke="#38bdf8" strokeWidth="2" />
-    <path d="M280 50 L180 480 L620 480 L520 50 Z" fill="url(#lampCone)" />
-
-    {/* Oscilloscope ECG Heartbeat Monitor Display on Wall */}
+    <path d="M280 50 L180 480 L620 480 L520 50Z" fill="url(#lc)" />
     <rect x="60" y="160" width="170" height="95" rx="4" fill="#020911" stroke="#00f2fe" strokeWidth="2" />
     <text x="75" y="180" fill="#38bdf8" fontSize="10" fontFamily="monospace" fontWeight="bold">BIO-TELEMETRY // CODE RED</text>
-    <path
-      d="M70 215 L105 215 L112 205 L118 228 L125 180 L132 238 L138 215 L170 215 L176 195 L182 225 L190 215 L220 215"
-      fill="none"
-      stroke="#22c55e"
-      strokeWidth="2.5"
-    />
-
-    {/* Overhead Steel Conduit Pipe running horizontally */}
+    <path d="M70 215 L105 215 L112 205 L118 228 L125 180 L132 238 L138 215 L220 215" fill="none" stroke="#22c55e" strokeWidth="2.5" />
     <rect x="0" y="110" width="800" height="26" fill="#1e293b" stroke="#0f172a" strokeWidth="2" />
     <line x1="0" y1="123" x2="800" y2="123" stroke="#38bdf8" strokeWidth="1.5" opacity="0.6" />
 
-    {/* COMIC HERO: AGENT ZERO CROUCHED ON THE OVERHEAD CONDUIT */}
-    <g transform="translate(420, 45)">
-      {/* Shadow Silhouette Base */}
-      <path
-        d="M60 40 Q90 15 130 35 Q170 60 175 110 Q160 160 130 180 Q80 185 50 150 Q30 110 40 70 Z"
-        fill="rgba(0,0,0,0.6)"
-        filter="blur(4px)"
-      />
-
-      {/* Hero Mask / Cowl */}
-      <path
-        d="M80 30 Q105 15 125 32 Q138 52 130 75 Q115 95 90 90 Q72 85 70 60 Q70 40 80 30 Z"
-        fill="url(#suitDark)"
-        stroke="#000000"
-        strokeWidth="3"
-      />
-      {/* Glowing Angular Cyan Visor Lens (Spider-Verse Eye Style) */}
-      <polygon points="95,45 122,48 116,62 92,56" fill="url(#cyanVisor)" stroke="#000" strokeWidth="1.5" />
-      <polygon points="100,48 118,50 114,58 98,55" fill="#ffffff" />
-      {/* Lower Face Respirator Plate */}
-      <path d="M85 68 L115 72 L110 84 L90 82 Z" fill="#334155" stroke="#000" strokeWidth="2" />
-      <line x1="93" y1="72" x2="93" y2="80" stroke="#00f2fe" strokeWidth="1.5" />
-      <line x1="100" y1="73" x2="100" y2="81" stroke="#00f2fe" strokeWidth="1.5" />
-      <line x1="107" y1="74" x2="107" y2="82" stroke="#00f2fe" strokeWidth="1.5" />
-
-      {/* Muscular Athletic Torso (Crouched Forward) */}
-      <path
-        d="M65 85 Q95 75 135 85 Q150 120 135 155 Q105 170 70 155 Q55 125 65 85 Z"
-        fill="url(#suitDark)"
-        stroke="#000000"
-        strokeWidth="3.5"
-      />
-      {/* Red Caduceus Cross Infiltration Patch on Shoulder */}
-      <circle cx="130" cy="105" r="10" fill="#dc2626" stroke="#000" strokeWidth="1.5" />
-      <text x="130" y="109" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold" fontFamily="sans-serif">✚</text>
-
-      {/* Tactical Belt & Bio-Canister Pouches */}
-      <path d="M68 150 L132 150 L128 165 L72 165 Z" fill="#475569" stroke="#000" strokeWidth="2" />
-      <rect x="80" y="152" width="10" height="11" fill="#00f2fe" stroke="#000" strokeWidth="1" />
-      <rect x="96" y="152" width="10" height="11" fill="#00f2fe" stroke="#000" strokeWidth="1" />
-      <rect x="112" y="152" width="10" height="11" fill="#00f2fe" stroke="#000" strokeWidth="1" />
-
-      {/* Muscular Arm & Gauntlet Gripping Conduit */}
-      <path
-        d="M65 95 Q40 120 45 150 L60 155 Q60 130 75 110 Z"
-        fill="url(#suitDark)"
-        stroke="#000"
-        strokeWidth="2.5"
-      />
-      {/* Reinforced Tactical Gauntlet */}
-      <path d="M42 145 L62 148 L58 175 L38 170 Z" fill="#334155" stroke="#000" strokeWidth="2" />
-      {/* Glove Hand with Articulated Fingers Clamped on the Pipe */}
-      <path d="M38 170 Q30 180 38 190 Q48 192 56 182 L58 172 Z" fill="#0f172a" stroke="#000" strokeWidth="2" />
-      <line x1="42" y1="175" x2="42" y2="186" stroke="#000" strokeWidth="1.5" />
-      <line x1="47" y1="175" x2="47" y2="188" stroke="#000" strokeWidth="1.5" />
-
-      {/* Bent Crouching Leg with Armored Knee Guard */}
-      <path
-        d="M125 140 Q160 160 170 195 Q145 220 120 200 Q125 170 115 155 Z"
-        fill="url(#suitDark)"
-        stroke="#000"
-        strokeWidth="3"
-      />
-      {/* Knee Armor Plate */}
-      <polygon points="152,185 175,195 165,212 145,202" fill="#0284c7" stroke="#000" strokeWidth="2" />
-
-      {/* Comic Ink Line-Hatching on Ribs & Shoulder */}
-      <line x1="82" y1="105" x2="72" y2="120" stroke="#000" strokeWidth="2" />
-      <line x1="88" y1="112" x2="78" y2="127" stroke="#000" strokeWidth="2" />
-      <line x1="94" y1="118" x2="84" y2="133" stroke="#000" strokeWidth="2" />
-
-      {/* Vibrant Comic Rim Lights (Cyan on Left, Crimson on Right) */}
-      <path d="M78 30 Q70 50 68 80" stroke="#00f2fe" strokeWidth="3" fill="none" />
-      <path d="M125 32 Q138 60 132 85" stroke="#ef4444" strokeWidth="2.5" fill="none" />
-      <path d="M135 155 Q165 190 165 210" stroke="#00f2fe" strokeWidth="3" fill="none" />
+    {/* AGENT ZERO — crouched on pipe */}
+    <g transform="translate(480, 115) scale(0.55)">
+      {/* Head */}
+      <path d="M-18,4 Q-20,-22 0,-32 Q20,-22 18,4" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <circle cx="0" cy="0" r="18" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <path d="M-12,12 Q0,22 12,12" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <polygon points="-14,-4 14,-4 10,5 -10,5" fill="#00f2fe" stroke="#000" strokeWidth="1.5" />
+      <polygon points="-9,-2 9,-2 7,3 -7,3" fill="#fff" opacity="0.85" />
+      <path d="M-8,8 L8,8 L6,16 L-6,16Z" fill="#334155" stroke="#000" strokeWidth="1.5" />
+      <line x1="-3" y1="10" x2="-3" y2="15" stroke="#00f2fe" strokeWidth="1.2" />
+      <line x1="3" y1="10" x2="3" y2="15" stroke="#00f2fe" strokeWidth="1.2" />
+      {/* Neck */}
+      <rect x="-6" y="20" width="12" height="8" fill="#0f172a" stroke="#000" strokeWidth="1.5" />
+      {/* Torso — crouched forward */}
+      <path d="M-24,28 L24,28 L20,74 L-20,74Z" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-26" cy="30" rx="8" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <ellipse cx="26" cy="30" rx="8" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <circle cx="18" cy="42" r="8" fill="#dc2626" stroke="#000" strokeWidth="1.5" />
+      <text x="18" y="46" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">✚</text>
+      <rect x="-20" y="70" width="40" height="8" rx="2" fill="#475569" stroke="#000" strokeWidth="1.5" />
+      <rect x="-12" y="71" width="6" height="6" fill="#00f2fe" stroke="#000" strokeWidth="1" />
+      <rect x="6" y="71" width="6" height="6" fill="#00f2fe" stroke="#000" strokeWidth="1" />
+      {/* Left arm reaching to grip pipe */}
+      <path d="M-26,34 Q-48,54 -50,78" stroke="#0f172a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-50,78 Q-52,96 -48,112" stroke="#0f172a" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <rect x="-56" y="106" width="16" height="12" rx="3" fill="#334155" stroke="#000" strokeWidth="1.5" />
+      <ellipse cx="-48" cy="122" rx="8" ry="6" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <line x1="-52" y1="118" x2="-52" y2="126" stroke="#000" strokeWidth="1.5" />
+      <line x1="-48" y1="118" x2="-48" y2="128" stroke="#000" strokeWidth="1.5" />
+      <line x1="-44" y1="118" x2="-44" y2="126" stroke="#000" strokeWidth="1.5" />
+      {/* Right arm bent ready */}
+      <path d="M26,34 Q48,52 46,76" stroke="#0f172a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M46,76 Q44,94 40,106" stroke="#0f172a" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="40" cy="110" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      {/* Left leg crouched */}
+      <path d="M-14,74 Q-30,100 -34,126" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M-34,126 Q-32,148 -28,160" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-36,156 Q-46,164 -40,170 Q-20,172 -16,162Z" fill="#0284c7" stroke="#000" strokeWidth="2" />
+      {/* Right leg crouched with knee pad */}
+      <path d="M14,74 Q32,98 36,124" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <polygon points="30,118 44,124 40,136 26,130" fill="#0284c7" stroke="#000" strokeWidth="1.5" />
+      <path d="M36,124 Q34,146 30,158" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M22,154 Q12,162 18,168 Q38,170 42,160Z" fill="#0284c7" stroke="#000" strokeWidth="2" />
+      {/* Ink hatching */}
+      <line x1="-16" y1="40" x2="-8" y2="54" stroke="#000" strokeWidth="1.8" opacity="0.5" />
+      <line x1="-12" y1="48" x2="-4" y2="62" stroke="#000" strokeWidth="1.5" opacity="0.4" />
+      {/* Rim lights */}
+      <path d="M-18,-16 Q-24,2 -26,24" stroke="#00f2fe" strokeWidth="2.5" fill="none" />
+      <path d="M18,-16 Q24,2 26,24" stroke="#ef4444" strokeWidth="2" fill="none" />
+      <path d="M36,124 Q42,145 42,158" stroke="#00f2fe" strokeWidth="2.5" fill="none" />
     </g>
   </svg>
 );
 
-// Panel 2: Chief Medical Inspector Enforcer & Drones vs Dashing Hero
-const HospitalEnforcerBossScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+const HospitalPanel2: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <defs>
-      <linearGradient id="redLockdown" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#450a0a" />
-        <stop offset="50%" stopColor="#180404" />
-        <stop offset="100%" stopColor="#050101" />
-      </linearGradient>
-      <radialGradient id="redBeaconGlow" cx="50%" cy="0%" r="90%">
-        <stop offset="0%" stopColor="#ef4444" stopOpacity="0.85" />
-        <stop offset="60%" stopColor="#b91c1c" stopOpacity="0.3" />
-        <stop offset="100%" stopColor="#000000" stopOpacity="0" />
-      </radialGradient>
-      <linearGradient id="mechArmor" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#3f3f46" />
-        <stop offset="60%" stopColor="#18181b" />
-        <stop offset="100%" stopColor="#09090b" />
-      </linearGradient>
+      <linearGradient id="rl" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#450a0a" /><stop offset="100%" stopColor="#050101" /></linearGradient>
+      <radialGradient id="rb" cx="50%" cy="0%" r="90%"><stop offset="0%" stopColor="#ef4444" stopOpacity="0.85" /><stop offset="100%" stopColor="#000" stopOpacity="0" /></radialGradient>
     </defs>
-
-    <rect width="800" height="480" fill="url(#redLockdown)" />
-
-    {/* Rotating Emergency Warning Beacons */}
+    <rect width="800" height="480" fill="url(#rl)" />
     <circle cx="180" cy="30" r="16" fill="#ef4444" filter="drop-shadow(0 0 16px #ef4444)" />
-    <path d="M180 30 L40 480 L320 480 Z" fill="url(#redBeaconGlow)" />
+    <path d="M180 30 L40 480 L320 480Z" fill="url(#rb)" />
     <circle cx="620" cy="30" r="16" fill="#ef4444" filter="drop-shadow(0 0 16px #ef4444)" />
-    <path d="M620 30 L480 480 L760 480 Z" fill="url(#redBeaconGlow)" />
-
-    {/* Heavy Hydraulic Blast Door Slamming Shut in Center */}
-    <path d="M300 0 L500 0 L500 480 L300 480 Z" fill="#09090b" stroke="#dc2626" strokeWidth="4" />
+    <path d="M620 30 L480 480 L760 480Z" fill="url(#rb)" />
+    <path d="M300 0 L500 0 L500 480 L300 480Z" fill="#09090b" stroke="#dc2626" strokeWidth="4" />
     <line x1="400" y1="0" x2="400" y2="480" stroke="#dc2626" strokeWidth="3" />
-    {/* Hydraulic Pistons */}
     <rect x="260" y="120" width="50" height="24" fill="#71717a" stroke="#000" strokeWidth="2" />
     <rect x="490" y="120" width="50" height="24" fill="#71717a" stroke="#000" strokeWidth="2" />
-    <rect x="260" y="320" width="50" height="24" fill="#71717a" stroke="#000" strokeWidth="2" />
-    <rect x="490" y="320" width="50" height="24" fill="#71717a" stroke="#000" strokeWidth="2" />
 
-    {/* Flying Bio-Drone Surveillance Scout (Left) */}
-    <g transform="translate(100, 110)">
-      <polygon points="40,20 80,10 95,35 60,50 30,35" fill="#18181b" stroke="#ef4444" strokeWidth="2.5" />
-      <circle cx="65" cy="30" r="8" fill="#ef4444" filter="drop-shadow(0 0 8px #ef4444)" />
-      <line x1="65" y1="38" x2="50" y2="280" stroke="#ef4444" strokeWidth="1.5" opacity="0.6" />
-      <line x1="65" y1="38" x2="110" y2="280" stroke="#ef4444" strokeWidth="1.5" opacity="0.6" />
+    {/* CHIEF MEDICAL INSPECTOR — towering armored villain */}
+    <g transform="translate(580, 180) scale(0.45)">
+      <rect x="-20" y="0" width="40" height="40" rx="6" fill="#27272a" stroke="#000" strokeWidth="3" />
+      <rect x="-16" y="12" width="32" height="9" rx="2" fill="#ef4444" stroke="#000" strokeWidth="1.5" filter="drop-shadow(0 0 8px #ef4444)" />
+      <rect x="-10" y="14" width="20" height="5" rx="1" fill="#fff" opacity="0.5" />
+      <polygon points="-4,-4 0,-14 4,-4" fill="#ef4444" stroke="#000" strokeWidth="1.5" />
+      <rect x="-8" y="40" width="16" height="12" fill="#27272a" stroke="#000" strokeWidth="2" />
+      <path d="M-36,52 L36,52 L30,148 L-30,148Z" fill="#27272a" stroke="#000" strokeWidth="3.5" />
+      <ellipse cx="-38" cy="54" rx="12" ry="7" fill="#27272a" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="38" cy="54" rx="12" ry="7" fill="#27272a" stroke="#000" strokeWidth="2.5" />
+      <polygon points="-50,48 -62,40 -44,34" fill="#ef4444" stroke="#000" strokeWidth="1.5" />
+      <polygon points="50,48 62,40 44,34" fill="#ef4444" stroke="#000" strokeWidth="1.5" />
+      <circle cx="0" cy="86" r="14" fill="#09090b" stroke="#ef4444" strokeWidth="2" />
+      <text x="0" y="91" textAnchor="middle" fill="#ef4444" fontSize="14" fontWeight="bold">☣</text>
+      {/* Left arm raised with syringe weapon */}
+      <path d="M-38,58 Q-68,40 -80,12" stroke="#27272a" strokeWidth="18" strokeLinecap="round" fill="none" />
+      <path d="M-80,12 Q-88,-14 -82,-32" stroke="#27272a" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <rect x="-92" y="-38" width="20" height="16" rx="4" fill="#3f3f46" stroke="#000" strokeWidth="2" />
+      <line x1="-82" y1="-38" x2="-82" y2="-62" stroke="#e4e4e7" strokeWidth="5" strokeLinecap="round" />
+      <circle cx="-82" cy="-65" r="4" fill="#ef4444" />
+      <line x1="-76" y1="-38" x2="-76" y2="-55" stroke="#e4e4e7" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="-76" cy="-58" r="3" fill="#ef4444" />
+      {/* Right arm at side */}
+      <path d="M38,58 Q62,78 68,108" stroke="#27272a" strokeWidth="18" strokeLinecap="round" fill="none" />
+      <path d="M68,108 Q72,130 68,148" stroke="#27272a" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <rect x="58" y="144" width="20" height="16" rx="4" fill="#3f3f46" stroke="#000" strokeWidth="2" />
+      {/* Legs */}
+      <path d="M-18,148 Q-22,194 -20,236" stroke="#27272a" strokeWidth="20" strokeLinecap="round" fill="none" />
+      <path d="M-20,236 Q-18,260 -18,274" stroke="#27272a" strokeWidth="16" strokeLinecap="round" fill="none" />
+      <path d="M-28,270 Q-40,278 -34,286 Q-12,288 -4,278Z" fill="#ef4444" stroke="#000" strokeWidth="2" />
+      <path d="M18,148 Q22,194 20,236" stroke="#27272a" strokeWidth="20" strokeLinecap="round" fill="none" />
+      <path d="M20,236 Q18,260 18,274" stroke="#27272a" strokeWidth="16" strokeLinecap="round" fill="none" />
+      <path d="M10,270 Q-2,278 4,286 Q24,288 32,278Z" fill="#ef4444" stroke="#000" strokeWidth="2" />
+      <path d="M-36,52 Q-50,54 -50,48" stroke="#ef4444" strokeWidth="3" fill="none" opacity="0.9" />
+      <path d="M36,52 Q50,54 50,48" stroke="#94a3b8" strokeWidth="2.5" fill="none" />
     </g>
 
-    {/* COMIC VILLAIN: TOWERING CHIEF MEDICAL INSPECTOR (Center-Right Boss) */}
-    <g transform="translate(450, 100)">
-      {/* Massive Mech Shoulders & Collar */}
-      <polygon points="50,90 140,50 230,90 200,160 80,160" fill="url(#mechArmor)" stroke="#000" strokeWidth="4" />
-      {/* Hazard Chevrons on Shoulder Pauldron */}
-      <polygon points="50,90 75,75 85,95 60,110" fill="#facc15" stroke="#000" strokeWidth="1.5" />
-      <polygon points="75,75 100,60 110,80 85,95" fill="#000" />
-      <polygon points="100,60 125,50 135,70 110,80" fill="#facc15" stroke="#000" strokeWidth="1.5" />
-
-      {/* Intimidating Armored Helmet with Horizontal Red Eye Slit */}
-      <path d="M110 30 Q140 20 170 30 L175 75 L105 75 Z" fill="#18181b" stroke="#000" strokeWidth="3" />
-      {/* Glowing Horizontal Crimson Eye Visor */}
-      <rect x="115" y="45" width="50" height="8" rx="2" fill="#ef4444" filter="drop-shadow(0 0 10px #ef4444)" />
-      <rect x="125" y="47" width="30" height="4" fill="#ffffff" />
-
-      {/* Heavy Pneumatic Syringe Clamp Gauntlet Raised in Attack */}
-      <path d="M40 120 L0 150 L20 210 L60 170 Z" fill="url(#mechArmor)" stroke="#000" strokeWidth="3" />
-      {/* Mechanical Syringe Needles */}
-      <line x1="5" y1="190" x2="-25" y2="215" stroke="#e4e4e7" strokeWidth="4" />
-      <line x1="15" y1="200" x2="-15" y2="225" stroke="#e4e4e7" strokeWidth="4" />
-      <circle cx="-25" cy="215" r="3" fill="#ef4444" />
-      <circle cx="-15" cy="225" r="3" fill="#ef4444" />
-
-      {/* Armored Chest Plate with Toxic Gas Filter */}
-      <rect x="105" y="95" width="70" height="60" rx="4" fill="#27272a" stroke="#000" strokeWidth="2.5" />
-      <circle cx="140" cy="125" r="16" fill="#09090b" stroke="#ef4444" strokeWidth="2" />
-      <text x="140" y="130" textAnchor="middle" fill="#ef4444" fontSize="14" fontWeight="bold">☣</text>
-    </g>
-
-    {/* COMIC HERO: AGENT ZERO IN DYNAMIC SPRINT/SLIDE UNDER THE BLAST DOOR */}
-    <g transform="translate(180, 260)">
-      {/* Motion Speed Lines radiating behind him */}
-      <line x1="-120" y1="60" x2="-20" y2="60" stroke="#00f2fe" strokeWidth="3" opacity="0.8" />
-      <line x1="-150" y1="90" x2="-10" y2="90" stroke="#00f2fe" strokeWidth="4" opacity="0.9" />
-      <line x1="-100" y1="120" x2="10" y2="120" stroke="#ffffff" strokeWidth="2" opacity="0.7" />
-
-      {/* Leaning Forward Dashing Body */}
-      <path
-        d="M30 40 Q60 10 90 25 Q110 50 100 85 Q70 105 35 90 Q15 65 30 40 Z"
-        fill="#0f172a"
-        stroke="#000"
-        strokeWidth="3"
-      />
-      {/* Visor glowing cyan facing forward */}
-      <polygon points="80,35 105,40 98,52 76,46" fill="#00f2fe" stroke="#000" strokeWidth="1.5" />
-      <polygon points="85,38 100,42 96,48 82,44" fill="#ffffff" />
-
-      {/* Streaming Windbreaker / Coat Tails Flaring in Motion */}
-      <path d="M30 65 L-45 45 L-35 85 L20 85 Z" fill="#0284c7" stroke="#000" strokeWidth="2.5" />
-      <path d="M20 75 L-60 70 L-45 105 L15 95 Z" fill="#0369a1" stroke="#000" strokeWidth="2.5" />
-
-      {/* Leading Arm Reaching for the Blast Gate Handle */}
-      <path d="M90 50 L145 65 L135 80 L85 65 Z" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
-      {/* Tactical Gauntlet with Cipher Key in Hand */}
-      <rect x="135" y="60" width="22" height="18" rx="3" fill="#facc15" stroke="#000" strokeWidth="2" />
-      <polygon points="148,55 162,60 155,75 142,70" fill="#00f2fe" />
-
-      {/* Sliding Leg Outstretched */}
-      <path d="M60 90 L130 140 L110 155 L40 105 Z" fill="#0f172a" stroke="#000" strokeWidth="3" />
-      <polygon points="120,135 145,145 135,160 110,150" fill="#38bdf8" stroke="#000" strokeWidth="2" />
-
-      {/* Comic Action Impact Spark on Heel */}
-      <polygon points="135,160 150,155 145,170 160,175 140,180 135,160" fill="#facc15" stroke="#000" strokeWidth="1.5" />
+    {/* AGENT ZERO — slide under blast door */}
+    <g transform="translate(220, 350) scale(0.55)">
+      {/* Speed lines */}
+      <line x1="-160" y1="0" x2="-40" y2="0" stroke="#00f2fe" strokeWidth="3" opacity="0.8" />
+      <line x1="-180" y1="20" x2="-30" y2="20" stroke="#00f2fe" strokeWidth="4" opacity="0.9" />
+      <line x1="-140" y1="40" x2="-20" y2="40" stroke="#fff" strokeWidth="2" opacity="0.6" />
+      {/* Head leading the slide */}
+      <path d="M44,-6 Q42,-26 60,-36 Q78,-26 76,-6" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <circle cx="60" cy="-10" r="16" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <polygon points="48,-14 72,-14 68,-6 52,-6" fill="#00f2fe" stroke="#000" strokeWidth="1.5" />
+      <polygon points="52,-12 68,-12 66,-8 54,-8" fill="#fff" opacity="0.8" />
+      {/* Neck angled */}
+      <rect x="36" y="4" width="12" height="8" fill="#0f172a" stroke="#000" strokeWidth="1.5" transform="rotate(-15, 42, 8)" />
+      {/* Torso nearly horizontal */}
+      <path d="M-20,0 L42,0 L38,40 L-16,40Z" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-22" cy="4" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <ellipse cx="44" cy="4" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      {/* Right arm reaching for door handle */}
+      <path d="M40,8 Q66,0 82,-8" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M82,-8 Q94,-14 100,-18" stroke="#0f172a" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <ellipse cx="102" cy="-20" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <rect x="100" y="-28" width="16" height="12" rx="2" fill="#facc15" stroke="#000" strokeWidth="1.5" />
+      {/* Left arm bracing */}
+      <path d="M-18,8 Q-38,20 -46,38" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-46,38 Q-50,52 -44,62" stroke="#0f172a" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <ellipse cx="-44" cy="66" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      {/* Legs trailing behind */}
+      <path d="M-18,38 Q-46,42 -72,36" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M-72,36 Q-96,34 -110,28" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-116,24 Q-128,16 -118,10 Q-102,8 -98,18Z" fill="#0284c7" stroke="#000" strokeWidth="2" />
+      <path d="M-14,42 Q-40,50 -66,48" stroke="#0f172a" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <path d="M-66,48 Q-88,50 -102,44" stroke="#0f172a" strokeWidth="11" strokeLinecap="round" fill="none" />
+      <path d="M-108,40 Q-120,34 -112,26 Q-96,24 -92,34Z" fill="#0284c7" stroke="#000" strokeWidth="2" />
+      {/* Rim + sparks */}
+      <path d="M60,-26 Q70,-10 70,0" stroke="#00f2fe" strokeWidth="2.5" fill="none" />
+      <polygon points="-100,18 -88,12 -92,24 -82,28 -96,30 -100,18" fill="#facc15" stroke="#000" strokeWidth="1.5" />
     </g>
   </svg>
 );
 
-// ============================================================================
-// 🚆 THEME 2: GRAND CENTRAL RAILWAY
-// ============================================================================
-
-const RailwayRunnerScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
-    <defs>
-      <linearGradient id="subwayDark" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#0a0f1d" />
-        <stop offset="60%" stopColor="#131b2e" />
-        <stop offset="100%" stopColor="#04060a" />
-      </linearGradient>
-    </defs>
-
-    <rect width="800" height="480" fill="url(#subwayDark)" />
-
-    {/* Vaulted Iron Lattice Arch Roof */}
+// ═══════════════════════════════════════════════════════════════
+// 🚆 RAILWAY
+// ═══════════════════════════════════════════════════════════════
+const RailwayPanel1: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
+    <defs><linearGradient id="sd" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#0a0f1d" /><stop offset="100%" stopColor="#04060a" /></linearGradient></defs>
+    <rect width="800" height="480" fill="url(#sd)" />
     <path d="M0 130 Q400 20 800 130" stroke="#334155" strokeWidth="10" fill="none" />
-    <path d="M0 170 Q400 70 800 170" stroke="#1e293b" strokeWidth="8" fill="none" />
-    {/* Hanging Station Bell Lamps */}
     <line x1="240" y1="70" x2="240" y2="150" stroke="#475569" strokeWidth="3" />
     <polygon points="225,150 255,150 250,165 230,165" fill="#facc15" />
     <line x1="560" y1="70" x2="560" y2="150" stroke="#475569" strokeWidth="3" />
     <polygon points="545,150 575,150 570,165 550,165" fill="#facc15" />
-
-    {/* Platform & Steel Tracks in One-Point Perspective */}
-    <path d="M300 260 L500 260 L750 480 L50 480 Z" fill="#090d16" />
+    <path d="M300 260 L500 260 L750 480 L50 480Z" fill="#090d16" />
     <line x1="360" y1="260" x2="200" y2="480" stroke="#94a3b8" strokeWidth="5" />
     <line x1="440" y1="260" x2="600" y2="480" stroke="#94a3b8" strokeWidth="5" />
-
-    {/* High-Speed Express Train Locomotive with Blazing Amber Headlights */}
     <rect x="350" y="190" width="100" height="85" rx="8" fill="#0f172a" stroke="#f59e0b" strokeWidth="3" />
     <circle cx="375" cy="245" r="12" fill="#fbbf24" filter="drop-shadow(0 0 15px #f59e0b)" />
     <circle cx="425" cy="245" r="12" fill="#fbbf24" filter="drop-shadow(0 0 15px #f59e0b)" />
-    {/* Billowing Steam Clouds from Locomotive */}
-    <ellipse cx="400" cy="180" rx="60" ry="25" fill="rgba(241,245,249,0.3)" filter="blur(8px)" />
+    <ellipse cx="400" cy="180" rx="60" ry="25" fill="rgba(241,245,249,0.3)" />
 
-    {/* COMIC HERO: TRACK RUNNER VAULTING OVER TURNSTILE IN FOREGROUND */}
-    <g transform="translate(180, 180)">
-      {/* Yellow Magnetic Sparks from Grip */}
-      <polygon points="120,60 145,45 135,70 160,65 130,85" fill="#facc15" stroke="#000" strokeWidth="1" />
+    {/* Turnstile bar */}
+    <rect x="120" y="340" width="180" height="8" rx="4" fill="#334155" stroke="#475569" strokeWidth="2" />
+    <rect x="198" y="300" width="8" height="48" rx="2" fill="#64748b" />
 
-      {/* Runner Head with Amber Visor & Hood */}
-      <path d="M80 40 Q105 20 125 38 Q135 60 125 82 Q105 100 80 90 Q65 75 70 55 Z" fill="#0f172a" stroke="#000" strokeWidth="3" />
-      <polygon points="95,50 120,55 112,68 90,62" fill="#f59e0b" stroke="#000" strokeWidth="1.5" />
-      <polygon points="100,53 115,56 110,64 96,60" fill="#fff" />
-
-      {/* Urban Windbreaker with Bold Yellow Chevron Stripes */}
-      <path d="M60 85 Q95 70 135 85 Q145 125 125 160 Q90 170 55 155 Z" fill="#1e293b" stroke="#000" strokeWidth="3.5" />
-      <polygon points="70,105 95,120 120,105 125,120 95,135 65,120" fill="#facc15" stroke="#000" strokeWidth="1.5" />
-
-      {/* Outstretched Leaping Legs */}
-      <path d="M115 150 L175 195 L155 215 L95 170 Z" fill="#0f172a" stroke="#000" strokeWidth="3" />
-      <polygon points="160,190 185,200 175,220 150,210" fill="#eab308" stroke="#000" strokeWidth="2" />
+    {/* TRACK RUNNER — leaping over turnstile */}
+    <g transform="translate(220, 260) scale(0.55)">
+      {/* Head with amber visor */}
+      <path d="M-17,4 Q-19,-20 0,-30 Q19,-20 17,4" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <circle cx="0" cy="0" r="17" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <polygon points="-13,-4 13,-4 9,4 -9,4" fill="#f59e0b" stroke="#000" strokeWidth="1.5" />
+      <polygon points="-8,-2 8,-2 6,2 -6,2" fill="#fef08a" opacity="0.85" />
+      {/* Neck */}
+      <rect x="-5" y="16" width="10" height="8" fill="#1e293b" stroke="#000" strokeWidth="1.5" />
+      {/* Torso */}
+      <path d="M-22,24 L22,24 L18,68 L-18,68Z" fill="#1e293b" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-24" cy="26" rx="8" ry="5" fill="#1e293b" stroke="#000" strokeWidth="2" />
+      <ellipse cx="24" cy="26" rx="8" ry="5" fill="#1e293b" stroke="#000" strokeWidth="2" />
+      {/* Bold yellow V chevron on chest */}
+      <polygon points="-14,36 0,52 14,36 16,42 0,58 -16,42" fill="#facc15" stroke="#000" strokeWidth="1.5" />
+      {/* Left arm flung wide */}
+      <path d="M-24,30 Q-52,22 -68,10" stroke="#1e293b" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-68,10 Q-80,-4 -76,-18" stroke="#1e293b" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="-76" cy="-22" rx="7" ry="5" fill="#1e293b" stroke="#000" strokeWidth="2" />
+      {/* Right arm reaching ahead */}
+      <path d="M24,30 Q50,14 64,-4" stroke="#1e293b" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M64,-4 Q74,-18 72,-32" stroke="#1e293b" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="72" cy="-36" rx="7" ry="5" fill="#1e293b" stroke="#000" strokeWidth="2" />
+      {/* Legs splayed mid-leap */}
+      <path d="M-12,68 Q-32,92 -46,116" stroke="#0f172a" strokeWidth="16" strokeLinecap="round" fill="none" />
+      <path d="M-46,116 Q-54,138 -50,154" stroke="#0f172a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-58,150 Q-68,158 -62,164 Q-42,166 -38,156Z" fill="#eab308" stroke="#000" strokeWidth="2" />
+      <path d="M12,68 Q36,88 50,112" stroke="#0f172a" strokeWidth="16" strokeLinecap="round" fill="none" />
+      <path d="M50,112 Q58,134 56,150" stroke="#0f172a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M48,146 Q38,154 44,160 Q64,162 68,152Z" fill="#eab308" stroke="#000" strokeWidth="2" />
+      {/* Rim lights */}
+      <path d="M-17,-14 Q-24,0 -24,20" stroke="#facc15" strokeWidth="2.5" fill="none" />
+      <path d="M17,-14 Q24,0 24,20" stroke="#f97316" strokeWidth="2" fill="none" />
+      {/* Sparks from turnstile impact */}
+      <polygon points="44,160 56,154 50,168 62,172 46,176 44,160" fill="#facc15" stroke="#000" strokeWidth="1.5" />
     </g>
   </svg>
 );
 
-const RailwayConductorBossScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+const RailwayPanel2: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#180c04" />
-    {/* Electrified Third Rail Lightning Arcs */}
     <path d="M80 480 L280 260 L310 270 L500 120" stroke="#00f2fe" strokeWidth="4" filter="drop-shadow(0 0 12px #00f2fe)" fill="none" />
     <path d="M720 480 L520 260 L490 270 L300 120" stroke="#00f2fe" strokeWidth="4" filter="drop-shadow(0 0 12px #00f2fe)" fill="none" />
 
-    {/* Conductor Dan Boss Silhouette with Electrified Stun Baton */}
-    <g transform="translate(420, 80)">
-      <polygon points="30,70 110,40 190,70 170,190 50,190" fill="#0f172a" stroke="#f97316" strokeWidth="3" />
-      <circle cx="110" cy="50" r="28" fill="#1e293b" stroke="#000" strokeWidth="3" />
-      {/* Conductor Peaked Cap */}
-      <polygon points="75,40 145,40 155,25 65,25" fill="#ea580c" stroke="#000" strokeWidth="2" />
-      <circle cx="110" cy="32" r="6" fill="#facc15" />
-      {/* Glowing Red Eyes behind Cap */}
-      <circle cx="102" cy="54" r="4" fill="#ef4444" filter="drop-shadow(0 0 6px #ef4444)" />
-      <circle cx="118" cy="54" r="4" fill="#ef4444" filter="drop-shadow(0 0 6px #ef4444)" />
-      {/* Stun Baton Raised High */}
-      <line x1="180" y1="90" x2="260" y2="20" stroke="#cbd5e1" strokeWidth="6" />
-      <circle cx="260" cy="20" r="16" fill="#00f2fe" filter="drop-shadow(0 0 14px #00f2fe)" />
+    {/* CONDUCTOR BOSS — towering villain */}
+    <g transform="translate(560, 180) scale(0.45)">
+      {/* Peaked cap */}
+      <polygon points="-22,-8 22,-8 30,-20 -30,-20" fill="#ea580c" stroke="#000" strokeWidth="2" />
+      <circle cx="0" cy="-14" r="6" fill="#facc15" />
+      {/* Head */}
+      <rect x="-18" y="-6" width="36" height="36" rx="6" fill="#0f172a" stroke="#000" strokeWidth="3" />
+      <circle cx="-8" cy="12" r="5" fill="#ef4444" filter="drop-shadow(0 0 6px #ef4444)" />
+      <circle cx="8" cy="12" r="5" fill="#ef4444" filter="drop-shadow(0 0 6px #ef4444)" />
+      {/* Neck */}
+      <rect x="-7" y="30" width="14" height="10" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      {/* Massive torso */}
+      <path d="M-32,40 L32,40 L28,128 L-28,128Z" fill="#0f172a" stroke="#f97316" strokeWidth="3" />
+      <ellipse cx="-34" cy="42" rx="10" ry="6" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <ellipse cx="34" cy="42" rx="10" ry="6" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <polygon points="-44,38 -56,30 -40,24" fill="#ea580c" stroke="#000" strokeWidth="1.5" />
+      <polygon points="44,38 56,30 40,24" fill="#ea580c" stroke="#000" strokeWidth="1.5" />
+      {/* Left arm raised with stun baton */}
+      <path d="M-34,46 Q-58,30 -70,4" stroke="#0f172a" strokeWidth="16" strokeLinecap="round" fill="none" />
+      <path d="M-70,4 Q-78,-18 -74,-36" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <rect x="-82" y="-42" width="18" height="14" rx="3" fill="#334155" stroke="#000" strokeWidth="2" />
+      <line x1="-73" y1="-42" x2="-73" y2="-76" stroke="#cbd5e1" strokeWidth="6" strokeLinecap="round" />
+      <circle cx="-73" cy="-80" r="16" fill="#00f2fe" filter="drop-shadow(0 0 14px #00f2fe)" />
+      <circle cx="-73" cy="-80" r="6" fill="#fff" />
+      {/* Right arm at side */}
+      <path d="M34,46 Q58,68 62,96" stroke="#0f172a" strokeWidth="16" strokeLinecap="round" fill="none" />
+      <path d="M62,96 Q64,118 60,134" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <rect x="52" y="130" width="18" height="14" rx="3" fill="#334155" stroke="#000" strokeWidth="2" />
+      {/* Legs */}
+      <path d="M-16,128 Q-20,176 -18,218" stroke="#0f172a" strokeWidth="18" strokeLinecap="round" fill="none" />
+      <path d="M-18,218 Q-16,242 -16,256" stroke="#0f172a" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <path d="M-24,252 Q-36,260 -30,268 Q-10,270 -4,260Z" fill="#ea580c" stroke="#000" strokeWidth="2" />
+      <path d="M16,128 Q20,176 18,218" stroke="#0f172a" strokeWidth="18" strokeLinecap="round" fill="none" />
+      <path d="M18,218 Q16,242 16,256" stroke="#0f172a" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <path d="M8,252 Q-4,260 2,268 Q22,270 28,260Z" fill="#ea580c" stroke="#000" strokeWidth="2" />
+      <path d="M-32,40 Q-44,42 -44,38" stroke="#ea580c" strokeWidth="3" fill="none" />
     </g>
 
-    {/* COMIC ACTION: TRACK RUNNER SLIDING LOW ACROSS THE TIES UNDER THE LIGHTNING ARCS */}
-    <g transform="translate(140, 240)">
-      {/* Speed lines */}
-      <line x1="-80" y1="80" x2="0" y2="80" stroke="#facc15" strokeWidth="3" />
-      <line x1="-120" y1="100" x2="-20" y2="100" stroke="#00f2fe" strokeWidth="3" />
-      {/* Low slide torso */}
-      <path d="M20 40 Q60 20 90 45 Q95 80 60 90 Q30 90 20 60 Z" fill="#1e293b" stroke="#000" strokeWidth="3" />
-      {/* Amber HUD goggles glowing */}
-      <polygon points="85,38 105,42 98,52 80,48" fill="#f59e0b" stroke="#000" strokeWidth="1.5" />
-      <polygon points="90,40 100,43 96,49 84,46" fill="#fff" />
-      {/* Outstretched leg skidding on track rail with sparks */}
-      <path d="M60 80 L140 120 L120 135 L40 95 Z" fill="#0f172a" stroke="#000" strokeWidth="3" />
-      <polygon points="135,115 155,120 150,135 125,130" fill="#facc15" />
-      <polygon points="150,110 170,125 155,140 135,125" fill="#facc15" stroke="#ea580c" strokeWidth="1" />
+    {/* TRACK RUNNER — sliding under lightning */}
+    <g transform="translate(180, 360) scale(0.55)">
+      <line x1="-120" y1="0" x2="-20" y2="0" stroke="#facc15" strokeWidth="3" opacity="0.8" />
+      <line x1="-140" y1="16" x2="-10" y2="16" stroke="#00f2fe" strokeWidth="3" opacity="0.9" />
+      <path d="M35,-2 Q33,-22 50,-30 Q67,-22 65,-2" fill="#1e293b" stroke="#000" strokeWidth="2" />
+      <circle cx="50" cy="-6" r="15" fill="#1e293b" stroke="#000" strokeWidth="2.5" />
+      <polygon points="38,-10 62,-10 58,-2 42,-2" fill="#f59e0b" stroke="#000" strokeWidth="1.5" />
+      <polygon points="43,-8 57,-8 55,-4 45,-4" fill="#fff" opacity="0.8" />
+      <path d="M-16,2 L36,2 L32,36 L-12,36Z" fill="#1e293b" stroke="#000" strokeWidth="2.5" />
+      <path d="M32,8 Q56,0 70,-8" stroke="#1e293b" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M70,-8 Q80,-14 86,-18" stroke="#1e293b" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <ellipse cx="88" cy="-20" rx="6" ry="5" fill="#1e293b" stroke="#000" strokeWidth="2" />
+      <path d="M-14,34 Q-42,38 -68,32" stroke="#0f172a" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <path d="M-68,32 Q-90,28 -104,22" stroke="#0f172a" strokeWidth="11" strokeLinecap="round" fill="none" />
+      <path d="M-110,18 Q-122,12 -114,4 Q-98,2 -94,14Z" fill="#eab308" stroke="#000" strokeWidth="2" />
+      <path d="M-10,38 Q-36,44 -60,42" stroke="#0f172a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-60,42 Q-80,42 -94,36" stroke="#0f172a" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <path d="M-100,32 Q-112,26 -106,18 Q-90,16 -86,28Z" fill="#eab308" stroke="#000" strokeWidth="2" />
+      <polygon points="-100,16 -88,10 -92,22 -80,26 -96,28 -100,16" fill="#facc15" stroke="#ea580c" strokeWidth="1" />
     </g>
   </svg>
 );
 
-// ============================================================================
-// 🏦 THEME 3: BANK VAULT HEIST
-// ============================================================================
-
-const BankThiefSuspensionScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+// ═══════════════════════════════════════════════════════════════
+// 🏦 BANK
+// ═══════════════════════════════════════════════════════════════
+const BankPanel1: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#070c18" />
-    {/* Massive Circular Titanium Vault Door with Spoke Wheel */}
     <circle cx="400" cy="240" r="165" fill="#0f172a" stroke="#ffd700" strokeWidth="7" />
     <circle cx="400" cy="240" r="130" fill="#1e293b" stroke="#475569" strokeWidth="4" />
-    {/* Locking Bolts */}
     <line x1="400" y1="75" x2="400" y2="110" stroke="#ffd700" strokeWidth="8" />
     <line x1="400" y1="405" x2="400" y2="370" stroke="#ffd700" strokeWidth="8" />
     <line x1="235" y1="240" x2="270" y2="240" stroke="#ffd700" strokeWidth="8" />
     <line x1="565" y1="240" x2="530" y2="240" stroke="#ffd700" strokeWidth="8" />
+    <line x1="400" y1="0" x2="400" y2="160" stroke="#e2e8f0" strokeWidth="2.5" />
 
-    {/* High-Tension Suspension Wire hanging from ceiling grate */}
-    <line x1="400" y1="0" x2="400" y2="180" stroke="#e2e8f0" strokeWidth="2.5" />
-
-    {/* MASTER THIEF: INVERTED CEILING DROP IN SLEEK CATSUIT */}
-    <g transform="translate(340, 140)">
-      {/* Inverted Hero Body */}
-      <path d="M60 40 Q40 70 50 110 Q75 130 110 110 Q120 70 100 40 Z" fill="#0f172a" stroke="#ffd700" strokeWidth="2.5" />
-      {/* Night Vision Multi-Goggles glowing gold */}
-      <circle cx="70" cy="115" r="7" fill="#ffd700" filter="drop-shadow(0 0 8px #ffd700)" />
-      <circle cx="88" cy="115" r="7" fill="#ffd700" filter="drop-shadow(0 0 8px #ffd700)" />
-      <line x1="77" y1="115" x2="81" y2="115" stroke="#000" strokeWidth="2" />
-      {/* Sleek Reaching Hands with Articulated Claw-Grip */}
-      <path d="M55 80 L25 130 L38 140 L65 90 Z" fill="#0f172a" stroke="#000" strokeWidth="2" />
-      <path d="M105 80 L135 130 L122 140 L95 90 Z" fill="#0f172a" stroke="#000" strokeWidth="2" />
-      <polygon points="25,130 18,145 32,142" fill="#ffd700" />
-      <polygon points="135,130 142,145 128,142" fill="#ffd700" />
+    {/* MASTER THIEF — inverted descent */}
+    <g transform="translate(400, 280) scale(0.6,-0.6)">
+      <circle cx="0" cy="0" r="16" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <circle cx="-6" cy="-2" r="6" fill="#ffd700" stroke="#000" strokeWidth="1.5" filter="drop-shadow(0 0 6px #ffd700)" />
+      <circle cx="6" cy="-2" r="6" fill="#ffd700" stroke="#000" strokeWidth="1.5" filter="drop-shadow(0 0 6px #ffd700)" />
+      <circle cx="-6" cy="-2" r="3" fill="#fff" opacity="0.8" />
+      <circle cx="6" cy="-2" r="3" fill="#fff" opacity="0.8" />
+      <line x1="-2" y1="-2" x2="2" y2="-2" stroke="#000" strokeWidth="2" />
+      <rect x="-5" y="14" width="10" height="8" fill="#0f172a" stroke="#000" strokeWidth="1.5" />
+      <path d="M-20,22 L20,22 L16,66 L-16,66Z" fill="#0f172a" stroke="#ffd700" strokeWidth="2" />
+      <ellipse cx="-22" cy="24" rx="7" ry="4" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <ellipse cx="22" cy="24" rx="7" ry="4" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <path d="M-22,28 Q-42,46 -48,68" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-48,68 Q-52,82 -48,94" stroke="#0f172a" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <ellipse cx="-48" cy="98" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <polygon points="-52,94 -58,106 -44,104" fill="#ffd700" />
+      <path d="M22,28 Q42,46 48,68" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M48,68 Q52,82 48,94" stroke="#0f172a" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <ellipse cx="48" cy="98" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <polygon points="52,94 58,106 44,104" fill="#ffd700" />
+      <path d="M-10,66 Q-10,88 -10,108" stroke="#0f172a" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <path d="M10,66 Q10,88 10,108" stroke="#0f172a" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <path d="M-18,-14 Q-22,0 -22,18" stroke="#ffd700" strokeWidth="2" fill="none" />
+      <path d="M18,-14 Q22,0 22,18" stroke="#ffd700" strokeWidth="2" fill="none" />
     </g>
   </svg>
 );
 
-const BankLaserSprintScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+const BankPanel2: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#06070d" />
-    {/* Red Security Lasers Criss-Crossing Grid */}
     <line x1="0" y1="140" x2="800" y2="340" stroke="#ff0055" strokeWidth="3" filter="drop-shadow(0 0 8px #ff0055)" />
     <line x1="0" y1="340" x2="800" y2="140" stroke="#ff0055" strokeWidth="3" filter="drop-shadow(0 0 8px #ff0055)" />
     <line x1="0" y1="240" x2="800" y2="240" stroke="#ff0055" strokeWidth="2" filter="drop-shadow(0 0 6px #ff0055)" opacity="0.6" />
     <line x1="200" y1="0" x2="350" y2="480" stroke="#ff0055" strokeWidth="2.5" filter="drop-shadow(0 0 6px #ff0055)" />
     <line x1="600" y1="0" x2="450" y2="480" stroke="#ff0055" strokeWidth="2.5" filter="drop-shadow(0 0 6px #ff0055)" />
-
-    {/* Stacks of Gold Bullion Pallets */}
     <rect x="80" y="340" width="120" height="50" rx="4" fill="#ca8a04" stroke="#fef08a" strokeWidth="2" />
     <rect x="620" y="340" width="120" height="50" rx="4" fill="#ca8a04" stroke="#fef08a" strokeWidth="2" />
 
-    {/* COMIC ACTION: MASTER THIEF HORIZONTAL DIVE THROUGH LASER GRID */}
-    <g transform="translate(320, 160)">
-      {/* Speed lines */}
-      <line x1="-120" y1="40" x2="-20" y2="40" stroke="#ffd700" strokeWidth="3" />
-      <line x1="-140" y1="70" x2="-40" y2="70" stroke="#00f2fe" strokeWidth="2" />
-      {/* Horizontal Torso in Mid-Air Dive */}
-      <path d="M20 30 Q70 10 120 25 Q130 55 90 65 Q40 60 20 30 Z" fill="#0f172a" stroke="#ffd700" strokeWidth="2.5" />
-      {/* Head with Gold NVG Visor looking forward */}
-      <circle cx="125" cy="28" r="14" fill="#0f172a" stroke="#000" strokeWidth="2" />
-      <circle cx="132" cy="26" r="5" fill="#ffd700" filter="drop-shadow(0 0 6px #ffd700)" />
-      {/* Reaching arm clutching glowing cyan cipher canister */}
-      <path d="M110 40 L160 50 L155 65 L105 52 Z" fill="#0f172a" stroke="#000" strokeWidth="2" />
-      <rect x="155" y="45" width="20" height="15" rx="3" fill="#00f2fe" stroke="#fff" strokeWidth="1.5" filter="drop-shadow(0 0 8px #00f2fe)" />
-      {/* Trailing legs arched over laser */}
-      <path d="M30 45 L-40 25 L-30 10 L40 30 Z" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
-      <path d="M25 55 L-50 50 L-45 35 L30 42 Z" fill="#1e293b" stroke="#000" strokeWidth="2.5" />
+    {/* MASTER THIEF — horizontal dive through lasers */}
+    <g transform="translate(380, 300) scale(0.55)">
+      <line x1="-140" y1="0" x2="-30" y2="0" stroke="#ffd700" strokeWidth="3" opacity="0.7" />
+      <line x1="-160" y1="18" x2="-20" y2="18" stroke="#ffd700" strokeWidth="4" opacity="0.9" />
+      <path d="M41,-4 Q39,-24 56,-34 Q73,-24 71,-4" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <circle cx="56" cy="-8" r="15" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <circle cx="52" cy="-10" r="5" fill="#ffd700" filter="drop-shadow(0 0 6px #ffd700)" />
+      <circle cx="60" cy="-10" r="5" fill="#ffd700" filter="drop-shadow(0 0 6px #ffd700)" />
+      <path d="M-18,2 L38,2 L34,36 L-14,36Z" fill="#0f172a" stroke="#ffd700" strokeWidth="2" />
+      <path d="M34,8 Q58,0 74,-8" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M74,-8 Q86,-16 92,-22" stroke="#0f172a" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <ellipse cx="94" cy="-24" rx="6" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <rect x="92" y="-34" width="18" height="12" rx="3" fill="#00f2fe" stroke="#fff" strokeWidth="1.5" filter="drop-shadow(0 0 8px #00f2fe)" />
+      <path d="M-16,34 Q-44,38 -70,32" stroke="#0f172a" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <path d="M-70,32 Q-92,28 -106,22" stroke="#0f172a" strokeWidth="11" strokeLinecap="round" fill="none" />
+      <path d="M-112,18 Q-124,12 -118,4 Q-100,2 -96,14Z" fill="#ffd700" stroke="#000" strokeWidth="2" />
+      <path d="M-12,38 Q-38,46 -62,44" stroke="#0f172a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-62,44 Q-82,44 -96,38" stroke="#0f172a" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <path d="M-102,34 Q-114,28 -108,20 Q-92,18 -88,30Z" fill="#ffd700" stroke="#000" strokeWidth="2" />
+      <path d="M56,-24 Q64,-8 64,2" stroke="#ffd700" strokeWidth="2.5" fill="none" />
     </g>
   </svg>
 );
 
-// ============================================================================
-// 🚨 THEME 4: POLICE PRECINCT
-// ============================================================================
-
-const PoliceNoirLockpickScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+// ═══════════════════════════════════════════════════════════════
+// 🚨 POLICE
+// ═══════════════════════════════════════════════════════════════
+const PolicePanel1: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#080d1a" />
-    {/* Heavy Noir Venetian Blind Shadows */}
     <line x1="0" y1="40" x2="800" y2="40" stroke="#000" strokeWidth="22" opacity="0.65" />
     <line x1="0" y1="110" x2="800" y2="110" stroke="#000" strokeWidth="22" opacity="0.65" />
     <line x1="0" y1="180" x2="800" y2="180" stroke="#000" strokeWidth="22" opacity="0.65" />
     <line x1="0" y1="250" x2="800" y2="250" stroke="#000" strokeWidth="22" opacity="0.65" />
-
-    {/* Flashing Blue and Red Siren Glare */}
     <rect x="0" y="0" width="400" height="480" fill="#1e3a8a" opacity="0.3" />
     <rect x="400" y="0" width="400" height="480" fill="#dc2626" opacity="0.3" />
-
-    {/* Heavy Iron Cell Bars */}
     <line x1="140" y1="0" x2="140" y2="480" stroke="#0f172a" strokeWidth="16" />
     <line x1="280" y1="0" x2="280" y2="480" stroke="#0f172a" strokeWidth="16" />
     <line x1="420" y1="0" x2="420" y2="480" stroke="#0f172a" strokeWidth="16" />
     <line x1="560" y1="0" x2="560" y2="480" stroke="#0f172a" strokeWidth="16" />
-    <line x1="700" y1="0" x2="700" y2="480" stroke="#0f172a" strokeWidth="16" />
+    <rect x="430" y="260" width="28" height="38" rx="4" fill="#ca8a04" stroke="#000" strokeWidth="2" />
+    <circle cx="444" cy="275" r="4" fill="#000" />
 
-    {/* COMIC HERO: AGENT X IN NOIR COWL PICKING CELL LOCK IN CLOSE-UP */}
-    <g transform="translate(320, 150)">
-      {/* Trenchcoat collar & shoulders */}
-      <path d="M40 80 L10 190 L180 190 L140 80 Z" fill="#0f172a" stroke="#000" strokeWidth="3" />
+    {/* AGENT X — noir cowl, crouched lockpicking */}
+    <g transform="translate(360, 230) scale(0.55)">
+      <circle cx="0" cy="0" r="18" fill="#020617" stroke="#000" strokeWidth="2.5" />
+      <path d="M-14,12 Q0,22 14,12" fill="#020617" stroke="#000" strokeWidth="2" />
+      <rect x="-16" y="-8" width="32" height="7" rx="2" fill="#ffffff" stroke="#000" strokeWidth="1.5" filter="drop-shadow(0 0 5px #38bdf8)" />
+      <rect x="-10" y="-6" width="20" height="3" rx="1" fill="#cce4ff" opacity="0.7" />
+      <rect x="-6" y="18" width="12" height="8" fill="#020617" stroke="#000" strokeWidth="1.5" />
+      {/* Trenchcoat torso */}
+      <path d="M-24,26 L24,26 L20,74 L-20,74Z" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-26" cy="28" rx="8" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <ellipse cx="26" cy="28" rx="8" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
       {/* High collar flaps */}
-      <polygon points="40,80 65,40 80,75 55,90" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
-      <polygon points="140,80 115,40 100,75 125,90" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
-      {/* Noir Vigilante Cowl / Mask */}
-      <path d="M65 30 Q90 10 115 30 L115 65 L65 65 Z" fill="#020617" stroke="#000" strokeWidth="2.5" />
-      {/* Narrow Glowing White Eye Slits */}
-      <polygon points="72,42 85,44 82,48 70,45" fill="#ffffff" filter="drop-shadow(0 0 5px #38bdf8)" />
-      <polygon points="95,44 108,42 110,45 98,48" fill="#ffffff" filter="drop-shadow(0 0 5px #38bdf8)" />
-      {/* Tension Wrench & Lockpick Tools clicking at the heavy brass lock */}
-      <rect x="135" y="100" width="30" height="40" rx="4" fill="#ca8a04" stroke="#000" strokeWidth="2" />
-      <circle cx="150" cy="115" r="4" fill="#000" />
-      <line x1="100" y1="120" x2="150" y2="115" stroke="#94a3b8" strokeWidth="3" />
-      <line x1="110" y1="135" x2="150" y2="120" stroke="#38bdf8" strokeWidth="2.5" />
-      {/* Blue / Red dynamic comic rim light */}
-      <path d="M38 80 L10 190" stroke="#3b82f6" strokeWidth="3" fill="none" />
-      <path d="M142 80 L180 190" stroke="#ef4444" strokeWidth="3" fill="none" />
+      <polygon points="-24,26 -14,10 -6,24 -18,30" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
+      <polygon points="24,26 14,10 6,24 18,30" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
+      {/* Left arm */}
+      <path d="M-26,32 Q-46,50 -46,74" stroke="#0f172a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-46,74 Q-44,92 -40,106" stroke="#0f172a" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="-40" cy="110" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      {/* Right arm reaching for lock — with lockpick tools */}
+      <path d="M26,32 Q48,48 56,68" stroke="#0f172a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M56,68 Q62,84 66,96" stroke="#0f172a" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="66" cy="100" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <line x1="66" y1="100" x2="86" y2="100" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" />
+      <line x1="66" y1="104" x2="84" y2="108" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" />
+      {/* Crouched legs */}
+      <path d="M-14,74 Q-28,100 -30,126" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M-30,126 Q-28,146 -26,158" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-34,154 Q-44,162 -38,168 Q-18,170 -14,160Z" fill="#38bdf8" stroke="#000" strokeWidth="2" />
+      <path d="M14,74 Q28,100 30,126" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M30,126 Q28,146 26,158" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M18,154 Q8,162 14,168 Q34,170 38,160Z" fill="#38bdf8" stroke="#000" strokeWidth="2" />
+      {/* Rim lights: blue left, red right */}
+      <path d="M-24,26 Q-30,50 -30,74" stroke="#3b82f6" strokeWidth="3" fill="none" />
+      <path d="M24,26 Q30,50 30,74" stroke="#ef4444" strokeWidth="3" fill="none" />
     </g>
   </svg>
 );
 
-const PoliceRooftopPursuitScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+const PolicePanel2: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#040813" />
-    {/* Searchlight Cones Crossing in Stormy Sky */}
     <polygon points="120,480 320,0 480,0 160,480" fill="rgba(255,255,255,0.22)" />
     <polygon points="680,480 480,0 320,0 640,480" fill="rgba(0,242,254,0.18)" />
-    {/* Driving Rain */}
     <line x1="80" y1="20" x2="60" y2="120" stroke="#38bdf8" strokeWidth="2" opacity="0.7" />
     <line x1="240" y1="40" x2="220" y2="160" stroke="#38bdf8" strokeWidth="2" opacity="0.7" />
     <line x1="420" y1="30" x2="400" y2="180" stroke="#38bdf8" strokeWidth="2.5" opacity="0.8" />
     <line x1="600" y1="50" x2="580" y2="190" stroke="#38bdf8" strokeWidth="2" opacity="0.7" />
-
-    {/* Brick Rooftop Silhouettes */}
     <rect x="0" y="320" width="280" height="160" fill="#090d16" stroke="#1e293b" strokeWidth="2" />
     <rect x="480" y="340" width="320" height="140" fill="#090d16" stroke="#1e293b" strokeWidth="2" />
 
-    {/* COMIC HERO: AGENT X MID-AIR ROOFTOP LEAP WITH BILLOWING TRENCHCOAT */}
-    <g transform="translate(290, 160)">
-      {/* Billowing Trenchcoat Flares */}
-      <path d="M40 70 L-50 90 L-70 140 L10 110 Z" fill="#1e293b" stroke="#000" strokeWidth="2.5" />
-      <path d="M30 80 L-60 130 L-30 160 L20 120 Z" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
-      {/* Athletic Leaping Body */}
-      <path d="M40 40 Q70 20 100 35 Q110 70 85 95 Q50 90 40 40 Z" fill="#0f172a" stroke="#000" strokeWidth="3" />
-      {/* Cowl with White Eye Slit */}
-      <circle cx="100" cy="30" r="14" fill="#020617" stroke="#000" strokeWidth="2" />
-      <polygon points="98,28 110,26 106,32 96,31" fill="#fff" filter="drop-shadow(0 0 6px #00f2fe)" />
-      {/* Reaching hands reaching for the next rooftop */}
-      <path d="M90 50 L145 65 L135 80 L80 65 Z" fill="#0f172a" stroke="#000" strokeWidth="2" />
-      <path d="M70 90 L120 150 L100 165 L50 105 Z" fill="#0f172a" stroke="#000" strokeWidth="3" />
-      {/* Comic Cyan Rim Light in Searchlight */}
-      <path d="M100 16 Q120 30 114 45" stroke="#00f2fe" strokeWidth="3" fill="none" />
-      <path d="M90 50 L145 65" stroke="#00f2fe" strokeWidth="2.5" fill="none" />
+    {/* AGENT X — leaping between rooftops, trenchcoat tails */}
+    <g transform="translate(360, 260) scale(0.55)">
+      {/* Billowing coat tails behind */}
+      <path d="M-30,50 Q-80,40 -110,80" stroke="#1e293b" strokeWidth="24" strokeLinecap="round" fill="none" opacity="0.9" />
+      <path d="M-26,58 Q-70,60 -100,100" stroke="#0f172a" strokeWidth="18" strokeLinecap="round" fill="none" opacity="0.9" />
+      {/* Head */}
+      <path d="M-16,4 Q-18,-18 0,-28 Q18,-18 16,4" fill="#020617" stroke="#000" strokeWidth="2" />
+      <circle cx="0" cy="0" r="16" fill="#020617" stroke="#000" strokeWidth="2.5" />
+      <rect x="-14" y="-6" width="28" height="6" rx="2" fill="#fff" stroke="#000" strokeWidth="1.5" filter="drop-shadow(0 0 5px #00f2fe)" />
+      <rect x="-9" y="-4" width="18" height="2" rx="1" fill="#bfdbfe" />
+      {/* Neck */}
+      <rect x="-5" y="14" width="10" height="7" fill="#020617" />
+      {/* Torso */}
+      <path d="M-22,22 L22,22 L18,62 L-18,62Z" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-24" cy="24" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <ellipse cx="24" cy="24" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      {/* Left arm flung back */}
+      <path d="M-24,28 Q-50,20 -66,6" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-66,6 Q-76,-6 -72,-18" stroke="#0f172a" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <ellipse cx="-72" cy="-22" rx="6" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      {/* Right arm reaching for next rooftop */}
+      <path d="M24,28 Q52,12 66,-4" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M66,-4 Q76,-16 74,-28" stroke="#0f172a" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <ellipse cx="74" cy="-32" rx="6" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      {/* Legs splayed mid-air */}
+      <path d="M-12,62 Q-32,86 -44,110" stroke="#0f172a" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <path d="M-44,110 Q-50,130 -46,144" stroke="#0f172a" strokeWidth="11" strokeLinecap="round" fill="none" />
+      <path d="M-54,140 Q-64,148 -58,154 Q-38,156 -34,146Z" fill="#38bdf8" stroke="#000" strokeWidth="2" />
+      <path d="M12,62 Q36,82 48,106" stroke="#0f172a" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <path d="M48,106 Q54,126 52,140" stroke="#0f172a" strokeWidth="11" strokeLinecap="round" fill="none" />
+      <path d="M44,136 Q34,144 40,150 Q60,152 64,142Z" fill="#38bdf8" stroke="#000" strokeWidth="2" />
+      <path d="M0,-16 Q16,-8 20,0" stroke="#00f2fe" strokeWidth="2.5" fill="none" />
+      <path d="M24,22 Q36,40 34,60" stroke="#ef4444" strokeWidth="2" fill="none" />
     </g>
   </svg>
 );
 
-// ============================================================================
-// ❄️ THEME 5: ARCTIC GLACIER
-// ============================================================================
-
-const SnowIceClimbScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+// ═══════════════════════════════════════════════════════════════
+// ❄️ SNOW
+// ═══════════════════════════════════════════════════════════════
+const SnowPanel1: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#050e1f" />
-    {/* Aurora Borealis in Arctic Sky */}
-    <path d="M0 120 Q200 40 400 90 T800 60" stroke="#00f2fe" strokeWidth="18" fill="none" opacity="0.35" filter="blur(12px)" />
-    <path d="M0 150 Q200 80 400 120 T800 90" stroke="#10b981" strokeWidth="14" fill="none" opacity="0.3" filter="blur(10px)" />
+    <path d="M0 120 Q200 40 400 90 T800 60" stroke="#00f2fe" strokeWidth="18" fill="none" opacity="0.35" />
+    <path d="M0 150 Q200 80 400 120 T800 90" stroke="#10b981" strokeWidth="14" fill="none" opacity="0.3" />
     <circle cx="680" cy="85" r="42" fill="#f0f9ff" filter="drop-shadow(0 0 24px #38bdf8)" />
-
-    {/* Glacier Wall */}
     <polygon points="120,160 0,480 320,480" fill="#0f294a" />
     <polygon points="120,160 80,230 160,230" fill="#bae6fd" />
     <polygon points="440,120 220,480 640,480" fill="#163963" />
     <polygon points="440,120 380,210 500,210" fill="#e0f2fe" />
 
-    {/* COMIC HERO: ARCTIC RANGER CLIMBING GLACIER WITH TWIN ICE AXES */}
-    <g transform="translate(360, 160)">
-      {/* Heavy Hooded Thermal Parka */}
-      <path d="M40 40 Q70 20 100 40 Q115 80 90 120 Q50 125 35 75 Z" fill="#0369a1" stroke="#000" strokeWidth="3" />
-      {/* Orange Goggles Visor glowing */}
-      <polygon points="65,45 95,48 90,62 62,58" fill="#f97316" stroke="#000" strokeWidth="1.5" />
-      <polygon points="70,48 90,50 86,58 68,55" fill="#fef08a" />
-      {/* Fur hood trim */}
-      <circle cx="50" cy="45" r="8" fill="#e0f2fe" />
-      <circle cx="105" cy="45" r="8" fill="#e0f2fe" />
-      {/* Raised Arm Striking Ice Axe into Wall */}
-      <path d="M85 55 L130 10 L145 20 L95 70 Z" fill="#0284c7" stroke="#000" strokeWidth="2.5" />
-      {/* Titanium Ice Axe */}
-      <line x1="130" y1="10" x2="160" y2="-20" stroke="#cbd5e1" strokeWidth="4" />
-      <polygon points="150,-25 175,-20 160,-10" fill="#f8fafc" stroke="#000" strokeWidth="1" />
-      {/* Crampon boots digging into ice shelf */}
-      <path d="M50 115 L40 170 L60 175 L75 125 Z" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
-      <polygon points="35,170 25,180 50,178" fill="#cbd5e1" stroke="#000" strokeWidth="1" />
+    {/* ARCTIC RANGER — climbing glacier with ice axe */}
+    <g transform="translate(420, 220) scale(0.55)">
+      <path d="M-17,4 Q-19,-20 0,-30 Q19,-20 17,4" fill="#0369a1" stroke="#000" strokeWidth="2" />
+      <circle cx="0" cy="0" r="17" fill="#0369a1" stroke="#000" strokeWidth="2.5" />
+      <polygon points="-12,-4 12,-4 8,4 -8,4" fill="#f97316" stroke="#000" strokeWidth="1.5" />
+      <polygon points="-7,-2 7,-2 5,2 -5,2" fill="#fef08a" opacity="0.85" />
+      <ellipse cx="-14" cy="-2" rx="7" ry="7" fill="#e0f2fe" opacity="0.8" />
+      <ellipse cx="14" cy="-2" rx="7" ry="7" fill="#e0f2fe" opacity="0.8" />
+      <rect x="-5" y="16" width="10" height="8" fill="#0369a1" stroke="#000" strokeWidth="1.5" />
+      <path d="M-22,24 L22,24 L18,68 L-18,68Z" fill="#0369a1" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-24" cy="26" rx="7" ry="5" fill="#0369a1" stroke="#000" strokeWidth="2" />
+      <ellipse cx="24" cy="26" rx="7" ry="5" fill="#0369a1" stroke="#000" strokeWidth="2" />
+      {/* Right arm raised striking ice axe */}
+      <path d="M24,30 Q40,8 44,-18" stroke="#0284c7" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M44,-18 Q46,-36 42,-48" stroke="#0284c7" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="42" cy="-52" rx="7" ry="5" fill="#0284c7" stroke="#000" strokeWidth="2" />
+      <line x1="42" y1="-52" x2="62" y2="-78" stroke="#cbd5e1" strokeWidth="4" strokeLinecap="round" />
+      <polygon points="56,-84 74,-80 64,-70" fill="#f8fafc" stroke="#000" strokeWidth="1" />
+      {/* Left arm gripping lower */}
+      <path d="M-24,30 Q-42,50 -44,72" stroke="#0284c7" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-44,72 Q-42,90 -38,104" stroke="#0284c7" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="-38" cy="108" rx="7" ry="5" fill="#0284c7" stroke="#000" strokeWidth="2" />
+      {/* Legs braced on ice */}
+      <path d="M-14,68 Q-22,96 -24,122" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M-24,122 Q-22,142 -20,154" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-28,150 Q-38,158 -32,164 Q-12,166 -8,156Z" fill="#f97316" stroke="#000" strokeWidth="2" />
+      <polygon points="-34,164 -44,170 -26,168" fill="#cbd5e1" stroke="#000" strokeWidth="1" />
+      <path d="M14,68 Q24,94 28,118" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M28,118 Q26,138 24,150" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M16,146 Q6,154 12,160 Q32,162 36,152Z" fill="#f97316" stroke="#000" strokeWidth="2" />
+      <path d="M-17,-14 Q-22,0 -24,20" stroke="#38bdf8" strokeWidth="2.5" fill="none" />
+      <path d="M17,-14 Q22,0 24,20" stroke="#f97316" strokeWidth="2" fill="none" />
     </g>
   </svg>
 );
 
-const SnowBlizzardWolfScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+const SnowPanel2: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#030914" />
-    {/* Blizzard Wind Streaks */}
-    <line x1="0" y1="80" x2="800" y2="120" stroke="#ffffff" strokeWidth="3" opacity="0.6" />
-    <line x1="0" y1="180" x2="800" y2="230" stroke="#ffffff" strokeWidth="4" opacity="0.8" />
+    <line x1="0" y1="80" x2="800" y2="120" stroke="#fff" strokeWidth="3" opacity="0.6" />
+    <line x1="0" y1="180" x2="800" y2="230" stroke="#fff" strokeWidth="4" opacity="0.8" />
     <line x1="0" y1="290" x2="800" y2="330" stroke="#38bdf8" strokeWidth="3" opacity="0.5" />
+    {/* Wolf predator */}
+    <circle cx="580" cy="220" r="8" fill="#38bdf8" filter="drop-shadow(0 0 10px #38bdf8)" />
+    <circle cx="615" cy="220" r="8" fill="#38bdf8" filter="drop-shadow(0 0 10px #38bdf8)" />
+    <polygon points="570,240 625,240 597,268" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
+    <path d="M550,240 Q598,200 640,240 Q660,290 598,310 Q545,290 550,240Z" fill="#0a1628" stroke="#38bdf8" strokeWidth="2" opacity="0.8" />
 
-    {/* Glowing Eyes of Blizzard Predator on Ridge */}
-    <circle cx="580" cy="220" r="7" fill="#38bdf8" filter="drop-shadow(0 0 10px #38bdf8)" />
-    <circle cx="615" cy="220" r="7" fill="#38bdf8" filter="drop-shadow(0 0 10px #38bdf8)" />
-    {/* Wolf Fangs & Muzzle Silhouette */}
-    <polygon points="570,240 625,240 597,265" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
-
-    {/* COMIC HERO: ARCTIC RANGER IGNITING RED MAGNESIUM FLARE IN BLIZZARD */}
-    <g transform="translate(180, 160)">
-      {/* Sputtering Red Flare Halo */}
-      <circle cx="160" cy="70" r="45" fill="rgba(239, 68, 68, 0.4)" filter="blur(15px)" />
-      <circle cx="160" cy="70" r="14" fill="#ef4444" filter="drop-shadow(0 0 12px #f87171)" />
-      <circle cx="160" cy="70" r="5" fill="#ffffff" />
-      {/* Flare Sparkles */}
-      <polygon points="160,50 164,66 178,70 164,74 160,90 156,74 142,70 156,66" fill="#facc15" />
-
-      {/* Hero holding flare forward */}
-      <path d="M50 70 Q80 40 110 60 Q120 100 95 140 Q55 140 45 95 Z" fill="#0284c7" stroke="#000" strokeWidth="3" />
-      <path d="M100 70 L155 70 L150 85 L95 85 Z" fill="#0369a1" stroke="#000" strokeWidth="2.5" />
-      {/* Flare Stick in Hand */}
-      <rect x="150" y="65" width="12" height="30" fill="#71717a" stroke="#000" strokeWidth="1.5" />
-      {/* Orange Goggles Glowing Red from Flare */}
-      <polygon points="75,60 105,62 100,74 72,72" fill="#ef4444" stroke="#000" strokeWidth="1.5" />
+    {/* ARCTIC RANGER — standing with flare */}
+    <g transform="translate(230, 210) scale(0.55)">
+      <path d="M-17,4 Q-19,-20 0,-30 Q19,-20 17,4" fill="#0369a1" stroke="#000" strokeWidth="2" />
+      <circle cx="0" cy="0" r="17" fill="#0369a1" stroke="#000" strokeWidth="2.5" />
+      <polygon points="-12,-4 12,-4 8,4 -8,4" fill="#ef4444" stroke="#000" strokeWidth="1.5" />
+      <polygon points="-7,-2 7,-2 5,2 -5,2" fill="#fef08a" opacity="0.85" />
+      <rect x="-5" y="16" width="10" height="8" fill="#0369a1" stroke="#000" strokeWidth="1.5" />
+      <path d="M-22,24 L22,24 L18,76 L-18,76Z" fill="#0369a1" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-24" cy="26" rx="7" ry="5" fill="#0369a1" stroke="#000" strokeWidth="2" />
+      <ellipse cx="24" cy="26" rx="7" ry="5" fill="#0369a1" stroke="#000" strokeWidth="2" />
+      {/* Left arm at side */}
+      <path d="M-24,30 Q-38,50 -42,74" stroke="#0284c7" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-42,74 Q-40,94 -38,108" stroke="#0284c7" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="-38" cy="112" rx="7" ry="5" fill="#0284c7" stroke="#000" strokeWidth="2" />
+      {/* Right arm holding flare forward */}
+      <path d="M24,30 Q46,36 60,38" stroke="#0284c7" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M60,38 Q74,40 84,38" stroke="#0284c7" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="86" cy="38" rx="7" ry="5" fill="#0284c7" stroke="#000" strokeWidth="2" />
+      {/* Flare stick */}
+      <rect x="90" y="30" width="10" height="26" rx="3" fill="#71717a" stroke="#000" strokeWidth="1.5" />
+      <circle cx="95" cy="25" r="14" fill="rgba(239,68,68,0.4)" />
+      <circle cx="95" cy="25" r="8" fill="#ef4444" filter="drop-shadow(0 0 12px #f87171)" />
+      <polygon points="95,8 99,22 112,25 99,28 95,42 91,28 78,25 91,22" fill="#facc15" />
+      {/* Legs standing */}
+      <path d="M-12,76 Q-14,110 -14,140" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M-14,140 Q-14,158 -14,170" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-22,166 Q-32,174 -26,180 Q-6,182 -2,172Z" fill="#f97316" stroke="#000" strokeWidth="2" />
+      <path d="M12,76 Q14,110 14,140" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M14,140 Q14,158 14,170" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M6,166 Q-4,174 2,180 Q22,182 26,172Z" fill="#f97316" stroke="#000" strokeWidth="2" />
+      <path d="M-22,24 Q-28,50 -28,76" stroke="#38bdf8" strokeWidth="2.5" fill="none" />
+      <path d="M22,24 Q28,50 28,76" stroke="#ef4444" strokeWidth="2" fill="none" />
     </g>
   </svg>
 );
 
-// ============================================================================
-// 🏙️ THEME 6: CYBERPUNK HIGH-TECH
-// ============================================================================
-
-const CyberRunnerGargoyleScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+// ═══════════════════════════════════════════════════════════════
+// 🏙️ CYBERPUNK
+// ═══════════════════════════════════════════════════════════════
+const CyberPanel1: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#050510" />
-    {/* Holographic Ads & Neon Signs */}
     <rect x="80" y="80" width="120" height="60" fill="none" stroke="#00f2fe" strokeWidth="2" filter="drop-shadow(0 0 8px #00f2fe)" />
     <text x="140" y="115" textAnchor="middle" fill="#00f2fe" fontSize="14" fontFamily="monospace" fontWeight="bold">CYBER-CORP</text>
     <rect x="600" y="120" width="140" height="50" fill="none" stroke="#ff0055" strokeWidth="2" filter="drop-shadow(0 0 8px #ff0055)" />
     <text x="670" y="152" textAnchor="middle" fill="#ff0055" fontSize="14" fontFamily="monospace" fontWeight="bold">SYNTH-NET</text>
-
-    {/* Flying Aerocar Streaks */}
-    <line x1="0" y1="260" x2="800" y2="290" stroke="#facc15" strokeWidth="3" opacity="0.6" filter="blur(2px)" />
-    <line x1="800" y1="310" x2="0" y2="340" stroke="#00f2fe" strokeWidth="3" opacity="0.6" filter="blur(2px)" />
-
-    {/* High-Tech Gargoyle Ledge */}
+    <line x1="0" y1="260" x2="800" y2="290" stroke="#facc15" strokeWidth="3" opacity="0.6" />
+    <line x1="800" y1="310" x2="0" y2="340" stroke="#00f2fe" strokeWidth="3" opacity="0.6" />
     <polygon points="0,480 300,480 380,340 220,320 0,380" fill="#090d16" stroke="#00f2fe" strokeWidth="2" />
 
-    {/* COMIC HERO: CYBER-RUNNER CROUCHED ON THE GARGOYLE */}
-    <g transform="translate(240, 210)">
-      {/* High-Collar Cyber Jacket */}
-      <path d="M40 50 Q70 20 100 45 Q115 85 90 120 Q50 125 35 75 Z" fill="#0f172a" stroke="#000" strokeWidth="3" />
-      {/* Cybernetic Arm with Glowing Circuit Lines */}
-      <path d="M95 60 L140 100 L125 115 L80 75 Z" fill="#1e293b" stroke="#000" strokeWidth="2.5" />
-      <line x1="95" y1="65" x2="135" y2="105" stroke="#00f2fe" strokeWidth="2" filter="drop-shadow(0 0 6px #00f2fe)" />
-      {/* Cyan Holographic HUD Visor */}
-      <polygon points="65,45 95,48 90,62 62,58" fill="#00f2fe" stroke="#000" strokeWidth="1.5" filter="drop-shadow(0 0 6px #00f2fe)" />
-      <polygon points="70,48 90,50 86,58 68,55" fill="#ffffff" />
+    {/* CYBER-RUNNER — crouched on gargoyle */}
+    <g transform="translate(260, 240) scale(0.55)">
+      <path d="M-17,4 Q-19,-20 0,-30 Q19,-20 17,4" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <circle cx="0" cy="0" r="17" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <polygon points="-13,-4 13,-4 9,4 -9,4" fill="#00f2fe" stroke="#000" strokeWidth="1.5" filter="drop-shadow(0 0 5px #00f2fe)" />
+      <polygon points="-8,-2 8,-2 6,2 -6,2" fill="#fff" opacity="0.85" />
+      <rect x="-5" y="16" width="10" height="8" fill="#0f172a" stroke="#000" strokeWidth="1.5" />
+      <path d="M-22,24 L22,24 L18,68 L-18,68Z" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-24" cy="26" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <ellipse cx="24" cy="26" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <path d="M-24,30 Q-44,50 -44,74" stroke="#0f172a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-44,74 Q-42,92 -38,106" stroke="#0f172a" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="-38" cy="110" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      {/* Right arm with cybernetic glow */}
+      <path d="M24,30 Q46,48 48,72" stroke="#0f172a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M24,30 Q46,48 48,72" stroke="#00f2fe" strokeWidth="2" fill="none" filter="drop-shadow(0 0 6px #00f2fe)" opacity="0.7" />
+      <path d="M48,72 Q46,90 42,104" stroke="#0f172a" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="42" cy="108" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <circle cx="42" cy="108" r="10" fill="#00f2fe" stroke="#fff" strokeWidth="1.5" filter="drop-shadow(0 0 8px #00f2fe)" opacity="0.9" />
+      {/* Legs crouched */}
+      <path d="M-14,68 Q-28,96 -30,122" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M-30,122 Q-28,142 -26,154" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-34,150 Q-44,158 -38,164 Q-18,166 -14,156Z" fill="#00f2fe" stroke="#000" strokeWidth="2" />
+      <path d="M14,68 Q30,94 34,118" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M34,118 Q32,138 28,150" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M20,146 Q10,154 16,160 Q36,162 40,152Z" fill="#00f2fe" stroke="#000" strokeWidth="2" />
+      <path d="M-17,-14 Q-22,0 -24,20" stroke="#00f2fe" strokeWidth="2.5" fill="none" />
+      <path d="M17,-14 Q22,0 24,20" stroke="#ff0055" strokeWidth="2" fill="none" />
     </g>
   </svg>
 );
 
-const CyberDroneSkirmishScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+const CyberPanel2: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#0a0518" />
-    {/* Laser Pulse Blasts */}
     <line x1="120" y1="120" x2="380" y2="280" stroke="#ff0055" strokeWidth="4" filter="drop-shadow(0 0 10px #ff0055)" />
     <line x1="680" y1="100" x2="420" y2="280" stroke="#ff0055" strokeWidth="4" filter="drop-shadow(0 0 10px #ff0055)" />
+    <g transform="translate(100,80)"><polygon points="20,20 60,10 80,30 50,45" fill="#1e1b4b" stroke="#ff0055" strokeWidth="2" /><circle cx="50" cy="25" r="8" fill="#ff0055" filter="drop-shadow(0 0 8px #ff0055)" /></g>
+    <g transform="translate(620,70)"><polygon points="20,20 60,10 80,30 50,45" fill="#1e1b4b" stroke="#ff0055" strokeWidth="2" /><circle cx="50" cy="25" r="8" fill="#ff0055" filter="drop-shadow(0 0 8px #ff0055)" /></g>
 
-    {/* Pursuit Drone Quadcopter */}
-    <g transform="translate(100, 80)">
-      <polygon points="20,20 60,10 80,30 50,45" fill="#1e1b4b" stroke="#ff0055" strokeWidth="2" />
-      <circle cx="50" cy="25" r="8" fill="#ff0055" filter="drop-shadow(0 0 8px #ff0055)" />
-    </g>
-    <g transform="translate(620, 70)">
-      <polygon points="20,20 60,10 80,30 50,45" fill="#1e1b4b" stroke="#ff0055" strokeWidth="2" />
-      <circle cx="50" cy="25" r="8" fill="#ff0055" filter="drop-shadow(0 0 8px #ff0055)" />
-    </g>
+    {/* EMP pulse halo */}
+    <circle cx="400" cy="310" r="55" fill="rgba(0,242,254,0.2)" filter="blur(14px)" />
 
-    {/* COMIC HERO: WALL-RUNNING CYBER-RUNNER DEPLOYING EMP PULSE */}
-    <g transform="translate(340, 200)">
-      <circle cx="80" cy="80" r="50" fill="rgba(0, 242, 254, 0.25)" filter="blur(12px)" />
-      <path d="M30 40 Q60 15 95 35 Q105 70 80 95 Q45 95 30 40 Z" fill="#0f172a" stroke="#000" strokeWidth="3" />
-      {/* EMP Glove firing */}
-      <circle cx="120" cy="50" r="16" fill="#00f2fe" filter="drop-shadow(0 0 14px #00f2fe)" />
-      <circle cx="120" cy="50" r="6" fill="#ffffff" />
+    {/* CYBER-RUNNER — running, EMP burst */}
+    <g transform="translate(400, 260) scale(0.55)">
+      <path d="M-17,4 Q-19,-20 0,-30 Q19,-20 17,4" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <circle cx="0" cy="0" r="17" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <polygon points="-13,-4 13,-4 9,4 -9,4" fill="#00f2fe" stroke="#000" strokeWidth="1.5" filter="drop-shadow(0 0 5px #00f2fe)" />
+      <polygon points="-8,-2 8,-2 6,2 -6,2" fill="#fff" opacity="0.85" />
+      <rect x="-5" y="16" width="10" height="8" fill="#0f172a" />
+      <path d="M-20,24 L20,24 L16,64 L-16,64Z" fill="#0f172a" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-22" cy="26" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <ellipse cx="22" cy="26" rx="7" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      {/* Left arm pumping back */}
+      <path d="M-22,30 Q-44,22 -56,8" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-56,8 Q-62,-6 -58,-18" stroke="#0f172a" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <ellipse cx="-58" cy="-22" rx="6" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      {/* Right arm forward with EMP */}
+      <path d="M22,30 Q46,20 58,6" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M58,6 Q66,-6 64,-18" stroke="#0f172a" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <ellipse cx="64" cy="-22" rx="6" ry="5" fill="#0f172a" stroke="#000" strokeWidth="2" />
+      <circle cx="64" cy="-22" r="18" fill="#00f2fe" filter="drop-shadow(0 0 16px #00f2fe)" opacity="0.8" />
+      <circle cx="64" cy="-22" r="7" fill="#ffffff" />
+      {/* Left leg stride forward */}
+      <path d="M-10,64 Q-4,92 10,116" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M10,116 Q16,136 14,150" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M6,146 Q-4,154 2,160 Q22,162 26,152Z" fill="#00f2fe" stroke="#000" strokeWidth="2" />
+      {/* Right leg stride back */}
+      <path d="M10,64 Q0,86 -12,104" stroke="#0f172a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M-12,104 Q-20,120 -24,132" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-32,128 Q-42,134 -36,142 Q-16,144 -12,134Z" fill="#00f2fe" stroke="#000" strokeWidth="2" />
+      <path d="M-20,24 Q-26,46 -26,64" stroke="#00f2fe" strokeWidth="2.5" fill="none" />
+      <path d="M20,24 Q26,46 26,64" stroke="#ff0055" strokeWidth="2" fill="none" />
     </g>
   </svg>
 );
 
-// ============================================================================
-// 👻 THEME 7: HAUNTED GOTHIC CRYPT
-// ============================================================================
-
-const HauntedInvestigatorScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+// ═══════════════════════════════════════════════════════════════
+// 👻 HAUNTED
+// ═══════════════════════════════════════════════════════════════
+const HauntedPanel1: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#0a0614" />
-    {/* Gothic Candelabra Archways */}
     <path d="M100 480 L100 150 Q400 40 700 150 L700 480" stroke="#1f1435" strokeWidth="12" fill="none" />
     <circle cx="140" cy="180" r="8" fill="#eab308" filter="drop-shadow(0 0 10px #eab308)" />
     <circle cx="660" cy="180" r="8" fill="#eab308" filter="drop-shadow(0 0 10px #eab308)" />
-
-    {/* Floating Spectral Eyes in Shadows */}
     <circle cx="280" cy="140" r="5" fill="#a855f7" filter="drop-shadow(0 0 8px #a855f7)" />
     <circle cx="310" cy="140" r="5" fill="#a855f7" filter="drop-shadow(0 0 8px #a855f7)" />
 
-    {/* COMIC HERO: OCCULT INVESTIGATOR WITH GLOWING SPIRIT LANTERN */}
-    <g transform="translate(340, 180)">
-      {/* Victorian Trenchcoat */}
-      <path d="M30 60 L10 190 L130 190 L110 60 Z" fill="#130d24" stroke="#000" strokeWidth="3" />
-      {/* Glowing Spirit Lantern in Hand */}
-      <line x1="100" y1="90" x2="135" y2="120" stroke="#6b21a8" strokeWidth="3" />
-      <rect x="125" y="115" width="22" height="30" rx="3" fill="#3b0764" stroke="#e9d5ff" strokeWidth="2" />
-      <circle cx="136" cy="130" r="8" fill="#c084fc" filter="drop-shadow(0 0 12px #c084fc)" />
-      <circle cx="136" cy="130" r="3" fill="#ffffff" />
+    {/* OCCULT INVESTIGATOR — standing with lantern */}
+    <g transform="translate(400, 210) scale(0.55)">
+      <path d="M-17,4 Q-19,-20 0,-30 Q19,-20 17,4" fill="#130d24" stroke="#000" strokeWidth="2" />
+      <circle cx="0" cy="0" r="17" fill="#130d24" stroke="#000" strokeWidth="2.5" />
+      <rect x="-15" y="-6" width="30" height="6" rx="2" fill="#fff" stroke="#000" strokeWidth="1.5" filter="drop-shadow(0 0 5px #c084fc)" />
+      <rect x="-10" y="-4" width="20" height="2" rx="1" fill="#e9d5ff" />
+      <rect x="-5" y="16" width="10" height="8" fill="#130d24" stroke="#000" strokeWidth="1.5" />
+      <path d="M-22,24 L22,24 L18,80 L-18,80Z" fill="#130d24" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-24" cy="26" rx="7" ry="5" fill="#130d24" stroke="#000" strokeWidth="2" />
+      <ellipse cx="24" cy="26" rx="7" ry="5" fill="#130d24" stroke="#000" strokeWidth="2" />
+      <path d="M-24,30 Q-38,50 -40,74" stroke="#130d24" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-40,74 Q-38,94 -36,108" stroke="#130d24" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="-36" cy="112" rx="7" ry="5" fill="#130d24" stroke="#000" strokeWidth="2" />
+      {/* Right arm holding lantern */}
+      <path d="M24,30 Q42,40 52,52" stroke="#130d24" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M52,52 Q58,66 56,78" stroke="#130d24" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="56" cy="82" rx="7" ry="5" fill="#130d24" stroke="#000" strokeWidth="2" />
+      <line x1="56" y1="82" x2="68" y2="96" stroke="#6b21a8" strokeWidth="3" />
+      <rect x="60" y="94" width="18" height="26" rx="3" fill="#3b0764" stroke="#e9d5ff" strokeWidth="2" />
+      <circle cx="69" cy="107" r="8" fill="#c084fc" filter="drop-shadow(0 0 12px #c084fc)" />
+      <circle cx="69" cy="107" r="3" fill="#fff" />
+      {/* Legs standing */}
+      <path d="M-12,80 Q-14,114 -14,144" stroke="#130d24" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M-14,144 Q-14,162 -14,174" stroke="#130d24" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-22,170 Q-32,178 -26,184 Q-6,186 -2,176Z" fill="#a855f7" stroke="#000" strokeWidth="2" />
+      <path d="M12,80 Q14,114 14,144" stroke="#130d24" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M14,144 Q14,162 14,174" stroke="#130d24" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M6,170 Q-4,178 2,184 Q22,186 26,176Z" fill="#a855f7" stroke="#000" strokeWidth="2" />
+      <path d="M-22,24 Q-28,50 -28,80" stroke="#a855f7" strokeWidth="2.5" fill="none" />
+      <path d="M22,24 Q28,50 28,80" stroke="#c084fc" strokeWidth="2" fill="none" />
     </g>
   </svg>
 );
 
-const HauntedWraithEncounterScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+const HauntedPanel2: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#06020e" />
-    {/* Looming Spectral Wraith Boss */}
-    <g transform="translate(450, 70)">
-      <path d="M60 40 Q130 10 180 60 Q210 160 160 260 Q100 240 60 210 Q20 130 60 40 Z" fill="rgba(88, 28, 135, 0.45)" filter="blur(10px)" />
-      <circle cx="110" cy="90" r="12" fill="#e9d5ff" filter="drop-shadow(0 0 14px #c084fc)" />
-      <circle cx="150" cy="90" r="12" fill="#e9d5ff" filter="drop-shadow(0 0 14px #c084fc)" />
+    {/* Spectral Wraith */}
+    <g transform="translate(480,60)">
+      <path d="M30 40 Q100 0 140 50 Q170 150 130 270 Q80 250 40 220 Q10 140 30 40Z" fill="rgba(88,28,135,0.45)" />
+      <circle cx="80" cy="80" r="14" fill="#e9d5ff" filter="drop-shadow(0 0 14px #c084fc)" />
+      <circle cx="120" cy="80" r="14" fill="#e9d5ff" filter="drop-shadow(0 0 14px #c084fc)" />
+      <path d="M88,104 Q100,114 112,104" stroke="#e9d5ff" strokeWidth="2.5" fill="none" />
+      <path d="M40,180 Q20,240 40,300 Q80,340 120,310 Q140,270 130,270" stroke="rgba(196,132,252,0.5)" strokeWidth="20" strokeLinecap="round" fill="none" />
     </g>
-
-    {/* COMIC HERO: INVESTIGATOR DEPLOYING MYSTIC RUNE SHIELD */}
-    <g transform="translate(180, 200)">
-      <circle cx="140" cy="100" r="60" fill="none" stroke="#a855f7" strokeWidth="4" filter="drop-shadow(0 0 15px #c084fc)" />
-      <polygon points="140,50 185,130 95,130" fill="none" stroke="#c084fc" strokeWidth="2" />
+    {/* OCCULT INVESTIGATOR — rune shield */}
+    <g transform="translate(220, 230) scale(0.55)">
+      <path d="M-17,4 Q-19,-20 0,-30 Q19,-20 17,4" fill="#130d24" stroke="#000" strokeWidth="2" />
+      <circle cx="0" cy="0" r="17" fill="#130d24" stroke="#000" strokeWidth="2.5" />
+      <rect x="-15" y="-6" width="30" height="6" rx="2" fill="#fff" stroke="#000" strokeWidth="1.5" filter="drop-shadow(0 0 5px #c084fc)" />
+      <rect x="-5" y="16" width="10" height="8" fill="#130d24" />
+      <path d="M-22,24 L22,24 L18,80 L-18,80Z" fill="#130d24" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-24" cy="26" rx="7" ry="5" fill="#130d24" stroke="#000" strokeWidth="2" />
+      <ellipse cx="24" cy="26" rx="7" ry="5" fill="#130d24" stroke="#000" strokeWidth="2" />
+      <path d="M-24,30 Q-38,50 -40,74" stroke="#130d24" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-40,74 Q-38,94 -36,108" stroke="#130d24" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="-36" cy="112" rx="7" ry="5" fill="#130d24" stroke="#000" strokeWidth="2" />
+      <path d="M24,30 Q42,40 52,48" stroke="#130d24" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M52,48 Q58,62 56,74" stroke="#130d24" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="56" cy="78" rx="7" ry="5" fill="#130d24" stroke="#000" strokeWidth="2" />
+      {/* Rune shield projected from right hand */}
+      <circle cx="56" cy="50" r="55" fill="none" stroke="#a855f7" strokeWidth="4" filter="drop-shadow(0 0 15px #c084fc)" />
+      <polygon points="56,-5 98,70 14,70" fill="none" stroke="#c084fc" strokeWidth="2" />
+      <circle cx="56" cy="50" r="14" fill="rgba(168,85,247,0.4)" />
+      <path d="M-12,80 Q-14,114 -14,144" stroke="#130d24" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M-14,144 Q-14,162 -14,174" stroke="#130d24" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-22,170 Q-32,178 -26,184 Q-6,186 -2,176Z" fill="#a855f7" stroke="#000" strokeWidth="2" />
+      <path d="M12,80 Q14,114 14,144" stroke="#130d24" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M14,144 Q14,162 14,174" stroke="#130d24" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M6,170 Q-4,178 2,184 Q22,186 26,176Z" fill="#a855f7" stroke="#000" strokeWidth="2" />
+      <path d="M-22,24 Q-28,50 -28,80" stroke="#a855f7" strokeWidth="2.5" fill="none" />
     </g>
   </svg>
 );
 
-// ============================================================================
-// 🚀 THEME 8: ORBITAL SPACE STATION
-// ============================================================================
-
-const SpaceAirlockEVAClimbScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+// ═══════════════════════════════════════════════════════════════
+// 🚀 SPACE
+// ═══════════════════════════════════════════════════════════════
+const SpacePanel1: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#02040a" />
-    {/* Earth Curve & Cosmic Stars */}
-    <path d="M0 380 Q400 240 800 380 L800 480 L0 480 Z" fill="#0369a1" filter="drop-shadow(0 0 25px #38bdf8)" />
+    <path d="M0 380 Q400 240 800 380 L800 480 L0 480Z" fill="#0369a1" filter="drop-shadow(0 0 25px #38bdf8)" />
     <circle cx="120" cy="80" r="1.5" fill="#fff" />
     <circle cx="340" cy="50" r="2" fill="#fff" />
     <circle cx="620" cy="100" r="1.5" fill="#fff" />
+    <circle cx="200" cy="160" r="1" fill="#fff" />
+    <circle cx="500" cy="40" r="1.5" fill="#fff" />
+    <line x1="200" y1="0" x2="200" y2="480" stroke="#334155" strokeWidth="8" />
+    <line x1="180" y1="80" x2="220" y2="80" stroke="#475569" strokeWidth="5" />
+    <line x1="180" y1="160" x2="220" y2="160" stroke="#475569" strokeWidth="5" />
+    <line x1="180" y1="240" x2="220" y2="240" stroke="#475569" strokeWidth="5" />
 
-    {/* Starship Gantry Truss */}
-    <line x1="180" y1="0" x2="180" y2="480" stroke="#334155" strokeWidth="8" />
-
-    {/* COMIC HERO: ARMORED VOID OPERATIVE IN EVA COMBAT SUIT */}
-    <g transform="translate(180, 150)">
-      {/* Heavy EVA Helmet with Gold Reflective Visor */}
-      <circle cx="80" cy="50" r="24" fill="#0f172a" stroke="#000" strokeWidth="3" />
-      <ellipse cx="85" cy="50" rx="14" ry="10" fill="#facc15" filter="drop-shadow(0 0 8px #facc15)" />
-      {/* Heavy Pressurized Suit */}
-      <path d="M40 75 Q80 65 120 75 Q135 120 115 160 Q75 165 40 125 Z" fill="#f8fafc" stroke="#000" strokeWidth="3.5" />
-      {/* Thruster Pack with Cyan Plasma Plume */}
-      <rect x="25" y="80" width="15" height="40" rx="4" fill="#475569" stroke="#000" strokeWidth="2" />
-      <polygon points="32,120 25,145 39,145" fill="#00f2fe" filter="drop-shadow(0 0 8px #00f2fe)" />
+    {/* VOID OPERATIVE — EVA suit on gantry */}
+    <g transform="translate(240, 180) scale(0.55)">
+      <circle cx="0" cy="0" r="20" fill="#f8fafc" stroke="#000" strokeWidth="3" />
+      <ellipse cx="4" cy="0" rx="12" ry="8" fill="#facc15" stroke="#000" strokeWidth="1.5" filter="drop-shadow(0 0 8px #facc15)" />
+      <ellipse cx="4" cy="0" rx="6" ry="4" fill="#fff" opacity="0.7" />
+      <rect x="-7" y="18" width="14" height="10" fill="#f8fafc" stroke="#000" strokeWidth="2" />
+      <path d="M-24,28 L24,28 L20,76 L-20,76Z" fill="#f8fafc" stroke="#000" strokeWidth="3" />
+      <ellipse cx="-26" cy="30" rx="8" ry="5" fill="#f8fafc" stroke="#000" strokeWidth="2" />
+      <ellipse cx="26" cy="30" rx="8" ry="5" fill="#f8fafc" stroke="#000" strokeWidth="2" />
+      {/* Thruster backpack */}
+      <rect x="-34" y="34" width="14" height="36" rx="4" fill="#475569" stroke="#000" strokeWidth="2" />
+      <polygon points="-27,70 -34,90 -20,90" fill="#00f2fe" filter="drop-shadow(0 0 8px #00f2fe)" />
+      {/* Left arm gripping gantry */}
+      <path d="M-26,34 Q-44,52 -46,74" stroke="#f8fafc" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-46,74 Q-44,92 -40,106" stroke="#f8fafc" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="-40" cy="110" rx="7" ry="5" fill="#f8fafc" stroke="#000" strokeWidth="2" />
+      {/* Right arm */}
+      <path d="M26,34 Q46,50 46,72" stroke="#f8fafc" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M46,72 Q44,90 40,104" stroke="#f8fafc" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="40" cy="108" rx="7" ry="5" fill="#f8fafc" stroke="#000" strokeWidth="2" />
+      {/* Legs crouched */}
+      <path d="M-14,76 Q-26,100 -28,124" stroke="#f8fafc" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M-28,124 Q-26,144 -24,156" stroke="#f8fafc" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-32,152 Q-42,160 -36,166 Q-16,168 -12,158Z" fill="#facc15" stroke="#000" strokeWidth="2" />
+      <path d="M14,76 Q28,98 32,120" stroke="#f8fafc" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M32,120 Q30,140 26,152" stroke="#f8fafc" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M18,148 Q8,156 14,162 Q34,164 38,154Z" fill="#facc15" stroke="#000" strokeWidth="2" />
+      <path d="M-20,-16 Q-26,0 -26,24" stroke="#facc15" strokeWidth="2.5" fill="none" />
+      <path d="M20,-16 Q26,0 26,24" stroke="#00f2fe" strokeWidth="2" fill="none" />
     </g>
   </svg>
 );
 
-const SpaceZeroGLaserScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+const SpacePanel2: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <rect width="800" height="480" fill="#020308" />
-    {/* Laser Turret Grid */}
+    <circle cx="80" cy="50" r="1.5" fill="#fff" />
+    <circle cx="400" cy="80" r="2" fill="#fff" />
+    <circle cx="650" cy="40" r="1.5" fill="#fff" />
     <line x1="800" y1="120" x2="300" y2="280" stroke="#ef4444" strokeWidth="3" filter="drop-shadow(0 0 10px #ef4444)" />
     <line x1="800" y1="360" x2="320" y2="260" stroke="#ef4444" strokeWidth="3" filter="drop-shadow(0 0 10px #ef4444)" />
+    <rect x="760" y="100" width="40" height="30" rx="4" fill="#1e293b" stroke="#ef4444" strokeWidth="2" />
+    <rect x="760" y="340" width="40" height="30" rx="4" fill="#1e293b" stroke="#ef4444" strokeWidth="2" />
 
-    {/* COMIC HERO: ZERO-G VOID OPERATIVE DODGING DEFENSE TURRETS */}
-    <g transform="translate(240, 200)">
-      <circle cx="80" cy="60" r="22" fill="#0f172a" stroke="#000" strokeWidth="3" />
-      <ellipse cx="85" cy="60" rx="12" ry="8" fill="#facc15" filter="drop-shadow(0 0 8px #facc15)" />
-      {/* Thrusters firing emergency burst */}
-      <circle cx="20" cy="70" r="14" fill="#00f2fe" filter="drop-shadow(0 0 12px #00f2fe)" />
-      <circle cx="20" cy="70" r="5" fill="#ffffff" />
+    {/* VOID OPERATIVE — zero-G dodge */}
+    <g transform="translate(320, 220) scale(0.55)">
+      <circle cx="0" cy="0" r="18" fill="#f8fafc" stroke="#000" strokeWidth="3" />
+      <ellipse cx="4" cy="0" rx="12" ry="8" fill="#facc15" stroke="#000" strokeWidth="1.5" filter="drop-shadow(0 0 8px #facc15)" />
+      <rect x="-5" y="16" width="10" height="8" fill="#f8fafc" stroke="#000" strokeWidth="1.5" />
+      <path d="M-22,24 L22,24 L18,64 L-18,64Z" fill="#f8fafc" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-24" cy="26" rx="7" ry="5" fill="#f8fafc" stroke="#000" strokeWidth="2" />
+      <ellipse cx="24" cy="26" rx="7" ry="5" fill="#f8fafc" stroke="#000" strokeWidth="2" />
+      {/* Left arm flung wide */}
+      <path d="M-24,30 Q-52,22 -66,8" stroke="#f8fafc" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-66,8 Q-76,-6 -72,-18" stroke="#f8fafc" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <ellipse cx="-72" cy="-22" rx="6" ry="5" fill="#f8fafc" stroke="#000" strokeWidth="2" />
+      {/* Right arm with thruster burst */}
+      <path d="M24,30 Q50,14 64,-4" stroke="#f8fafc" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M64,-4 Q74,-16 72,-28" stroke="#f8fafc" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <ellipse cx="72" cy="-32" rx="6" ry="5" fill="#f8fafc" stroke="#000" strokeWidth="2" />
+      <circle cx="72" cy="-32" r="16" fill="#00f2fe" filter="drop-shadow(0 0 14px #00f2fe)" opacity="0.85" />
+      <circle cx="72" cy="-32" r="6" fill="#fff" />
+      {/* Legs splayed */}
+      <path d="M-12,64 Q-30,86 -42,108" stroke="#f8fafc" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <path d="M-42,108 Q-50,128 -46,142" stroke="#f8fafc" strokeWidth="11" strokeLinecap="round" fill="none" />
+      <path d="M-54,138 Q-64,146 -58,152 Q-38,154 -34,144Z" fill="#facc15" stroke="#000" strokeWidth="2" />
+      <path d="M12,64 Q36,82 48,104" stroke="#f8fafc" strokeWidth="14" strokeLinecap="round" fill="none" />
+      <path d="M48,104 Q56,124 52,138" stroke="#f8fafc" strokeWidth="11" strokeLinecap="round" fill="none" />
+      <path d="M44,134 Q34,142 40,148 Q60,150 64,140Z" fill="#facc15" stroke="#000" strokeWidth="2" />
+      <path d="M-18,-14 Q-24,0 -24,20" stroke="#facc15" strokeWidth="2.5" fill="none" />
+      <path d="M18,-14 Q24,0 24,20" stroke="#00f2fe" strokeWidth="2" fill="none" />
     </g>
+    <ellipse cx="220" cy="130" rx="30" ry="12" fill="#00f2fe" opacity="0.5" filter="drop-shadow(0 0 12px #00f2fe)" />
   </svg>
 );
 
-// ============================================================================
-// 🌙 DEFAULT / CITY / SPIDER-VERSE SCENES (From Reference Image)
-// ============================================================================
-
-const NightRooftopMoonScene: React.FC = () => (
-  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+// ═══════════════════════════════════════════════════════════════
+// 🌙 DEFAULT / CITY
+// ═══════════════════════════════════════════════════════════════
+const DefaultPanel1: React.FC = () => (
+  <svg viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" style={S}>
     <defs>
-      <linearGradient id="cityNightSky" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#070a16" />
-        <stop offset="45%" stopColor="#0d1b38" />
-        <stop offset="100%" stopColor="#1a2e56" />
-      </linearGradient>
-      <radialGradient id="lunarCorona" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-        <stop offset="25%" stopColor="#e2e8f0" stopOpacity="0.9" />
-        <stop offset="55%" stopColor="#93c5fd" stopOpacity="0.4" />
-        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
-      </radialGradient>
-      <pattern id="cityWindows" width="12" height="18" patternUnits="userSpaceOnUse">
-        <rect x="2" y="2" width="4" height="6" fill="#fef08a" opacity="0.65" />
-        <rect x="8" y="2" width="3" height="6" fill="#67e8f9" opacity="0.5" />
-      </pattern>
+      <linearGradient id="ns" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#070a16" /><stop offset="45%" stopColor="#0d1b38" /><stop offset="100%" stopColor="#1a2e56" /></linearGradient>
+      <radialGradient id="lc2" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#fff" /><stop offset="55%" stopColor="#93c5fd" stopOpacity="0.4" /><stop offset="100%" stopColor="#3b82f6" stopOpacity="0" /></radialGradient>
+      <pattern id="cw" width="12" height="18" patternUnits="userSpaceOnUse"><rect x="2" y="2" width="4" height="6" fill="#fef08a" opacity="0.65" /><rect x="8" y="2" width="3" height="6" fill="#67e8f9" opacity="0.5" /></pattern>
     </defs>
-
-    <rect width="800" height="480" fill="url(#cityNightSky)" />
-
-    {/* Moon with Glowing Atmospheric Halo (Center-Right as in screenshot) */}
-    <circle cx="490" cy="95" r="85" fill="url(#lunarCorona)" />
+    <rect width="800" height="480" fill="url(#ns)" />
+    <circle cx="490" cy="95" r="85" fill="url(#lc2)" />
     <circle cx="490" cy="95" r="32" fill="#f8fafc" />
-    <ellipse cx="482" cy="90" rx="8" ry="6" fill="#cbd5e1" opacity="0.6" />
-    <ellipse cx="502" cy="104" rx="10" ry="7" fill="#cbd5e1" opacity="0.5" />
-
-    {/* Skyline Silhouettes */}
     <rect x="50" y="200" width="70" height="280" fill="#0c1322" />
     <rect x="140" y="160" width="85" height="320" fill="#080e1a" />
-    <rect x="145" y="170" width="75" height="150" fill="url(#cityWindows)" />
+    <rect x="145" y="170" width="75" height="150" fill="url(#cw)" />
     <rect x="620" y="180" width="90" height="300" fill="#070c17" />
-    <rect x="630" y="195" width="70" height="120" fill="url(#cityWindows)" />
-
-    {/* Foreground Rooftop Wall & Embracing Silhouettes */}
-    <path d="M0 320 L800 300 L800 480 L0 480 Z" fill="#030712" />
+    <rect x="630" y="195" width="70" height="120" fill="url(#cw)" />
+    <path d="M0 320 L800 300 L800 480 L0 480Z" fill="#030712" />
     <path d="M0 320 L800 300" stroke="#3b82f6" strokeWidth="3" opacity="0.5" />
 
-    {/* Two Silhouetted Operatives in Moonlight */}
-    <g transform="translate(375, 140)">
-      <circle cx="65" cy="80" r="22" fill="#090d16" />
-      <path d="M45 75 Q40 60 55 55 Q70 50 85 58 Q95 70 85 85 Q65 75 45 75 Z" fill="#090d16" />
-      <circle cx="95" cy="85" r="20" fill="#090d16" />
-      <path
-        d="M40 100 Q25 125 35 170 Q45 220 85 225 Q125 215 130 170 Q135 120 115 100 Q95 120 80 115 Q60 110 40 100 Z"
-        fill="#050811"
-      />
-      {/* Tactical Stripe */}
-      <path d="M100 135 L125 140 L120 155 L95 150 Z" fill="#e2e8f0" opacity="0.8" />
-      {/* Lunar Rim Light */}
-      <path d="M44 65 Q60 52 80 56" stroke="#93c5fd" strokeWidth="3" fill="none" opacity="0.9" />
-      <path d="M30 120 Q32 150 40 180" stroke="#60a5fa" strokeWidth="2.5" fill="none" opacity="0.8" />
+    {/* Two operatives standing on rooftop in moonlight */}
+    <g transform="translate(390, 230) scale(0.55)">
+      {/* Figure 1 */}
+      <circle cx="0" cy="0" r="16" fill="#090d16" stroke="#000" strokeWidth="2" />
+      <rect x="-14" y="-5" width="28" height="5" rx="2" fill="#93c5fd" stroke="#000" strokeWidth="1.5" />
+      <rect x="-4" y="14" width="8" height="7" fill="#090d16" />
+      <path d="M-18,21 L18,21 L14,68 L-14,68Z" fill="#050811" stroke="#000" strokeWidth="2" />
+      <ellipse cx="-20" cy="23" rx="6" ry="4" fill="#050811" stroke="#000" strokeWidth="1.5" />
+      <ellipse cx="20" cy="23" rx="6" ry="4" fill="#050811" stroke="#000" strokeWidth="1.5" />
+      <path d="M-20,26 Q-32,44 -34,64" stroke="#050811" strokeWidth="11" strokeLinecap="round" fill="none" />
+      <path d="M-34,64 Q-32,78 -30,88" stroke="#050811" strokeWidth="8" strokeLinecap="round" fill="none" />
+      <path d="M20,26 Q32,44 34,64" stroke="#050811" strokeWidth="11" strokeLinecap="round" fill="none" />
+      <path d="M34,64 Q32,78 30,88" stroke="#050811" strokeWidth="8" strokeLinecap="round" fill="none" />
+      <path d="M-10,68 Q-10,96 -10,122" stroke="#050811" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-10,122 Q-10,136 -10,146" stroke="#050811" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <path d="M10,68 Q10,96 10,122" stroke="#050811" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M10,122 Q10,136 10,146" stroke="#050811" strokeWidth="10" strokeLinecap="round" fill="none" />
+      {/* Stripe */}
+      <path d="M14,42 L26,44 L24,52 L12,50Z" fill="#e2e8f0" opacity="0.8" />
+      {/* Rim light */}
+      <path d="M-16,-12 Q-20,4 -18,18" stroke="#93c5fd" strokeWidth="2.5" fill="none" opacity="0.9" />
+      <path d="M-18,21 Q-24,40 -24,60" stroke="#60a5fa" strokeWidth="2" fill="none" opacity="0.8" />
+
+      {/* Figure 2 (slightly behind and to right) */}
+      <g transform="translate(60, 6)">
+        <circle cx="0" cy="0" r="15" fill="#090d16" stroke="#000" strokeWidth="2" />
+        <polygon points="-12,-4 12,-4 8,3 -8,3" fill="#e2e8f0" stroke="#000" strokeWidth="1.5" />
+        <rect x="-4" y="13" width="8" height="7" fill="#090d16" />
+        <path d="M-16,20 L16,20 L12,62 L-12,62Z" fill="#050811" stroke="#000" strokeWidth="2" />
+        <path d="M-16,24 Q-28,42 -28,58" stroke="#050811" strokeWidth="10" strokeLinecap="round" fill="none" />
+        <path d="M16,24 Q28,42 28,58" stroke="#050811" strokeWidth="10" strokeLinecap="round" fill="none" />
+        <path d="M-8,62 Q-8,90 -8,116" stroke="#050811" strokeWidth="12" strokeLinecap="round" fill="none" />
+        <path d="M-8,116 Q-8,130 -8,138" stroke="#050811" strokeWidth="9" strokeLinecap="round" fill="none" />
+        <path d="M8,62 Q8,90 8,116" stroke="#050811" strokeWidth="12" strokeLinecap="round" fill="none" />
+        <path d="M8,116 Q8,130 8,138" stroke="#050811" strokeWidth="9" strokeLinecap="round" fill="none" />
+        <path d="M-15,-12 Q-18,4 -16,16" stroke="#60a5fa" strokeWidth="2" fill="none" opacity="0.8" />
+      </g>
     </g>
   </svg>
 );
 
-const SkyscraperHighAngleScene: React.FC = () => (
-  <svg viewBox="0 0 800 520" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
-    <defs>
-      <linearGradient id="chasmGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#1e293b" />
-        <stop offset="50%" stopColor="#0f172a" />
-        <stop offset="100%" stopColor="#020617" />
-      </linearGradient>
-      <linearGradient id="streetCarGlow" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.85" />
-        <stop offset="100%" stopColor="#ef4444" stopOpacity="0.85" />
-      </linearGradient>
-    </defs>
-
-    <rect width="800" height="520" fill="url(#chasmGrad)" />
-
-    {/* Street Avenue Below */}
-    <path d="M520 180 L760 180 L800 520 L580 520 Z" fill="#090d16" />
-    <line x1="565" y1="200" x2="640" y2="520" stroke="url(#streetCarGlow)" strokeWidth="4" opacity="0.85" />
+const DefaultPanel2: React.FC = () => (
+  <svg viewBox="0 0 800 520" preserveAspectRatio="xMidYMid slice" style={S}>
+    <defs><linearGradient id="cg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#1e293b" /><stop offset="100%" stopColor="#020617" /></linearGradient></defs>
+    <rect width="800" height="520" fill="url(#cg)" />
+    <path d="M520 180 L760 180 L800 520 L580 520Z" fill="#090d16" />
+    <line x1="565" y1="200" x2="640" y2="520" stroke="#f59e0b" strokeWidth="4" opacity="0.85" />
     <line x1="710" y1="200" x2="760" y2="520" stroke="#67e8f9" strokeWidth="3" opacity="0.75" />
+    <path d="M0 360 L550 260 L660 380 L0 490Z" fill="#18181b" stroke="#27272a" strokeWidth="3" />
+    <line x1="0" y1="360" x2="550" y2="260" stroke="#38bdf8" strokeWidth="2" opacity="0.6" />
 
-    {/* Distant Leaping Operative with Motion Line */}
-    <g transform="translate(585, 360) scale(0.65)">
-      <line x1="-30" y1="-120" x2="30" y2="10" stroke="#f8fafc" strokeWidth="2.5" opacity="0.85" />
-      <circle cx="28" cy="15" r="10" fill="#00f2fe" filter="drop-shadow(0 0 8px #00f2fe)" />
-      <path d="M25 0 Q40 5 35 25 Q30 40 15 45 Q-5 40 -10 20 Z" fill="#dc2626" />
+    {/* HERO crouched on skyscraper parapet, looking down */}
+    <g transform="translate(350, 240) scale(0.55)">
+      <circle cx="0" cy="0" r="18" fill="#dc2626" stroke="#000" strokeWidth="2.5" />
+      <polygon points="-14,-4 14,-4 10,5 -10,5" fill="#fff" stroke="#000" strokeWidth="2" />
+      <polygon points="-9,-2 9,-2 7,3 -7,3" fill="#fff" opacity="0.6" />
+      <rect x="-6" y="16" width="12" height="8" fill="#dc2626" stroke="#000" strokeWidth="1.5" />
+      <path d="M-24,24 L24,24 L20,72 L-20,72Z" fill="#dc2626" stroke="#000" strokeWidth="2.5" />
+      <ellipse cx="-26" cy="26" rx="8" ry="5" fill="#dc2626" stroke="#000" strokeWidth="2" />
+      <ellipse cx="26" cy="26" rx="8" ry="5" fill="#dc2626" stroke="#000" strokeWidth="2" />
+      <path d="M-8,34 Q0,42 8,34 L6,48 Q0,52 -6,48Z" fill="#1e3a8a" stroke="#000" strokeWidth="1.5" />
+      {/* Left arm */}
+      <path d="M-26,30 Q-46,50 -46,74" stroke="#dc2626" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M-46,74 Q-44,92 -40,106" stroke="#dc2626" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="-40" cy="110" rx="7" ry="5" fill="#dc2626" stroke="#000" strokeWidth="2" />
+      {/* Right arm gripping ledge */}
+      <path d="M26,30 Q48,54 50,82" stroke="#dc2626" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M50,82 Q52,102 54,118" stroke="#dc2626" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <ellipse cx="54" cy="122" rx="7" ry="5" fill="#dc2626" stroke="#000" strokeWidth="2" />
+      {/* Legs crouched */}
+      <path d="M-14,72 Q-28,98 -30,124" stroke="#1e3a8a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M-30,124 Q-28,144 -26,156" stroke="#1e3a8a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M-34,152 Q-44,160 -38,166 Q-18,168 -14,158Z" fill="#dc2626" stroke="#000" strokeWidth="2" />
+      <path d="M14,72 Q30,96 34,120" stroke="#1e3a8a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M34,120 Q32,140 28,152" stroke="#1e3a8a" strokeWidth="12" strokeLinecap="round" fill="none" />
+      <path d="M20,148 Q10,156 16,162 Q36,164 40,154Z" fill="#dc2626" stroke="#000" strokeWidth="2" />
+      <path d="M-18,-16 Q-26,0 -26,24" stroke="#ef4444" strokeWidth="3" fill="none" />
+      <path d="M18,-16 Q26,0 26,24" stroke="#00f2fe" strokeWidth="2.5" fill="none" />
     </g>
 
-    {/* FOREGROUND HERO CROUCHED ON SKYSCRAPER PARAPET */}
-    <g transform="translate(140, 210)">
-      <path d="M-140 180 L220 80 L320 220 L-140 310 Z" fill="#18181b" stroke="#27272a" strokeWidth="3" />
-      <line x1="-140" y1="180" x2="220" y2="80" stroke="#38bdf8" strokeWidth="2" opacity="0.6" />
-
-      {/* Hero Mask / Hood */}
-      <path
-        d="M220 10 Q260 25 285 70 Q305 120 280 155 Q250 165 200 135 Q180 100 190 50 Q200 20 220 10 Z"
-        fill="#dc2626"
-        stroke="#000"
-        strokeWidth="2.5"
-      />
-      {/* Spider-Verse Angular White Lens */}
-      <polygon points="245,45 280,55 272,75 240,65" fill="#ffffff" stroke="#000" strokeWidth="2" />
-
-      {/* Hero Crouched Back & Shoulder Anatomy */}
-      <path
-        d="M100 15 Q160 5 210 25 Q190 90 170 140 Q130 180 70 170 Q30 150 10 100 Q40 40 100 15 Z"
-        fill="#dc2626"
-        stroke="#000"
-        strokeWidth="2.5"
-      />
-      <path d="M30 60 Q90 50 140 70 L130 120 Q80 120 25 100 Z" fill="#1e3a8a" stroke="#000" strokeWidth="2" />
-
-      {/* Arm & Tactical Red Glove Gripping Ledge */}
-      <path d="M160 130 Q190 170 210 215 L190 240 Q160 200 135 150 Z" fill="#1e3a8a" stroke="#000" strokeWidth="2" />
-      <path d="M190 200 Q225 210 240 245 Q235 285 190 300 Q165 290 160 255 Z" fill="#dc2626" stroke="#000" strokeWidth="2.5" />
-
-      {/* Comic Dynamic Rim Lighting */}
-      <path d="M220 10 Q265 30 285 75 Q305 120 280 155" stroke="#ef4444" strokeWidth="3.5" fill="none" />
-      <path d="M100 15 Q165 8 215 28" stroke="#00f2fe" strokeWidth="3" fill="none" />
+    {/* Distant leaping figure below */}
+    <g transform="translate(630, 400) scale(0.25)">
+      <circle cx="0" cy="0" r="16" fill="#dc2626" stroke="#000" strokeWidth="2.5" />
+      <polygon points="-12,-4 12,-4 8,3 -8,3" fill="#fff" stroke="#000" strokeWidth="1.5" />
+      <path d="M-18,20 L18,20 L14,54 L-14,54Z" fill="#1e3a8a" stroke="#000" strokeWidth="2" />
+      <path d="M-18,24 Q-38,16 -50,2" stroke="#dc2626" strokeWidth="11" strokeLinecap="round" fill="none" />
+      <path d="M18,24 Q38,10 52,-4" stroke="#dc2626" strokeWidth="11" strokeLinecap="round" fill="none" />
+      <path d="M-10,54 Q-24,72 -34,92" stroke="#1e3a8a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M10,54 Q28,70 40,88" stroke="#1e3a8a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <circle cx="0" cy="0" r="28" fill="none" stroke="#00f2fe" strokeWidth="2" filter="drop-shadow(0 0 8px #00f2fe)" opacity="0.6" />
     </g>
+    <path d="M560,360 Q590,330 620,350" stroke="#f8fafc" strokeWidth="2.5" fill="none" opacity="0.85" strokeDasharray="6,4" />
   </svg>
 );

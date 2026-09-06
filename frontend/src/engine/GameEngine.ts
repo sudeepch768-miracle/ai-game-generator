@@ -17,46 +17,94 @@ export interface DifficultyPersistence {
 
 export const DIFFICULTY_PROFILES: Record<string, DifficultyPersistence> = {
   easy: {
-    aggroDuration: 3.2,
-    detectRangeMult: 0.78,
-    speedMultiplier: 1.15,
-    packAlertRadius: 3.5,
-    stealthEvadeRate: 3.8,
-    burstInterval: 5.0,
-    burstSpeedMult: 1.15,
-    leashDistance: 6.5,
+    aggroDuration: 1.8,
+    detectRangeMult: 0.65,
+    speedMultiplier: 0.60,
+    packAlertRadius: 1.8,
+    stealthEvadeRate: 5.0,
+    burstInterval: 9999.0,
+    burstSpeedMult: 1.0,
+    leashDistance: 4.0,
   },
   medium: {
-    aggroDuration: 6.0,
-    detectRangeMult: 1.0,
-    speedMultiplier: 1.42,
-    packAlertRadius: 6.5,
-    stealthEvadeRate: 2.5,
-    burstInterval: 3.5,
-    burstSpeedMult: 1.3,
-    leashDistance: 10.0,
+    aggroDuration: 3.0,
+    detectRangeMult: 0.80,
+    speedMultiplier: 0.80,
+    packAlertRadius: 3.5,
+    stealthEvadeRate: 3.5,
+    burstInterval: 7.0,
+    burstSpeedMult: 1.12,
+    leashDistance: 6.5,
   },
   hard: {
-    aggroDuration: 9.5,
-    detectRangeMult: 1.25,
-    speedMultiplier: 1.68,
-    packAlertRadius: 9.5,
-    stealthEvadeRate: 1.7,
-    burstInterval: 2.8,
-    burstSpeedMult: 1.45,
-    leashDistance: 15.0,
+    aggroDuration: 5.0,
+    detectRangeMult: 1.0,
+    speedMultiplier: 1.05,
+    packAlertRadius: 5.5,
+    stealthEvadeRate: 2.2,
+    burstInterval: 4.5,
+    burstSpeedMult: 1.22,
+    leashDistance: 9.0,
   },
   nightmare: {
-    aggroDuration: 16.0,
-    detectRangeMult: 1.45,
-    speedMultiplier: 1.92,
-    packAlertRadius: 15.0,
-    stealthEvadeRate: 1.1,
-    burstInterval: 2.0,
-    burstSpeedMult: 1.6,
-    leashDistance: 999.0,
+    aggroDuration: 7.0,
+    detectRangeMult: 1.2,
+    speedMultiplier: 1.25,
+    packAlertRadius: 8.0,
+    stealthEvadeRate: 1.5,
+    burstInterval: 3.0,
+    burstSpeedMult: 1.35,
+    leashDistance: 14.0,
   },
 };
+
+export function filterEnemiesForDifficulty(enemies: Enemy[], difficulty: string, levelNum: number = 1): Enemy[] {
+  if (!enemies || enemies.length === 0) return [];
+  const diff = (difficulty || 'medium').toLowerCase();
+
+  // Balanced limits on enemy count per level and chosen difficulty
+  let maxCount = 3;
+  let speedCap = 1.0;
+  if (diff === 'easy') {
+    maxCount = levelNum === 1 ? 2 : (levelNum === 2 ? 3 : 4);
+    speedCap = 0.80;
+  } else if (diff === 'medium') {
+    maxCount = levelNum === 1 ? 3 : (levelNum === 2 ? 4 : 5);
+    speedCap = 1.00;
+  } else if (diff === 'hard') {
+    maxCount = levelNum === 1 ? 4 : (levelNum === 2 ? 5 : 6);
+    speedCap = 1.25;
+  } else {
+    maxCount = levelNum === 1 ? 5 : (levelNum === 2 ? 6 : 8);
+    speedCap = 1.50;
+  }
+
+  // Preserve exit guardian / boss first, then chasers, then patrols
+  const guardians = enemies.filter(e => e.type === 'exit_guardian');
+  const chasers = enemies.filter(e => e.type === 'chaser');
+  const patrols = enemies.filter(e => e.type !== 'exit_guardian' && e.type !== 'chaser');
+
+  const selected: Enemy[] = [];
+  if (guardians.length > 0) {
+    selected.push(guardians[0]);
+  }
+  for (const c of chasers) {
+    if (selected.length < maxCount) {
+      selected.push(c);
+    }
+  }
+  for (const p of patrols) {
+    if (selected.length < maxCount) {
+      selected.push(p);
+    }
+  }
+
+  // Ensure individual enemy speed is tuned to the difficulty cap
+  return selected.map(e => ({
+    ...e,
+    speed: Math.min(e.speed || 0.95, speedCap),
+  }));
+}
 
 export class GameEngine {
   private canvas: HTMLCanvasElement;
@@ -97,6 +145,13 @@ export class GameEngine {
     this.canvas = canvas;
     this.world = JSON.parse(JSON.stringify(world)); // Deep clone
     this.onStateChange = onStateChange;
+
+    // Filter and scale enemies for the initial level and difficulty
+    this.world.enemies = filterEnemiesForDifficulty(
+      this.world.enemies || [],
+      this.world.difficulty || 'medium',
+      this.world.levelNumber || 1
+    );
 
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not create 2D canvas context');
@@ -609,15 +664,15 @@ export class GameEngine {
         const distToTarget = Math.hypot(dirX, dirY);
 
         if (distToTarget > 6) {
-          // Hostile Speed Calculation with bursts & difficulty scaling
-          const baseSpeed = enemy.speed || (enemy.type === 'exit_guardian' ? 1.5 : (enemy.type === 'chaser' ? 1.45 : 1.3));
-          let hostileMult = (enemy.type === 'exit_guardian' ? 1.4 : (enemy.type === 'chaser' ? 1.3 : 1.2)) * diff.speedMultiplier;
+          // Hostile Speed Calculation with bursts & difficulty scaling (balanced for fair play)
+          const baseSpeed = enemy.speed || (enemy.type === 'exit_guardian' ? 1.10 : (enemy.type === 'chaser' ? 1.00 : 0.85));
+          let hostileMult = (enemy.type === 'exit_guardian' ? 1.10 : (enemy.type === 'chaser' ? 1.05 : 0.95)) * diff.speedMultiplier;
 
-          // Periodic burst sprint
+          // Periodic burst sprint (disabled on easy, gentle on medium)
           enemy.burstTimer = (enemy.burstTimer || 0) + dt;
-          if (enemy.burstTimer > diff.burstInterval && distToPlayer < tileSize * 4.5) {
+          if (enemy.burstTimer > diff.burstInterval && distToPlayer < tileSize * 4.0) {
             hostileMult *= diff.burstSpeedMult;
-            if (enemy.burstTimer > diff.burstInterval + 0.6) {
+            if (enemy.burstTimer > diff.burstInterval + 0.5) {
               enemy.burstTimer = 0;
             }
           }
@@ -652,23 +707,23 @@ export class GameEngine {
           }
         }
       } else {
-        // 3. Calm Patrol State (Unalerted)
+        // 3. Calm Patrol State (Unalerted - scaled to difficulty speed)
         enemy.isAlert = false;
         if (enemy.type === 'exit_guardian') {
           // Sweep around exit portal
-          enemy.x += (enemy.speed || 1.3) * 0.7 * enemy.direction * dt;
+          enemy.x += (enemy.speed || 1.10) * 0.55 * diff.speedMultiplier * enemy.direction * dt;
           if (Math.abs(enemy.x - (enemy.startX ?? enemy.x)) >= (enemy.patrolRange || 3)) {
             enemy.direction *= -1;
           }
         } else if (enemy.type === 'chaser') {
           // Prowl territory
-          enemy.x += (enemy.speed || 1.2) * 0.85 * enemy.direction * dt;
+          enemy.x += (enemy.speed || 1.00) * 0.60 * diff.speedMultiplier * enemy.direction * dt;
           if (Math.abs(enemy.x - (enemy.startX ?? enemy.x)) >= (enemy.patrolRange || 5)) {
             enemy.direction *= -1;
           }
         } else {
           // Corridor / Sentry Patrol along assigned axis
-          const moveSpeed = (enemy.speed || 1.15) * enemy.direction * dt;
+          const moveSpeed = (enemy.speed || 0.85) * 0.65 * diff.speedMultiplier * enemy.direction * dt;
           if (enemy.patrolAxis === 'y') {
             enemy.y += moveSpeed;
             if (Math.abs(enemy.y - (enemy.startY ?? enemy.y)) >= (enemy.patrolRange || 4)) {
@@ -690,7 +745,7 @@ export class GameEngine {
 
       if (hitDist < tileSize * 0.68 && !enemy.isStunned) {
         if (!this.state.player.invincibleTime || this.state.player.invincibleTime <= 0) {
-          this.state.player.invincibleTime = 1.6;
+          this.state.player.invincibleTime = diffKey === 'easy' ? 2.2 : (diffKey === 'medium' ? 1.8 : 1.4);
           this.state.health = Math.max(0, this.state.health - 1);
           this.state.screenShake = 0.85;
           sound.playBump();
@@ -911,6 +966,13 @@ export class GameEngine {
 
     if (nextWorld) {
       const campaignLevels = this.world.levels;
+      const currentDiff = this.world.difficulty || 'medium';
+      nextWorld.difficulty = currentDiff;
+      nextWorld.enemies = filterEnemiesForDifficulty(
+        nextWorld.enemies || [],
+        currentDiff,
+        nextLvlNum
+      );
       this.world = nextWorld;
       this.world.levels = campaignLevels;
 
