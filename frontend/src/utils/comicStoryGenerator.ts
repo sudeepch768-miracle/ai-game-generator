@@ -52,7 +52,7 @@ export function resolveTheme(world: GameWorld): string {
   if (/h[oa]spital|clinic|medical|doctor|nurse|surgery|patient|infirmary|ambulance|stretcher|ward|trauma|triage|icu|emergency/i.test(rawMapTheme)) return 'hospital';
   if (/police|precinct|constable|cop|jail|prison|interrogation|sheriff/i.test(rawMapTheme)) return 'police';
   if (/\brailway\b|\btrain\b|\bsubway\b|\bmetro\b|\btransit\b|\blocomotive\b|\bplatform\b|\bdepot\b/i.test(rawMapTheme) ||
-      (/\bstation\b/i.test(rawMapTheme) && !/police|nurse|aid|space|fire/i.test(rawMapTheme))) return 'railway';
+    (/\bstation\b/i.test(rawMapTheme) && !/police|nurse|aid|space|fire/i.test(rawMapTheme))) return 'railway';
   if (/kitchen|restaurant|chef|cook|dining|bakery|cafe|pantry/i.test(rawMapTheme)) return 'kitchen';
   if (/airport|airplane|plane|flight|hangar|runway|tarmac|terminal/i.test(rawMapTheme)) return 'airport';
   if (/snow|ice|frost|glacier|arctic|winter|blizzard|penguin|yeti/i.test(rawMapTheme)) return 'snow';
@@ -81,7 +81,7 @@ export function resolveTheme(world: GameWorld): string {
   if (/h[oa]spital|clinic|medical|doctor|nurse|surgery|patient|infirmary|ambulance|stretcher|ward|health|trauma|triage|icu|emergency/i.test(combined)) return 'hospital';
   if (/police|precinct|constable|cop|jail|prison|interrogation|sheriff/i.test(combined)) return 'police';
   if (/\brailway\b|\btrain\b|\bsubway\b|\bmetro\b|\btransit\b|\blocomotive\b|\bplatform\b|\bdepot\b/i.test(combined) ||
-      (/\bstation\b/i.test(combined) && !/police|nurse|aid|space|fire/i.test(combined))) return 'railway';
+    (/\bstation\b/i.test(combined) && !/police|nurse|aid|space|fire/i.test(combined))) return 'railway';
   if (/kitchen|restaurant|chef|cook|dining|bakery|cafe|pantry/i.test(combined)) return 'kitchen';
   if (/airport|airplane|plane|flight|hangar|runway|tarmac|terminal/i.test(combined)) return 'airport';
   if (/snow|ice|frost|glacier|arctic|winter|blizzard|penguin|yeti/i.test(combined)) return 'snow';
