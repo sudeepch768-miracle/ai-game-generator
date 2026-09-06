@@ -636,3 +636,4 @@ const SnowGlacierSummitScene: React.FC<{ panelIndex: number }> = () => (
     <polygon points="680,200 520,480 800,480" fill="#0f294a" />
   </svg>
 );
+
