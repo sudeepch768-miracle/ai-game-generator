@@ -593,3 +593,4 @@ const SpeechBubble: React.FC<SpeechBubbleProps> = ({ dialogue, accentColor }) =>
     </div>
   );
 };
+
