@@ -19,43 +19,77 @@ button {
 }
 
 @keyframes scanline {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(400px); }
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(400px);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.05); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
 }
 
 @keyframes popIn {
-  0% { opacity: 0; transform: scale(0.9); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes slideUp {
-  0% { opacity: 0; transform: translate(-50%, 20px); }
-  100% { opacity: 1; transform: translate(-50%, 0); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 /* Into the Spider-Verse Kinetic Animations */
 @keyframes spiderGlitch {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0, 0);
     text-shadow: -2px -1px 0 #00f2fe, 2px 1px 0 #ff0055;
   }
+
   20% {
     transform: translate(-3px, 1px);
     text-shadow: -4px 0 0 #00f2fe, 4px 0 0 #ff0055;
   }
+
   40% {
     transform: translate(2px, -2px);
     text-shadow: -1px 3px 0 #00f2fe, 1px -3px 0 #ff0055;
   }
+
   60% {
     transform: translate(-2px, -1px);
     text-shadow: -3px -1px 0 #00f2fe, 3px 1px 0 #ff0055;
   }
+
   80% {
     transform: translate(3px, 2px);
     text-shadow: -2px 2px 0 #00f2fe, 2px -2px 0 #ff0055;
@@ -63,8 +97,13 @@ button {
 }
 
 @keyframes benDayScroll {
-  0% { background-position: 0 0; }
-  100% { background-position: 28px 28px; }
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 28px 28px;
+  }
 }
 
 @keyframes spiderVerseZoom {
@@ -73,10 +112,12 @@ button {
     transform: scale(0.9) rotate(-1.5deg);
     filter: blur(4px);
   }
+
   70% {
     transform: scale(1.02) rotate(0.4deg);
     filter: blur(0px);
   }
+
   100% {
     opacity: 1;
     transform: scale(1) rotate(0deg);
@@ -88,9 +129,11 @@ button {
     opacity: 0;
     transform: scale(0.7) translateY(16px);
   }
+
   75% {
     transform: scale(1.04) translateY(-3px);
   }
+
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -98,13 +141,33 @@ button {
 }
 
 @keyframes screenShake {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  15% { transform: translate(-7px, 5px) rotate(-1.2deg); }
-  30% { transform: translate(6px, -6px) rotate(1.2deg); }
-  45% { transform: translate(-5px, 4px) rotate(-0.6deg); }
-  60% { transform: translate(5px, -3px) rotate(0.6deg); }
-  75% { transform: translate(-3px, 1px) rotate(0deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  15% {
+    transform: translate(-7px, 5px) rotate(-1.2deg);
+  }
+
+  30% {
+    transform: translate(6px, -6px) rotate(1.2deg);
+  }
+
+  45% {
+    transform: translate(-5px, 4px) rotate(-0.6deg);
+  }
+
+  60% {
+    transform: translate(5px, -3px) rotate(0.6deg);
+  }
+
+  75% {
+    transform: translate(-3px, 1px) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
 }
 
 @keyframes speedLines {
@@ -112,10 +175,12 @@ button {
     transform: scale(1) rotate(0deg);
     opacity: 0.15;
   }
+
   50% {
     transform: scale(1.06) rotate(1.5deg);
     opacity: 0.26;
   }
+
   100% {
     transform: scale(1) rotate(0deg);
     opacity: 0.15;
@@ -123,11 +188,13 @@ button {
 }
 
 @keyframes chromaticPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 25px rgba(0, 242, 254, 0.4), 0 0 50px rgba(255, 0, 85, 0.25);
   }
+
   50% {
     box-shadow: 0 0 40px rgba(0, 242, 254, 0.7), 0 0 75px rgba(255, 0, 85, 0.45);
   }
 }
-
