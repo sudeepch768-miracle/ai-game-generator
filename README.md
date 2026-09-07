@@ -98,33 +98,37 @@ Every theme features dedicated color palettes, weather effects, authentic props,
 - **Python 3.11+**
 - **Node.js 18+**
 
-### 1. Clone & Setup Backend
-`ash
+### 🚀 1-Click Local Installation (For Anyone)
+Anyone on Windows can install and play the game in seconds without manual setup:
+
+1. **Clone or Download** this repository.
+2. **Double-click `install.bat`**:
+   - Automatically detects Python (or offers 1-click install via Windows winget).
+   - Sets up an isolated local environment (`.venv`) and installs requirements.
+   - Automatically generates a **"Reality to Play"** Desktop Shortcut with custom game icon.
+3. **Double-click the "Reality to Play" shortcut on your Desktop** (or `play.bat`):
+   - Launches the game in a clean, dedicated native desktop app window at `http://localhost:8000`!
+
+---
+
+### 🛠️ Developer & Manual Setup
+#### 1. Backend Setup
+```bash
 git clone https://github.com/sudeepch768-miracle/ai-game-generator.git
-cd ai-game-generator/backend
+cd ai-game-generator
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r backend/requirements.txt
+python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
+```
 
-# Install Python dependencies
-pip install -r requirements.txt
-
-# (Optional) Add your Gemini API key:
-# copy .env.example .env
-
-# Run FastAPI backend
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
-`
-
-### 2. Setup & Run Frontend
-`ash
-cd ../frontend
-
-# Install Node dependencies
+#### 2. Frontend Development (Vite Dev Server)
+```bash
+cd frontend
 npm install
-
-# Start Vite development server
 npm run dev
-`
-
-Open **http://localhost:5173** (or **http://localhost:8000**) in your browser.
+```
+Open **http://localhost:5173** (or **http://localhost:8000** for production build).
 
 ---
 

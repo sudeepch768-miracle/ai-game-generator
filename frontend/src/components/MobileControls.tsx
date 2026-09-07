@@ -110,7 +110,7 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
     if ('vibrate' in navigator) {
       try {
         navigator.vibrate(15);
-      } catch {}
+      } catch { }
     }
     onAction(action);
   };
@@ -295,10 +295,10 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
               background: isNearTerminal
                 ? 'linear-gradient(135deg, #00f2fe 0%, #3b82f6 100%)'
                 : isTakedown
-                ? 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)'
-                : isNearNPC
-                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                : 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(2, 6, 23, 0.95) 100%)',
+                  ? 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)'
+                  : isNearNPC
+                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                    : 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(2, 6, 23, 0.95) 100%)',
               border: `3px solid ${isNearTerminal ? '#ffffff' : nearbyInteractable ? '#00f2fe' : 'rgba(255, 255, 255, 0.3)'}`,
               color: isNearTerminal || isTakedown || isNearNPC ? '#ffffff' : '#cbd5e1',
               display: 'flex',
@@ -308,8 +308,8 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
               boxShadow: isNearTerminal
                 ? '0 0 30px rgba(0, 242, 254, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.5)'
                 : nearbyInteractable
-                ? '0 0 20px rgba(0, 242, 254, 0.5)'
-                : '0 6px 20px rgba(0, 0, 0, 0.6)',
+                  ? '0 0 20px rgba(0, 242, 254, 0.5)'
+                  : '0 6px 20px rgba(0, 0, 0, 0.6)',
               cursor: 'pointer',
               outline: 'none',
               transform: isNearTerminal ? 'scale(1.06)' : 'none',

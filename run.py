@@ -1,6 +1,6 @@
 """
-AI Game Generator -- Launcher
-Starts the FastAPI backend and Vite frontend, then opens the browser.
+REALITY -> PLAY  |  Universal Launcher
+Starts the game server and launches the application window on any PC.
 """
 import subprocess
 import sys
@@ -8,28 +8,24 @@ import os
 import time
 import socket
 import webbrowser
+import shutil
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PYTHON = sys.executable
-NODE_DIR = r"C:\Users\sudee\AppData\Local\Microsoft\WinGet\Packages\OpenJS.NodeJS.LTS_Microsoft.Winget.Source_8wekyb3d8bbwe\node-v24.19.0-win-x64"
-NPM = os.path.join(NODE_DIR, "npm.cmd")
-
 BACKEND_PORT = 8000
 FRONTEND_PORT = 5173
-FRONTEND_URL = f"http://localhost:{FRONTEND_PORT}"
 
-def port_open(host, port):
+def port_open(host: str, port: int) -> bool:
     try:
         with socket.create_connection((host, port), timeout=1):
             return True
     except OSError:
         return False
 
-def wait_for_port_any(hosts, port, label, timeout=90):
-    """Try multiple hosts (e.g. both IPv4 and IPv6) - returns True as soon as any one responds."""
-    print(f"  Waiting for {label} on port {port}...", end="", flush=True)
+def wait_for_port(port: int, label: str, timeout: int = 30) -> bool:
+    print(f"  [*] Waiting for {label} on port {port}...", end="", flush=True)
     for _ in range(timeout):
-        for h in hosts:
+        for h in ["127.0.0.1", "::1"]:
             if port_open(h, port):
                 print(" OK")
                 return True
@@ -38,51 +34,117 @@ def wait_for_port_any(hosts, port, label, timeout=90):
     print(" TIMEOUT")
     return False
 
-print()
-print("  ==========================================")
-print("       AI GAME GENERATOR  Launcher")
-print("  ==========================================")
-print()
+def find_npm() -> str:
+    """Dynamically search for npm in PATH and standard locations."""
+    which_npm = shutil.which("npm") or shutil.which("npm.cmd")
+    if which_npm:
+        return which_npm
 
-print("  Starting FastAPI backend...")
-backend_proc = subprocess.Popen(
-    [PYTHON, "-m", "uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", str(BACKEND_PORT)],
-    cwd=ROOT,
-    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
-)
+    # Common Windows install locations
+    candidates = [
+        os.path.expandvars(r"%ProgramFiles%\nodejs\npm.cmd"),
+        os.path.expandvars(r"%ProgramFiles(x86)%\nodejs\npm.cmd"),
+        os.path.expandvars(r"%LOCALAPPDATA%\Programs\node\npm.cmd"),
+    ]
+    winget_dir = os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\WinGet\Packages")
+    if os.path.isdir(winget_dir):
+        for root, dirs, files in os.walk(winget_dir):
+            if "npm.cmd" in files:
+                candidates.append(os.path.join(root, "npm.cmd"))
+                break
 
-print("  Starting Vite frontend...")
-env = os.environ.copy()
-env["PATH"] = NODE_DIR + os.pathsep + env.get("PATH", "")
-frontend_proc = subprocess.Popen(
-    [NPM, "run", "dev"],
-    cwd=os.path.join(ROOT, "frontend"),
-    env=env,
-    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
-)
+    for p in candidates:
+        if os.path.isfile(p):
+            return p
+    return "npm"
 
-# Check both IPv4 and IPv6 for each service
-backend_ok  = wait_for_port_any(["127.0.0.1", "::1"], BACKEND_PORT,  "Backend")
-frontend_ok = wait_for_port_any(["127.0.0.1", "::1"], FRONTEND_PORT, "Frontend")
+def launch_app_window(url: str):
+    """Launch in standalone app mode using Edge or Chrome if available, else default browser."""
+    edge_cmd = shutil.which("msedge")
+    if edge_cmd:
+        try:
+            subprocess.Popen([edge_cmd, f"--app={url}"])
+            return
+        except Exception:
+            pass
 
-if backend_ok and frontend_ok:
-    print(f"\n  Opening {FRONTEND_URL} ...")
-    webbrowser.open(FRONTEND_URL)
-else:
-    print("\n  WARNING: One or more services failed to start.")
+    chrome_cmd = shutil.which("chrome")
+    if chrome_cmd:
+        try:
+            subprocess.Popen([chrome_cmd, f"--app={url}"])
+            return
+        except Exception:
+            pass
 
-print()
-print("  Servers are running. Close this window to stop everything.")
-print("  (Press Ctrl+C to shut down.)")
-print()
+    webbrowser.open(url)
 
-try:
-    backend_proc.wait()
-except KeyboardInterrupt:
-    pass
-finally:
-    print("\n  Shutting down...")
-    try: backend_proc.terminate()
-    except: pass
-    try: frontend_proc.terminate()
-    except: pass
+def main():
+    is_dev = "--dev" in sys.argv
+    dist_dir = os.path.join(ROOT, "frontend", "dist")
+    has_dist = os.path.isfile(os.path.join(dist_dir, "index.html"))
+
+    print()
+    print("  ======================================================")
+    print("     REALITY -> PLAY  |  AI Game Generator")
+    print("  ======================================================")
+    print()
+
+    # Start FastAPI Backend
+    print("  [*] Starting Game Server (FastAPI)...")
+    backend_cmd = [
+        PYTHON, "-m", "uvicorn", "backend.app.main:app",
+        "--host", "127.0.0.1", "--port", str(BACKEND_PORT)
+    ]
+    creation_flags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+    backend_proc = subprocess.Popen(backend_cmd, cwd=ROOT, creationflags=creation_flags)
+
+    frontend_proc = None
+
+    if is_dev or not has_dist:
+        # Dev mode with Vite
+        npm_path = find_npm()
+        print(f"  [*] Starting Vite Dev Server using {npm_path}...")
+        frontend_proc = subprocess.Popen(
+            [npm_path, "run", "dev"],
+            cwd=os.path.join(ROOT, "frontend"),
+            creationflags=creation_flags
+        )
+        target_port = FRONTEND_PORT
+        target_url = f"http://localhost:{FRONTEND_PORT}"
+        wait_for_port(BACKEND_PORT, "Backend")
+        wait_for_port(FRONTEND_PORT, "Frontend")
+    else:
+        # Production mode: FastAPI serves pre-compiled SPA directly
+        print("  [*] Running in Production Mode (Pre-built Single-Page App)")
+        target_port = BACKEND_PORT
+        target_url = f"http://localhost:{BACKEND_PORT}"
+        wait_for_port(BACKEND_PORT, "Game Engine")
+
+    print(f"\n  [OK] Launching Application Window ({target_url})...")
+    launch_app_window(target_url)
+
+    print()
+    print("  ======================================================")
+    print(f"     GAME IS RUNNING AT: {target_url}")
+    print("     Press Ctrl+C to shut down.")
+    print("  ======================================================")
+    print()
+
+    try:
+        backend_proc.wait()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        print("\n  [*] Shutting down servers...")
+        try:
+            backend_proc.terminate()
+        except Exception:
+            pass
+        if frontend_proc:
+            try:
+                frontend_proc.terminate()
+            except Exception:
+                pass
+
+if __name__ == "__main__":
+    main()
