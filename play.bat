@@ -22,11 +22,9 @@ if exist "%ROOT%.venv\Scripts\python.exe" (
         where py >nul 2>&1
         if %ERRORLEVEL% equ 0 (
             set "PYTHON_CMD=py -3"
-        ) else (
-            echo  [!] Application is not installed yet.
-            echo  [*] Launching automatic installer...
-            echo.
-            call "%ROOT%install.bat"
+            echo  [!] Python not found.
+            echo  [*] Please install Python 3.11+ from https://www.python.org
+            pause
             exit /b
         )
     )

@@ -18,7 +18,6 @@ import {
 import { RECOMMENDATIONS, RecommendationItem } from '../data/recommendations';
 import { GameWorld } from '../types/game';
 import { getGemBalance } from '../types/avatar';
-import { InstallAppButton } from './InstallAppButton';
 
 const DEMO_MAP: Record<string, GameWorld> = {
   DEMO_HOSPITAL,
@@ -186,8 +185,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <InstallAppButton />
-
           {onOpenShop && (
             <button
               onClick={onOpenShop}

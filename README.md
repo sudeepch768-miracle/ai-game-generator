@@ -5,16 +5,14 @@
 
 <br />
 
-[![⚡ INSTALL APPLICATION (WINDOWS)](https://img.shields.io/badge/⚡_INSTALL_APPLICATION-1--CLICK_WINDOWS_SETUP-00f2fe?style=for-the-badge&logo=windows&logoColor=000000&labelColor=00f2fe)](https://github.com/sudeepch768-miracle/ai-game-generator/archive/refs/heads/main.zip)
-&nbsp;&nbsp;
-[![📦 DOWNLOAD ZIP](https://img.shields.io/badge/📦_DOWNLOAD_ZIP-READY_TO_PLAY-ffd700?style=for-the-badge&logo=github&logoColor=000000&labelColor=ffd700)](https://github.com/sudeepch768-miracle/ai-game-generator/archive/refs/heads/main.zip)
+[![🎮 PLAY LIVE ON VERCEL](https://img.shields.io/badge/🎮_PLAY_LIVE_DEMO-ai--game--generator--two.vercel.app-00f2fe?style=for-the-badge&logo=vercel&logoColor=ffffff&labelColor=000000)](https://ai-game-generator-two.vercel.app)
 &nbsp;&nbsp;
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsudeepch768-miracle%2Fai-game-generator&env=GEMINI_API_KEY&envDescription=Google%20Gemini%20API%20Key%20for%20multimodal%20photo%20synthesis)
 
 <br />
 
-> ### 📥 **[👉 Click Here to Download & Install Application (.zip)](https://github.com/sudeepch768-miracle/ai-game-generator/archive/refs/heads/main.zip)**
-> **Just extract the ZIP and double-click `install.bat` — it sets up everything and adds a "Reality to Play" shortcut directly to your Desktop!**
+> ### 🌐 **[👉 Click Here to Play the Live Web Application](https://ai-game-generator-two.vercel.app)**
+> **Instant play in your browser — no installation required!**
 
 <br />
 
@@ -117,16 +115,9 @@ Every theme features dedicated color palettes, weather effects, authentic props,
 - **Python 3.11+**
 - **Node.js 18+**
 
-### 🚀 1-Click Local Installation (For Anyone)
-Anyone on Windows can install and play the game in seconds without manual setup:
-
-1. **Clone or Download** this repository.
-2. **Double-click `install.bat`**:
-   - Automatically detects Python (or offers 1-click install via Windows winget).
-   - Sets up an isolated local environment (`.venv`) and installs requirements.
-   - Automatically generates a **"Reality to Play"** Desktop Shortcut with custom game icon.
-3. **Double-click the "Reality to Play" shortcut on your Desktop** (or `play.bat`):
-   - Launches the game in a clean, dedicated native desktop app window at `http://localhost:8000`!
+### 🚀 Play Online Instantly (No Install)
+Play immediately without setup or installation:
+👉 Open **[ai-game-generator-two.vercel.app](https://ai-game-generator-two.vercel.app)** in any modern desktop or mobile browser.
 
 ---
 

@@ -35,8 +35,7 @@ for /d %%D in ("%LOCALAPPDATA%\Programs\Python\Python3*") do (
 if defined PYTHON_EXE (
     "%PYTHON_EXE%" "%ROOT%run.py" %*
 ) else (
-    echo [!] Python not found. Running installer...
-    call "%ROOT%install.bat"
+    echo [!] Python not found. Please install Python 3.11+ from https://www.python.org
 )
 
 pause
