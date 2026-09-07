@@ -1,5 +1,20 @@
+<div align="center">
+
 # REALITY → PLAY 🎮✨
 > **Transform any real-world photo into a fully playable 2D game world using Multimodal Generative AI & Deterministic 2D Physics.**
+
+<br />
+
+[![⚡ INSTALL APPLICATION (WINDOWS)](https://img.shields.io/badge/⚡_INSTALL_APPLICATION-1--CLICK_WINDOWS_SETUP-00f2fe?style=for-the-badge&logo=windows&logoColor=000000&labelColor=00f2fe)](https://github.com/sudeepch768-miracle/ai-game-generator/archive/refs/heads/main.zip)
+&nbsp;&nbsp;
+[![📦 DOWNLOAD ZIP](https://img.shields.io/badge/📦_DOWNLOAD_ZIP-READY_TO_PLAY-ffd700?style=for-the-badge&logo=github&logoColor=000000&labelColor=ffd700)](https://github.com/sudeepch768-miracle/ai-game-generator/archive/refs/heads/main.zip)
+
+<br />
+
+> ### 📥 **[👉 Click Here to Download & Install Application (.zip)](https://github.com/sudeepch768-miracle/ai-game-generator/archive/refs/heads/main.zip)**
+> **Just extract the ZIP and double-click `install.bat` — it sets up everything and adds a "Reality to Play" shortcut directly to your Desktop!**
+
+<br />
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688.svg)](https://fastapi.tiangolo.com/)
@@ -7,6 +22,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-3178c6.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.0%2B-646cff.svg)](https://vitejs.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+</div>
 
 ---
 
