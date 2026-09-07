@@ -8,5 +8,6 @@ sys.path.insert(0, str(ROOT_DIR / "backend"))
 
 from backend.app.main import app
 
-# Vercel looks for 'app' as the ASGI application entrypoint
-__all__ = ["app"]
+# Expose both 'app' and 'handler' for compatibility across all Vercel Python runtimes
+handler = app
+__all__ = ["app", "handler"]

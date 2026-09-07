@@ -1,6 +1,6 @@
 import os
 from typing import Optional
-from fastapi import FastAPI, UploadFile, File, Form, Header, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
@@ -25,7 +25,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def vercel_route_middleware(request: Request, call_next):
+    # Support Vercel serverless function path preservation
+    matched = (
+        request.headers.get("x-matched-path")
+        or request.headers.get("x-vercel-matched-path")
+        or request.headers.get("x-forwarded-uri")
+    )
+    if matched:
+        clean_path = matched.split("?")[0]
+        if clean_path.startswith("/api"):
+            request.scope["path"] = clean_path
+    elif request.scope.get("path", "").endswith("/index.py"):
+        request.scope["path"] = request.scope["path"][:-9] or "/"
+
+    return await call_next(request)
+
+@app.api_route("/api", methods=["GET", "POST"])
+@app.api_route("/api/", methods=["GET", "POST"])
+def api_root():
+    return {
+        "status": "ok",
+        "service": "REALITY → PLAY Engine",
+        "version": "1.0.0"
+    }
+
 @app.get("/api/health")
+@app.get("/health")
 def health():
     has_env_key = bool(os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY"))
     return {
@@ -35,10 +62,12 @@ def health():
     }
 
 @app.get("/api/demo-games")
+@app.get("/demo-games")
 def get_demo_games():
     return list(ALL_DEMO_WORLDS.values())
 
 @app.post("/api/generate-game", response_model=GameWorld)
+@app.post("/generate-game", response_model=GameWorld)
 async def generate_game(
     image: Optional[UploadFile] = File(None),
     sample_id: Optional[str] = Form(None),
@@ -78,7 +107,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 DIST_DIR = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
-if DIST_DIR.exists():
+if not os.environ.get("VERCEL") and DIST_DIR.exists():
     assets_dir = DIST_DIR / "assets"
     if assets_dir.exists():
         app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
