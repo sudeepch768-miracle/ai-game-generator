@@ -868,17 +868,17 @@ def generate_procedural_level(
     enemies: List[Enemy] = []
 
     if difficulty == "easy":
-        diff_mult = 0.75
-        detect_mult = 0.70
+        diff_mult = 1.05
+        detect_mult = 0.75
     elif difficulty == "medium":
-        diff_mult = 0.95
-        detect_mult = 0.90
+        diff_mult = 1.30
+        detect_mult = 0.95
     elif difficulty == "hard":
-        diff_mult = 1.15
-        detect_mult = 1.05
+        diff_mult = 1.55
+        detect_mult = 1.10
     else:  # nightmare
-        diff_mult = 1.35
-        detect_mult = 1.20
+        diff_mult = 1.80
+        detect_mult = 1.25
 
     # 🚨 EXIT GUARDIAN (Stationed directly guarding the exit portal)
     guardian_x = max(2, min(mw - 3, ex - 2 if ex > 4 else ex + 2))
@@ -891,7 +891,7 @@ def generate_procedural_level(
             x=guardian_x,
             y=guardian_y,
             patrolRange=3,
-            speed=round(1.20 * diff_mult, 2),
+            speed=round(1.35 * diff_mult, 2),
             detectionRadius=round(5.5 * detect_mult, 1),
             isAlert=False,
             spriteTheme=theme_cfg.get("guardian_sprite", "monster"),
@@ -932,7 +932,7 @@ def generate_procedural_level(
                 x=cx,
                 y=cy,
                 patrolRange=5,
-                speed=round(1.12 * diff_mult, 2),
+                speed=round(1.25 * diff_mult, 2),
                 detectionRadius=round(4.8 * detect_mult, 1),
                 isAlert=False,
                 spriteTheme=theme_cfg.get("chaser_sprite", "monster"),
@@ -972,7 +972,7 @@ def generate_procedural_level(
                 x=p_pos[0],
                 y=p_pos[1],
                 patrolRange=5,
-                speed=round(0.95 * diff_mult, 2),
+                speed=round(1.10 * diff_mult, 2),
                 detectionRadius=round(3.8 * detect_mult, 1),
                 isAlert=False,
                 spriteTheme=theme_cfg.get("patrol_sprite", "laser"),
