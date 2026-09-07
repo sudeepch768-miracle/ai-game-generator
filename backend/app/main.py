@@ -107,7 +107,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 DIST_DIR = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
-if not os.environ.get("VERCEL") and DIST_DIR.exists():
+if DIST_DIR.exists():
     assets_dir = DIST_DIR / "assets"
     if assets_dir.exists():
         app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
