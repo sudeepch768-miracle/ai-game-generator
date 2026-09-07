@@ -125,6 +125,7 @@ export class GameEngine {
   private nextTextId: number = 0;
   private lastExitWarningTime: number = 0;
   private isExitUnlocked: boolean = false;
+  private interactionCooldown: number = 0;
   public onStateChange?: (state: EngineState) => void;
   public onWin?: (score: number, timeLeft: number) => void;
   public onLose?: (reason: string, score: number) => void;
@@ -258,6 +259,7 @@ export class GameEngine {
 
   closeDialogue() {
     this.state.activeDialogue = null;
+    this.interactionCooldown = 0.4;
     this.notifyState();
   }
 
@@ -285,6 +287,18 @@ export class GameEngine {
   }
 
   private update(dt: number, timeSec: number) {
+    if (this.interactionCooldown > 0) {
+      this.interactionCooldown = Math.max(0, this.interactionCooldown - dt);
+    }
+
+    // When dialogue is active, check for dismissal keypress and pause gameplay!
+    if (this.state.activeDialogue) {
+      if (this.input.isInteractJustPressed() || this.input.isDashJustPressed()) {
+        this.dismissDialogue();
+      }
+      return;
+    }
+
     // 1. Timer & Cooldown updates
     this.elapsedSeconds += dt;
     this.state.timeLeft = Math.max(0, this.world.timeLimit - this.elapsedSeconds);
@@ -1024,6 +1038,12 @@ export class GameEngine {
   }
 
   private checkInteractions() {
+    // If dialogue is active or in cooldown, do not detect/prompt new interactions
+    if (this.interactionCooldown > 0 || this.state.activeDialogue) {
+      this.state.nearbyInteractable = null;
+      return;
+    }
+
     const tileSize = this.world.map.tileSize;
     const px = this.state.player.x + this.state.player.width / 2;
     const py = this.state.player.y + this.state.player.height / 2;
@@ -1178,6 +1198,7 @@ export class GameEngine {
 
   public dismissDialogue() {
     this.state.activeDialogue = null;
+    this.interactionCooldown = 0.4;
     this.notifyState();
   }
 
