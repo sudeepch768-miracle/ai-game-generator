@@ -8,6 +8,8 @@
 [![⚡ INSTALL APPLICATION (WINDOWS)](https://img.shields.io/badge/⚡_INSTALL_APPLICATION-1--CLICK_WINDOWS_SETUP-00f2fe?style=for-the-badge&logo=windows&logoColor=000000&labelColor=00f2fe)](https://github.com/sudeepch768-miracle/ai-game-generator/archive/refs/heads/main.zip)
 &nbsp;&nbsp;
 [![📦 DOWNLOAD ZIP](https://img.shields.io/badge/📦_DOWNLOAD_ZIP-READY_TO_PLAY-ffd700?style=for-the-badge&logo=github&logoColor=000000&labelColor=ffd700)](https://github.com/sudeepch768-miracle/ai-game-generator/archive/refs/heads/main.zip)
+&nbsp;&nbsp;
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsudeepch768-miracle%2Fai-game-generator&env=GEMINI_API_KEY&envDescription=Google%20Gemini%20API%20Key%20for%20multimodal%20photo%20synthesis)
 
 <br />
 
@@ -146,6 +148,26 @@ npm install
 npm run dev
 ```
 Open **http://localhost:5173** (or **http://localhost:8000** for production build).
+
+---
+
+## 🌐 Deploy to Vercel (1-Click Cloud Hosting)
+
+This project is pre-configured with `vercel.json` and a Python Serverless Function (`api/index.py`) for instantaneous Vercel deployment.
+
+### Option A: 1-Click Deploy via Web
+1. Click the **[Deploy with Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsudeepch768-miracle%2Fai-game-generator&env=GEMINI_API_KEY&envDescription=Google%20Gemini%20API%20Key%20for%20multimodal%20photo%20synthesis)** button above (or import your GitHub repo on [vercel.com/new](https://vercel.com/new)).
+2. (Optional) Add your `GEMINI_API_KEY` under Environment Variables.
+3. Click **Deploy**. Vercel will build the frontend and deploy the FastAPI backend serverlessly!
+
+### Option B: Deploy from Terminal (Vercel CLI)
+```bash
+# In the project root:
+npx vercel
+
+# For production release:
+npx vercel --prod
+```
 
 ---
 
