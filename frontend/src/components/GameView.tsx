@@ -6,7 +6,6 @@ import { DialogueBox } from './DialogueBox';
 import { GameStartModal } from './GameStartModal';
 import { GameOverModal } from './GameOverModal';
 import { AvatarShopModal } from './AvatarShopModal';
-import { ComicPrologueModal } from './ComicPrologueModal';
 import { sound } from '../engine/sound';
 
 interface GameViewProps {
@@ -23,7 +22,6 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
   const [engineState, setEngineState] = useState<EngineState | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showComicPrologue, setShowComicPrologue] = useState(true);
   const [isWon, setIsWon] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [gameOverReason, setGameOverReason] = useState('');
@@ -121,7 +119,6 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
 
       initEngine();
     }
-    setShowComicPrologue(false);
     setIsPlaying(true);
     if (engineRef.current) {
       engineRef.current.start();
@@ -133,7 +130,6 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
     setIsWon(false);
     setIsGameOver(false);
     setIsPlaying(false);
-    setShowComicPrologue(false);
     setShowShop(false);
     initEngine();
   };
@@ -208,21 +204,11 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
         />
       )}
 
-      {/* Game Ready Modal (Start Screen fallback if comic closed without launch) */}
-      {!isPlaying && isReady && !showComicPrologue && (
+      {/* Game Ready Modal (Pick Difficulty & Start Game) */}
+      {!isPlaying && isReady && (
         <GameStartModal
           world={world}
           onPlay={(diff) => handleStartPlay(diff)}
-          onViewComic={() => setShowComicPrologue(true)}
-        />
-      )}
-
-      {/* Comic Origin Story Prologue Cutscene - Compulsory on First Launch */}
-      {!isPlaying && showComicPrologue && (
-        <ComicPrologueModal
-          world={world}
-          onStartGame={(diff) => handleStartPlay(diff)}
-          onClose={() => handleStartPlay()}
         />
       )}
 

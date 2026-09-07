@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { GameWorld, Difficulty } from '../types/game';
-import { Play, ShieldAlert, Clock, Target, Sparkles, Heart, AlertTriangle, BookOpen } from 'lucide-react';
+import { Play, ShieldAlert, Clock, Target, Sparkles, Heart, AlertTriangle } from 'lucide-react';
 
 interface GameStartModalProps {
   world: GameWorld;
   onPlay: (difficulty?: Difficulty) => void;
-  onViewComic?: () => void;
 }
 
-export const GameStartModal: React.FC<GameStartModalProps> = ({ world, onPlay, onViewComic }) => {
+export const GameStartModal: React.FC<GameStartModalProps> = ({ world, onPlay }) => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(world.difficulty || 'medium');
 
   const diffConfig = {
@@ -180,41 +179,6 @@ export const GameStartModal: React.FC<GameStartModalProps> = ({ world, onPlay, o
             </div>
           </div>
         </div>
-
-        {/* Origin Comic Story Teaser Button */}
-        {onViewComic && (
-          <button
-            type="button"
-            onClick={onViewComic}
-            style={{
-              width: '100%',
-              background: 'linear-gradient(90deg, #ffd700 0%, #f59e0b 100%)',
-              color: '#000000',
-              border: '2px solid #000000',
-              borderRadius: '14px',
-              padding: '10px 16px',
-              fontFamily: '"Bangers", "Press Start 2P", cursive, sans-serif',
-              fontSize: '14px',
-              letterSpacing: '1px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              boxShadow: '3px 3px 0 #000000, 0 0 15px rgba(255, 215, 0, 0.3)',
-              marginBottom: '14px',
-              transition: 'transform 0.15s, box-shadow 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px) scale(1.01)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0) scale(1)';
-            }}
-          >
-            <BookOpen size={16} /> 📖 COMIC PROLOGUE: HOW YOU GOT HERE
-          </button>
-        )}
 
         {/* Big PLAY Button */}
         <button
