@@ -122,6 +122,86 @@ export const AvatarShopModal: React.FC<AvatarShopModalProps> = ({ onClose, onSki
         ctx.beginPath();
         ctx.arc(cx, cy - 20 + walkBob, 18, Math.PI * 0.9, Math.PI * 2.1);
         ctx.fill();
+      } else if (selectedSkin.hatType === 'space_helmet') {
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+        ctx.beginPath();
+        ctx.arc(cx, cy - 18 + walkBob, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(cx - 15, cy - 4 + walkBob, 30, 5);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx - 4, cy - 20 + walkBob, 11, Math.PI * 1.1, Math.PI * 1.6);
+        ctx.stroke();
+      } else if (selectedSkin.hatType === 'samurai_kabuto') {
+        ctx.fillStyle = '#991b1b';
+        ctx.beginPath();
+        ctx.arc(cx, cy - 20 + walkBob, 16, Math.PI, 0);
+        ctx.fill();
+        ctx.fillStyle = '#450a0a';
+        ctx.fillRect(cx - 18, cy - 18 + walkBob, 36, 6);
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.moveTo(cx - 13, cy - 28 + walkBob);
+        ctx.quadraticCurveTo(cx, cy - 23 + walkBob, cx + 13, cy - 28 + walkBob);
+        ctx.lineTo(cx, cy - 35 + walkBob);
+        ctx.closePath();
+        ctx.fill();
+      } else if (selectedSkin.hatType === 'cowboy_hat') {
+        ctx.fillStyle = '#92400e';
+        ctx.beginPath();
+        ctx.ellipse(cx, cy - 24 + walkBob, 22, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(cx - 11, cy - 35 + walkBob, 22, 13);
+        ctx.fillStyle = '#451a03';
+        ctx.fillRect(cx - 11, cy - 26 + walkBob, 22, 4);
+      } else if (selectedSkin.hatType === 'gas_mask') {
+        ctx.fillStyle = '#14532d';
+        ctx.beginPath();
+        ctx.arc(cx, cy - 19 + walkBob, 17, Math.PI * 0.9, Math.PI * 2.1);
+        ctx.fill();
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(cx - 8, cy - 8 + walkBob, 16, 7);
+        ctx.fillStyle = '#4ade80';
+        ctx.fillRect(cx - 11, cy - 20 + walkBob, 8, 6);
+        ctx.fillRect(cx + 3, cy - 20 + walkBob, 8, 6);
+      } else if (selectedSkin.hatType === 'wizard_hat') {
+        ctx.fillStyle = '#581c87';
+        ctx.beginPath();
+        ctx.ellipse(cx, cy - 24 + walkBob, 22, 5.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#7c3aed';
+        ctx.beginPath();
+        ctx.moveTo(cx - 13, cy - 24 + walkBob);
+        ctx.lineTo(cx + 14, cy - 44 + walkBob);
+        ctx.lineTo(cx + 11, cy - 24 + walkBob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(cx - 4, cy - 26 + walkBob, 8, 4.5);
+      } else if (selectedSkin.hatType === 'crown') {
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(cx - 14, cy - 24 + walkBob, 28, 5);
+        ctx.beginPath();
+        ctx.moveTo(cx - 14, cy - 24 + walkBob);
+        ctx.lineTo(cx - 12, cy - 36 + walkBob);
+        ctx.lineTo(cx - 5, cy - 27 + walkBob);
+        ctx.lineTo(cx, cy - 39 + walkBob);
+        ctx.lineTo(cx + 5, cy - 27 + walkBob);
+        ctx.lineTo(cx + 12, cy - 36 + walkBob);
+        ctx.lineTo(cx + 14, cy - 24 + walkBob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(cx - 2, cy - 33 + walkBob, 4, 4);
+        ctx.fillStyle = '#3b82f6';
+        ctx.fillRect(cx - 11, cy - 31 + walkBob, 3, 3);
+        ctx.fillRect(cx + 8, cy - 31 + walkBob, 3, 3);
       } else {
         ctx.fillStyle = '#1e1b4b';
         ctx.beginPath();
@@ -312,7 +392,7 @@ export const AvatarShopModal: React.FC<AvatarShopModalProps> = ({ onClose, onSki
         {/* Top Preview Section */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '170px 1fr',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
           gap: '18px',
           background: 'rgba(0, 0, 0, 0.4)',
           border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -320,6 +400,7 @@ export const AvatarShopModal: React.FC<AvatarShopModalProps> = ({ onClose, onSki
           padding: '16px',
           marginBottom: '20px',
           alignItems: 'center',
+          justifyItems: 'center',
         }}>
           {/* Canvas Preview */}
           <canvas

@@ -1,4 +1,16 @@
-export type HatType = 'none' | 'fedora' | 'knight_helm' | 'ninja_headband' | 'visor' | 'hood';
+export type HatType =
+  | 'none'
+  | 'fedora'
+  | 'knight_helm'
+  | 'ninja_headband'
+  | 'visor'
+  | 'hood'
+  | 'space_helmet'
+  | 'samurai_kabuto'
+  | 'cowboy_hat'
+  | 'gas_mask'
+  | 'wizard_hat'
+  | 'crown';
 export type TrailEffect = 'sparkles' | 'fire' | 'electric' | 'ghostly' | 'smoke';
 
 export interface AvatarSkin {
@@ -40,6 +52,18 @@ export const ALL_AVATAR_SKINS: AvatarSkin[] = [
     icon: '👻',
   },
   {
+    id: 'space_vanguard',
+    name: 'Starfleet Vanguard',
+    tagline: 'COSMIC VOYAGER',
+    cost: 200,
+    description: 'Aeronautical pressurized suit with a curved solar-reflective visor for zero-G orbital breaches.',
+    primaryColor: '#0284c7',
+    accentColor: '#38bdf8',
+    hatType: 'space_helmet',
+    trailEffect: 'electric',
+    icon: '🚀',
+  },
+  {
     id: 'agent',
     name: 'Secret Infiltrator',
     tagline: 'STEALTH & HEIST MASTER',
@@ -50,6 +74,30 @@ export const ALL_AVATAR_SKINS: AvatarSkin[] = [
     hatType: 'visor',
     trailEffect: 'smoke',
     icon: '🕶️',
+  },
+  {
+    id: 'samurai',
+    name: 'Neon Cyber Ronin',
+    tagline: 'BLADE MASTER OF NEO-TOKYO',
+    cost: 350,
+    description: 'Forged crimson kabuto helm with gold crescent horns and a scorching thermal flame trail.',
+    primaryColor: '#b91c1c',
+    accentColor: '#fbbf24',
+    hatType: 'samurai_kabuto',
+    trailEffect: 'fire',
+    icon: '⚔️',
+  },
+  {
+    id: 'cowboy',
+    name: 'Wasteland Gunslinger',
+    tagline: 'FRONTIER BOUNTY HUNTER',
+    cost: 450,
+    description: 'Weathered leather stetson and dust duster. Always strikes first with quickdraw reflexes.',
+    primaryColor: '#b45309',
+    accentColor: '#f59e0b',
+    hatType: 'cowboy_hat',
+    trailEffect: 'smoke',
+    icon: '🤠',
   },
   {
     id: 'knight',
@@ -64,6 +112,18 @@ export const ALL_AVATAR_SKINS: AvatarSkin[] = [
     icon: '🛡️',
   },
   {
+    id: 'bio_hacker',
+    name: 'Plague Bio-Hacker',
+    tagline: 'TOXIC HAZARD SPECIALIST',
+    cost: 600,
+    description: 'Heavy tactical NBC respirator and emerald filtration canisters to breach bio-hazard sectors.',
+    primaryColor: '#15803d',
+    accentColor: '#4ade80',
+    hatType: 'gas_mask',
+    trailEffect: 'electric',
+    icon: '☣️',
+  },
+  {
     id: 'phantom',
     name: 'Spectral Wraith',
     tagline: 'ETHEREAL SHADOW WALKER',
@@ -76,6 +136,18 @@ export const ALL_AVATAR_SKINS: AvatarSkin[] = [
     icon: '🔮',
   },
   {
+    id: 'arcanist',
+    name: 'Void Sorcerer',
+    tagline: 'MASTER OF ARCHIVAL RUNES',
+    cost: 850,
+    description: 'Pointed midnight starlight wizard hat infused with ancient cyber-sorcery and astral mist.',
+    primaryColor: '#7c3aed',
+    accentColor: '#c084fc',
+    hatType: 'wizard_hat',
+    trailEffect: 'ghostly',
+    icon: '🧙',
+  },
+  {
     id: 'retro',
     name: '8-Bit Arcade Legend',
     tagline: 'RETRO PIXEL ROYALTY',
@@ -84,6 +156,18 @@ export const ALL_AVATAR_SKINS: AvatarSkin[] = [
     primaryColor: '#ec4899',
     accentColor: '#fbbf24',
     hatType: 'none',
+    trailEffect: 'sparkles',
+    icon: '👾',
+  },
+  {
+    id: 'monarch',
+    name: 'Golden Sovereign',
+    tagline: 'SUPREME REALM RULER',
+    cost: 1200,
+    description: 'Radiant 24-karat crowned regalia encrusted with mystical rubies. Glides with stardust majesty.',
+    primaryColor: '#eab308',
+    accentColor: '#ffffff',
+    hatType: 'crown',
     trailEffect: 'sparkles',
     icon: '👑',
   },

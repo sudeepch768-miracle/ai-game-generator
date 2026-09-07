@@ -2,6 +2,8 @@ export class InputManager {
   private keys: Record<string, boolean> = {};
   private justPressed: Record<string, boolean> = {};
   private attached: boolean = false;
+  private virtualDx: number = 0;
+  private virtualDy: number = 0;
 
   constructor() {
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -24,7 +26,29 @@ export class InputManager {
     window.removeEventListener('blur', this.handleBlur);
     this.keys = {};
     this.justPressed = {};
+    this.virtualDx = 0;
+    this.virtualDy = 0;
     this.attached = false;
+  }
+
+  /** Set virtual joystick movement from mobile touch controls */
+  setVirtualMovement(dx: number, dy: number) {
+    this.virtualDx = dx;
+    this.virtualDy = dy;
+  }
+
+  /** Trigger virtual button action from mobile UI */
+  triggerVirtualAction(action: 'dash' | 'interact' | 'stun' | 'stealth') {
+    if (action === 'dash') {
+      this.justPressed['space'] = true;
+    } else if (action === 'interact') {
+      this.justPressed['keye'] = true;
+    } else if (action === 'stun') {
+      this.justPressed['keyf'] = true;
+    } else if (action === 'stealth') {
+      this.justPressed['keyc'] = true;
+      this.keys['keyc'] = !this.keys['keyc'];
+    }
   }
 
   private handleKeyDown(e: KeyboardEvent) {
@@ -71,11 +95,22 @@ export class InputManager {
     else if (left) facing = 'left';
     else if (right) facing = 'right';
 
-    // Normalize diagonal movement speed
+    // Normalize diagonal movement speed for keys
     if (dx !== 0 && dy !== 0) {
       const invSqrt = 1 / Math.SQRT2;
       dx *= invSqrt;
       dy *= invSqrt;
+    }
+
+    // Merge virtual joystick if keyboard is idle
+    if (dx === 0 && dy === 0 && (this.virtualDx !== 0 || this.virtualDy !== 0)) {
+      dx = this.virtualDx;
+      dy = this.virtualDy;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        facing = dx > 0 ? 'right' : 'left';
+      } else if (Math.abs(dy) > 0.05) {
+        facing = dy > 0 ? 'down' : 'up';
+      }
     }
 
     return { dx, dy, facing };

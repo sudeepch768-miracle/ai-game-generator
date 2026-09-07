@@ -399,9 +399,9 @@ export class CanvasRenderer {
 
         // Terminal Label
         ctx.fillStyle = isHacked ? '#43e97b' : '#00f2fe';
-        ctx.font = 'bold 9px "Press Start 2P", monospace';
+        ctx.font = 'bold 8.5px "Press Start 2P", monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(isHacked ? 'OVERRIDDEN' : 'TERMINAL', ox + ow / 2, oy - 8);
+        ctx.fillText(isHacked ? '✅ OVERRIDDEN' : '💻 HACK [E]', ox + ow / 2, oy - 8);
       } else {
         // Dynamic Procedural Prop / Obstacle
         this.renderProp(obj, ox, oy, ow, oh, time);
@@ -3720,6 +3720,95 @@ export class CanvasRenderer {
       ctx.beginPath();
       ctx.arc(px, py - 10 + walkBob, 10, Math.PI * 0.9, Math.PI * 2.1);
       ctx.fill();
+    } else if (skin.hatType === 'space_helmet') {
+      // 🚀 Astronaut Pressure Bubble Helmet
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+      ctx.beginPath();
+      ctx.arc(px, py - 9 + walkBob, 10, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(px - 8, py - 2 + walkBob, 16, 2.5); // neck collar
+      // Visor reflection
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(px - 2, py - 11 + walkBob, 6, Math.PI * 1.1, Math.PI * 1.6);
+      ctx.stroke();
+    } else if (skin.hatType === 'samurai_kabuto') {
+      // ⚔️ Samurai Crested Kabuto
+      ctx.fillStyle = '#991b1b';
+      ctx.beginPath();
+      ctx.arc(px, py - 11 + walkBob, 9, Math.PI, 0);
+      ctx.fill();
+      ctx.fillStyle = '#450a0a';
+      ctx.fillRect(px - 10, py - 10 + walkBob, 20, 3.5); // shikoro neck guard
+      // Golden crescent maedate horn
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.moveTo(px - 7, py - 16 + walkBob);
+      ctx.quadraticCurveTo(px, py - 13 + walkBob, px + 7, py - 16 + walkBob);
+      ctx.lineTo(px, py - 19 + walkBob);
+      ctx.closePath();
+      ctx.fill();
+    } else if (skin.hatType === 'cowboy_hat') {
+      // 🤠 Western Stetson Hat
+      ctx.fillStyle = '#92400e';
+      ctx.beginPath();
+      ctx.ellipse(px, py - 13 + walkBob, 12, 3.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#b45309';
+      ctx.fillRect(px - 6, py - 19 + walkBob, 12, 7);
+      ctx.fillStyle = '#451a03';
+      ctx.fillRect(px - 6, py - 14 + walkBob, 12, 2);
+    } else if (skin.hatType === 'gas_mask') {
+      // ☣️ Tactical CBRN Gas Mask
+      ctx.fillStyle = '#14532d';
+      ctx.beginPath();
+      ctx.arc(px, py - 10 + walkBob, 9, Math.PI * 0.9, Math.PI * 2.1);
+      ctx.fill();
+      ctx.fillStyle = '#22c55e';
+      ctx.fillRect(px - 4, py - 4 + walkBob, 8, 4); // canister
+      ctx.fillStyle = '#4ade80';
+      ctx.fillRect(px - 6, py - 10 + walkBob, 4, 3); // left lens
+      ctx.fillRect(px + 2, py - 10 + walkBob, 4, 3); // right lens
+    } else if (skin.hatType === 'wizard_hat') {
+      // 🧙 Pointed Sorcerer Hat
+      ctx.fillStyle = '#581c87';
+      ctx.beginPath();
+      ctx.ellipse(px, py - 13 + walkBob, 12, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#7c3aed';
+      ctx.beginPath();
+      ctx.moveTo(px - 7, py - 13 + walkBob);
+      ctx.lineTo(px + 8, py - 24 + walkBob);
+      ctx.lineTo(px + 6, py - 13 + walkBob);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(px - 2, py - 14 + walkBob, 4, 2.5); // gold buckle
+    } else if (skin.hatType === 'crown') {
+      // 👑 Ornate Golden Crown
+      ctx.fillStyle = '#eab308';
+      ctx.fillRect(px - 8, py - 13 + walkBob, 16, 2.5); // band
+      ctx.beginPath();
+      ctx.moveTo(px - 8, py - 13 + walkBob);
+      ctx.lineTo(px - 7, py - 19 + walkBob);
+      ctx.lineTo(px - 3, py - 14 + walkBob);
+      ctx.lineTo(px, py - 21 + walkBob);
+      ctx.lineTo(px + 3, py - 14 + walkBob);
+      ctx.lineTo(px + 7, py - 19 + walkBob);
+      ctx.lineTo(px + 8, py - 13 + walkBob);
+      ctx.closePath();
+      ctx.fill();
+      // Rubies
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(px - 1, py - 17 + walkBob, 2, 2);
+      ctx.fillStyle = '#3b82f6';
+      ctx.fillRect(px - 6, py - 16 + walkBob, 2, 2);
+      ctx.fillRect(px + 4, py - 16 + walkBob, 2, 2);
     } else {
       // Standard Hair / Cap
       ctx.fillStyle = '#1e1b4b';

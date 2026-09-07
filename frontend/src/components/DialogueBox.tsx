@@ -32,25 +32,33 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ title, text, onDismiss
   }, [onDismiss]);
 
   return (
-    <div style={{
-      position: 'absolute',
-      bottom: '30px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: '90%',
-      maxWidth: '620px',
-      background: 'rgba(15, 23, 42, 0.96)',
-      backdropFilter: 'blur(12px)',
-      border: '2px solid #8b5cf6',
-      borderRadius: '16px',
-      padding: '16px 20px',
-      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(139, 92, 246, 0.3)',
-      color: '#ffffff',
-      fontFamily: '"Chakra Petch", sans-serif',
-      zIndex: 25,
-      animation: 'slideUp 0.2s ease-out',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+    <div
+      onClick={onDismiss}
+      onTouchStart={(e) => {
+        e.stopPropagation();
+        onDismiss();
+      }}
+      style={{
+        position: 'absolute',
+        bottom: '85px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '92%',
+        maxWidth: '620px',
+        background: 'rgba(15, 23, 42, 0.96)',
+        backdropFilter: 'blur(12px)',
+        border: '2px solid #8b5cf6',
+        borderRadius: '16px',
+        padding: '16px 20px',
+        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(139, 92, 246, 0.3)',
+        color: '#ffffff',
+        fontFamily: '"Chakra Petch", sans-serif',
+        zIndex: 35,
+        animation: 'slideUp 0.2s ease-out',
+        cursor: 'pointer',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -66,9 +74,9 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ title, text, onDismiss
           <MessageSquare size={14} />
           {title}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '11px', color: '#a78bfa', fontWeight: 600 }}>
-            Press <kbd style={{ background: '#1e1b4b', border: '1px solid #7c3aed', borderRadius: '4px', padding: '1px 5px', color: '#fff' }}>E</kbd> or <kbd style={{ background: '#1e1b4b', border: '1px solid #7c3aed', borderRadius: '4px', padding: '1px 5px', color: '#fff' }}>Space</kbd> to close
+            Tap or Press <kbd style={{ background: '#1e1b4b', border: '1px solid #7c3aed', borderRadius: '4px', padding: '1px 5px', color: '#fff' }}>E</kbd>
           </span>
           <button
             onClick={onDismiss}

@@ -108,6 +108,27 @@ export const GameStartModal: React.FC<GameStartModalProps> = ({ world, onPlay })
           <div style={{ fontSize: '14px', fontWeight: 600, color: '#f1f5f9' }}>
             {world.objective.description}
           </div>
+
+          {world.objective.requiredTerminals && world.objective.requiredTerminals.length > 0 && (
+            <div style={{
+              marginTop: '10px',
+              padding: '8px 12px',
+              background: 'rgba(0, 242, 254, 0.12)',
+              border: '1px solid rgba(0, 242, 254, 0.4)',
+              borderRadius: '8px',
+              fontSize: '12px',
+              color: '#38bdf8',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              lineHeight: '1.4',
+            }}>
+              <span style={{ fontSize: '16px' }}>💻</span>
+              <div>
+                <strong style={{ color: '#00f2fe' }}>MANDATORY TERMINAL HACK:</strong> Locate the Security Terminal and press <strong>[E]</strong> to override the sector firewall before the exit portal unlocks!
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Interactive Difficulty Selector */}
@@ -116,7 +137,7 @@ export const GameStartModal: React.FC<GameStartModalProps> = ({ world, onPlay })
             <ShieldAlert size={14} color={currentConfig.color} /> SELECT CHALLENGE LEVEL:
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: '8px' }}>
             {(['easy', 'medium', 'hard', 'nightmare'] as Difficulty[]).map((d) => {
               const cfg = diffConfig[d];
               const isSelected = selectedDifficulty === d;

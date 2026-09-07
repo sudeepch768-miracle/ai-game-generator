@@ -18,6 +18,7 @@ import {
 import { RECOMMENDATIONS, RecommendationItem } from '../data/recommendations';
 import { GameWorld } from '../types/game';
 import { getGemBalance } from '../types/avatar';
+import { InstallAppButton } from './InstallAppButton';
 
 const DEMO_MAP: Record<string, GameWorld> = {
   DEMO_HOSPITAL,
@@ -157,7 +158,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
       flexDirection: 'column',
       alignItems: 'center',
     }}>
-      {/* Top Header Bar with Wardrobe & Gem Shop Button */}
+      {/* Top Header Bar with Wardrobe & Gem Shop Button & PWA Install */}
       <div style={{
         width: '100%',
         maxWidth: '1040px',
@@ -165,6 +166,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: '20px',
+        flexWrap: 'wrap',
+        gap: '12px',
       }}>
         <div style={{
           display: 'inline-flex',
@@ -182,42 +185,46 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           <Sparkles size={15} /> MULTIMODAL GENERATIVE AI ENGINE
         </div>
 
-        {onOpenShop && (
-          <button
-            onClick={onOpenShop}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '10px',
-              background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%)',
-              border: '1px solid rgba(234, 179, 8, 0.6)',
-              padding: '8px 18px',
-              borderRadius: '24px',
-              color: '#ffd700',
-              fontFamily: '"Chakra Petch", sans-serif',
-              fontSize: '13px',
-              fontWeight: 800,
-              cursor: 'pointer',
-              boxShadow: '0 4px 15px rgba(234, 179, 8, 0.25)',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.borderColor = '#ffd700';
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(234, 179, 8, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = 'rgba(234, 179, 8, 0.6)';
-              e.currentTarget.style.boxShadow = '0 4px 15px rgba(234, 179, 8, 0.25)';
-            }}
-          >
-            <span>💎 {gemCount} GEMS</span>
-            <span style={{ color: '#64748b' }}>|</span>
-            <Shirt size={16} />
-            <span>AVATAR SHOP</span>
-          </button>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <InstallAppButton />
+
+          {onOpenShop && (
+            <button
+              onClick={onOpenShop}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%)',
+                border: '1px solid rgba(234, 179, 8, 0.6)',
+                padding: '8px 18px',
+                borderRadius: '24px',
+                color: '#ffd700',
+                fontFamily: '"Chakra Petch", sans-serif',
+                fontSize: '13px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                boxShadow: '0 4px 15px rgba(234, 179, 8, 0.25)',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.borderColor = '#ffd700';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(234, 179, 8, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(234, 179, 8, 0.6)';
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(234, 179, 8, 0.25)';
+              }}
+            >
+              <span>💎 {gemCount} GEMS</span>
+              <span style={{ color: '#64748b' }}>|</span>
+              <Shirt size={16} />
+              <span>AVATAR SHOP</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Main Hero Header */}

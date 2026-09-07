@@ -67,17 +67,17 @@ export const HUD: React.FC<HUDProps> = ({
       {/* TOP BAR */}
       <div style={{
         position: 'absolute',
-        top: '12px',
-        left: '12px',
-        right: '12px',
+        top: '8px',
+        left: '8px',
+        right: '8px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '10px',
-        padding: '8px 16px',
-        background: 'rgba(11, 15, 25, 0.88)',
+        gap: '8px',
+        padding: '6px 12px',
+        background: 'rgba(11, 15, 25, 0.9)',
         backdropFilter: 'blur(10px)',
-        border: '2px solid rgba(0, 242, 254, 0.3)',
+        border: '2px solid rgba(0, 242, 254, 0.35)',
         borderRadius: '16px',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 242, 254, 0.15)',
         color: '#ffffff',
@@ -87,14 +87,14 @@ export const HUD: React.FC<HUDProps> = ({
         flexWrap: 'wrap',
       }}>
         {/* LEFT: Level Badge & Health & Keys/Terminals */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '5px',
             background: 'linear-gradient(135deg, rgba(255, 0, 127, 0.3), rgba(121, 40, 202, 0.3))',
             border: '1px solid rgba(255, 0, 127, 0.6)',
-            padding: '3px 10px',
+            padding: '3px 8px',
             borderRadius: '12px',
             fontSize: '11px',
             fontWeight: 800,
@@ -102,14 +102,14 @@ export const HUD: React.FC<HUDProps> = ({
             color: '#ff77e9',
             boxShadow: '0 0 10px rgba(255, 0, 127, 0.25)',
           }}>
-            🏆 LEVEL {state.currentLevel || 1}/{state.maxLevels || 3}
+            🏆 LVL {state.currentLevel || 1}/{state.maxLevels || 3}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
             {Array.from({ length: state.maxHealth }).map((_, i) => (
               <Heart
                 key={i}
-                size={20}
+                size={18}
                 color={i < state.health ? '#ff007f' : '#475569'}
                 fill={i < state.health ? '#ff007f' : 'transparent'}
                 style={{ filter: i < state.health ? 'drop-shadow(0 0 6px rgba(255, 0, 127, 0.8))' : 'none' }}
@@ -122,7 +122,7 @@ export const HUD: React.FC<HUDProps> = ({
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '5px',
+              gap: '4px',
               background: hasKey ? 'rgba(67, 233, 123, 0.2)' : 'rgba(255, 255, 255, 0.08)',
               border: `1px solid ${hasKey ? '#43e97b' : '#64748b'}`,
               padding: '3px 8px',
@@ -131,7 +131,7 @@ export const HUD: React.FC<HUDProps> = ({
               fontWeight: 700,
               color: hasKey ? '#43e97b' : '#94a3b8',
             }}>
-              <Key size={13} />
+              <Key size={12} />
               {hasKey ? 'KEY READY' : 'KEY NEEDED'}
             </div>
           )}
@@ -142,16 +142,17 @@ export const HUD: React.FC<HUDProps> = ({
               display: 'flex',
               alignItems: 'center',
               gap: '5px',
-              background: hasTerminals ? 'rgba(0, 242, 254, 0.2)' : 'rgba(255, 170, 0, 0.15)',
-              border: `1px solid ${hasTerminals ? '#00f2fe' : '#ffaa00'}`,
+              background: hasTerminals ? 'rgba(67, 233, 123, 0.2)' : 'rgba(0, 242, 254, 0.2)',
+              border: `1px solid ${hasTerminals ? '#43e97b' : '#00f2fe'}`,
               padding: '3px 8px',
               borderRadius: '12px',
               fontSize: '11px',
-              fontWeight: 700,
-              color: hasTerminals ? '#00f2fe' : '#ffaa00',
+              fontWeight: 800,
+              color: hasTerminals ? '#43e97b' : '#00f2fe',
+              boxShadow: hasTerminals ? '0 0 10px rgba(67, 233, 123, 0.3)' : '0 0 12px rgba(0, 242, 254, 0.35)',
             }}>
-              <Cpu size={13} />
-              {hasTerminals ? 'FIREWALL OVERRIDDEN' : 'TERMINAL LOCK ACTIVE'}
+              <Cpu size={12} />
+              {hasTerminals ? '✅ FIREWALL HACKED' : '💻 HACK TERMINAL [E] (REQUIRED)'}
             </div>
           )}
         </div>

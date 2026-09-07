@@ -817,8 +817,8 @@ def generate_procedural_level(
     objects: List[GameObject] = []
     required_terminals: List[str] = []
 
-    # For level 2 and 3, add a Firewall Terminal that must be overridden
-    if level_num >= 2:
+    # Add a Firewall Security Terminal that must be hacked to override sector lock
+    if level_num >= 1:
         term_room = middle_rooms[-1] if middle_rooms else rooms[1]
         term_id = f"terminal_{level_num}"
         required_terminals.append(term_id)
@@ -998,7 +998,7 @@ def generate_procedural_level(
         key_count_str = f"{len(required_items)} Sector Key{'s' if len(required_items)>1 else ''}"
         obj_parts.append(key_count_str)
     if required_terminals:
-        obj_parts.append("Override Terminal")
+        obj_parts.append("💻 Hack Security Terminal [E]")
     obj_desc = f"Level {level_num}: " + " + ".join(obj_parts) + f" -> Evade {theme_cfg['guardian_name']}!"
 
     objective = Objective(

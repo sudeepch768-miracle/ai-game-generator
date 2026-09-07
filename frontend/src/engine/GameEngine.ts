@@ -248,6 +248,16 @@ export class GameEngine {
     this.notifyState();
   }
 
+  /** Proxy virtual joystick movement from mobile touch controls */
+  setVirtualMovement(dx: number, dy: number) {
+    this.input.setVirtualMovement(dx, dy);
+  }
+
+  /** Proxy virtual button trigger from mobile touch controls */
+  triggerVirtualAction(action: 'dash' | 'interact' | 'stun' | 'stealth') {
+    this.input.triggerVirtualAction(action);
+  }
+
   setMuted(muted: boolean) {
     sound.enabled = !muted;
     if (muted) {

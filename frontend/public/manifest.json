@@ -1,0 +1,42 @@
+{
+  "name": "AI Game Generator: Reality to Play",
+  "short_name": "RealityToPlay",
+  "description": "Generate and play instant AI adventure and escape games directly from your browser or device",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070912",
+  "theme_color": "#00f2fe",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": [
+    "games",
+    "entertainment"
+  ],
+  "screenshots": []
+}

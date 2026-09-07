@@ -6,6 +6,7 @@ import { DialogueBox } from './DialogueBox';
 import { GameStartModal } from './GameStartModal';
 import { GameOverModal } from './GameOverModal';
 import { AvatarShopModal } from './AvatarShopModal';
+import { MobileControls } from './MobileControls';
 import { sound } from '../engine/sound';
 
 interface GameViewProps {
@@ -29,6 +30,20 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showShop, setShowShop] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    const checkTouch = () => {
+      const hasTouch =
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        window.innerWidth <= 900;
+      setIsTouchDevice(hasTouch);
+    };
+    checkTouch();
+    window.addEventListener('resize', checkTouch);
+    return () => window.removeEventListener('resize', checkTouch);
+  }, []);
 
   // Initialize engine
   const initEngine = useCallback(() => {
@@ -230,8 +245,22 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
         <AvatarShopModal onClose={() => setShowShop(false)} />
       )}
 
-      {/* Bottom Controls Pill */}
-      {isPlaying && !isWon && !isGameOver && (
+      {/* Mobile Virtual Controls */}
+      {isPlaying && !isWon && !isGameOver && isTouchDevice && (
+        <MobileControls
+          onMove={(dx, dy) => {
+            if (engineRef.current) engineRef.current.setVirtualMovement(dx, dy);
+          }}
+          onAction={(action) => {
+            if (engineRef.current) engineRef.current.triggerVirtualAction(action);
+          }}
+          nearbyInteractable={engineState?.nearbyInteractable}
+          stealthActive={engineState?.isStealth}
+        />
+      )}
+
+      {/* Bottom Controls Pill (Desktop Keyboard Only) */}
+      {isPlaying && !isWon && !isGameOver && !isTouchDevice && (
         <div style={{
           position: 'absolute',
           bottom: '12px',

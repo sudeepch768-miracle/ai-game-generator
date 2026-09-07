@@ -2435,7 +2435,7 @@ export const DEMO_HOSPITAL: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade CHIEF MEDICAL INSPECTOR!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade CHIEF MEDICAL INSPECTOR!"
       }
     },
     {
@@ -3548,7 +3548,7 @@ export const DEMO_HOSPITAL: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade CHIEF MEDICAL INSPECTOR!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade CHIEF MEDICAL INSPECTOR!"
       }
     }
   ]
@@ -6121,7 +6121,7 @@ export const DEMO_RAILWAY: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade TRANSIT COMMANDER MARSHALL!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade TRANSIT COMMANDER MARSHALL!"
       }
     },
     {
@@ -7282,7 +7282,7 @@ export const DEMO_RAILWAY: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade TRANSIT COMMANDER MARSHALL!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade TRANSIT COMMANDER MARSHALL!"
       }
     }
   ]
@@ -9816,7 +9816,7 @@ export const DEMO_POLICE: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade COMMISSIONER VANCE!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade COMMISSIONER VANCE!"
       }
     },
     {
@@ -11067,7 +11067,7 @@ export const DEMO_POLICE: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade COMMISSIONER VANCE!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade COMMISSIONER VANCE!"
       }
     }
   ]
@@ -13640,7 +13640,7 @@ export const DEMO_SNOW: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade ANCIENT FROST TITAN YETI!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade ANCIENT FROST TITAN YETI!"
       }
     },
     {
@@ -14744,7 +14744,7 @@ export const DEMO_SNOW: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade ANCIENT FROST TITAN YETI!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade ANCIENT FROST TITAN YETI!"
       }
     }
   ]
@@ -17199,7 +17199,7 @@ export const DEMO_BANK: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade CHIEF SECURITY WARDEN!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade CHIEF SECURITY WARDEN!"
       }
     },
     {
@@ -18348,7 +18348,7 @@ export const DEMO_BANK: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade CHIEF SECURITY WARDEN!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade CHIEF SECURITY WARDEN!"
       }
     }
   ]
@@ -20861,7 +20861,7 @@ export const DEMO_KITCHEN: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade EXECUTIVE HEAD CHEF!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade EXECUTIVE HEAD CHEF!"
       }
     },
     {
@@ -21962,7 +21962,7 @@ export const DEMO_KITCHEN: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade EXECUTIVE HEAD CHEF!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade EXECUTIVE HEAD CHEF!"
       }
     }
   ]
@@ -24562,7 +24562,7 @@ export const DEMO_AIRPORT: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade TSA CHIEF MARSHAL!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade TSA CHIEF MARSHAL!"
       }
     },
     {
@@ -25699,7 +25699,7 @@ export const DEMO_AIRPORT: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade TSA CHIEF MARSHAL!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade TSA CHIEF MARSHAL!"
       }
     }
   ]
@@ -28389,7 +28389,7 @@ export const DEMO_VOLCANO: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade MAGMA CORE COLOSSUS!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade MAGMA CORE COLOSSUS!"
       }
     },
     {
@@ -29574,7 +29574,7 @@ export const DEMO_VOLCANO: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade MAGMA CORE COLOSSUS!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade MAGMA CORE COLOSSUS!"
       }
     }
   ]
@@ -32099,7 +32099,7 @@ export const DEMO_DESERT: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade PHARAOH'S DUNE WARDEN!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade PHARAOH'S DUNE WARDEN!"
       }
     },
     {
@@ -33212,7 +33212,7 @@ export const DEMO_DESERT: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade PHARAOH'S DUNE WARDEN!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade PHARAOH'S DUNE WARDEN!"
       }
     }
   ]
@@ -35626,7 +35626,7 @@ export const DEMO_OCEAN: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade ABYSSAL LEVIATHAN PRIME!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade ABYSSAL LEVIATHAN PRIME!"
       }
     },
     {
@@ -36834,7 +36834,7 @@ export const DEMO_OCEAN: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade ABYSSAL LEVIATHAN PRIME!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade ABYSSAL LEVIATHAN PRIME!"
       }
     }
   ]
@@ -39539,7 +39539,7 @@ export const DEMO_SPACE: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade VOID OVERLORD BEHEMOTH!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade VOID OVERLORD BEHEMOTH!"
       }
     },
     {
@@ -40681,7 +40681,7 @@ export const DEMO_SPACE: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade VOID OVERLORD BEHEMOTH!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade VOID OVERLORD BEHEMOTH!"
       }
     }
   ]
@@ -43071,7 +43071,7 @@ export const DEMO_CLASSROOM: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade HEAD OF CAMPUS SECURITY!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade HEAD OF CAMPUS SECURITY!"
       }
     },
     {
@@ -44195,7 +44195,7 @@ export const DEMO_CLASSROOM: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade HEAD OF CAMPUS SECURITY!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade HEAD OF CAMPUS SECURITY!"
       }
     }
   ]
@@ -46786,7 +46786,7 @@ export const DEMO_HAUNTED: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade GRAND PHANTOM REAPER!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade GRAND PHANTOM REAPER!"
       }
     },
     {
@@ -47856,7 +47856,7 @@ export const DEMO_HAUNTED: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade GRAND PHANTOM REAPER!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade GRAND PHANTOM REAPER!"
       }
     }
   ]
@@ -50453,7 +50453,7 @@ export const DEMO_CYBER: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade CYBER CORE SENTINEL!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade CYBER CORE SENTINEL!"
       }
     },
     {
@@ -51691,7 +51691,7 @@ export const DEMO_CYBER: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade CYBER CORE SENTINEL!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade CYBER CORE SENTINEL!"
       }
     }
   ]
@@ -54201,7 +54201,7 @@ export const DEMO_DUNGEON: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade STONE GARGOYLE WARDEN!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade STONE GARGOYLE WARDEN!"
       }
     },
     {
@@ -55415,7 +55415,7 @@ export const DEMO_DUNGEON: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade STONE GARGOYLE WARDEN!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade STONE GARGOYLE WARDEN!"
       }
     }
   ]
@@ -57835,7 +57835,7 @@ export const DEMO_NATURE: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade ANCIENT GROVE BEAST!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade ANCIENT GROVE BEAST!"
       }
     },
     {
@@ -58926,7 +58926,7 @@ export const DEMO_NATURE: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade ANCIENT GROVE BEAST!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade ANCIENT GROVE BEAST!"
       }
     }
   ]
@@ -61679,7 +61679,7 @@ export const DEMO_OFFICE: GameWorld = {
         "requiredTerminals": [
           "terminal_2"
         ],
-        "description": "Level 2: Score 170+ pts + 2 Sector Keys + Override Terminal -> Evade ANCIENT FROST TITAN YETI!"
+        "description": "Level 2: Score 170+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade ANCIENT FROST TITAN YETI!"
       }
     },
     {
@@ -62764,7 +62764,7 @@ export const DEMO_OFFICE: GameWorld = {
         "requiredTerminals": [
           "terminal_3"
         ],
-        "description": "Level 3: Score 200+ pts + 2 Sector Keys + Override Terminal -> Evade ANCIENT FROST TITAN YETI!"
+        "description": "Level 3: Score 200+ pts + 2 Sector Keys + 💻 Hack Security Terminal [E] -> Evade ANCIENT FROST TITAN YETI!"
       }
     }
   ]
