@@ -494,7 +494,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           isHackerMode={isHackerMode}
           isSucking={warpPhase === 'suction'}
           onClick={handleSingularityTrigger}
-          width={190}
+          width={175}
         />
       </div>
 
