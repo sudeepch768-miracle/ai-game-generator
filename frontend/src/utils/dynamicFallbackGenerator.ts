@@ -425,12 +425,34 @@ export async function buildDynamicGameFromPhoto(
 
   const base = JSON.parse(JSON.stringify(envDef.baseGame)) as GameWorld;
 
+  const terminalTitles: Record<string, string> = {
+    castle: 'Royal Sovereign Altar',
+    hospital: 'Trauma ICU Central Workstation',
+    living_room: 'Smart Home Automation Hub',
+    gym: 'Titan Athletic Biometric Hub',
+    bank: 'Federal Vault Core Terminal',
+    police: 'Precinct Central Dispatch Console',
+    railway: 'Rail Interlocking Dispatch Board',
+    snow: 'Sub-Zero Cryo Command Terminal',
+    volcano: 'Geothermal Core Stabilizer',
+    cyberpunk: 'Quantum Firewall Terminal',
+  };
+  const terminalName = terminalTitles[envDef.theme] || 'Central Command Terminal';
+
   const customizedObjects: GameObject[] = (base.objects || []).map((obj, idx) => {
-    if (obj.id.includes('terminal')) {
+    if (obj.id.includes('terminal') && !obj.id.includes('barrier')) {
       return {
         ...obj,
-        name: 'Security Override Terminal',
+        name: terminalName,
         color: customPalette.wallRim,
+        description: `${terminalName.toUpperCase()}: Press E while nearby to override sector lock!`,
+      };
+    }
+    if (obj.type === 'terminal_barrier' || obj.id.includes('barrier')) {
+      return {
+        ...obj,
+        color: '#ef4444',
+        description: '🔒 Sanctum Containment Barrier: Sealed until keys and score are fulfilled.',
       };
     }
     const propName = envDef.obstacles[idx % envDef.obstacles.length];

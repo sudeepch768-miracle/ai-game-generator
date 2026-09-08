@@ -200,6 +200,7 @@ button {
 }
 
 @keyframes retroArrowPulse {
+
   0%,
   100% {
     transform: translateX(0px) scale(1);

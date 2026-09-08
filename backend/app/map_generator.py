@@ -731,7 +731,9 @@ def generate_procedural_level(
         # 🏰 ROYAL CASTLE ARCHITECTURE:
         spawn_room = Room(mw // 2 - 3, mh - 7, 7, 5, "spawn")
         exit_room = Room(mw // 2 - 4, 2, 8, 5, "exit")
-        great_hall = Room(mw // 2 - 5, mh // 2 - 4, 11, 8, "great_hall")
+        great_hall = Room(mw // 2 - 4, mh // 2 - 3, 8, 7, "great_hall")
+        key_room = Room(2, mh // 2 - 3, 6, 6, "key")
+        terminal_room = Room(mw - 8, mh // 2 - 3, 6, 6, "terminal_room")
         rooms = [
             spawn_room,
             great_hall,
@@ -739,23 +741,24 @@ def generate_procedural_level(
             Room(mw - 8, 2, 6, 6, "ne_tower"),
             Room(2, mh - 8, 6, 6, "sw_tower"),
             Room(mw - 8, mh - 8, 6, 6, "se_tower"),
-            Room(mw // 2 - 9, mh // 2 - 3, 4, 6, "key"),
-            Room(mw // 2 + 5, mh // 2 - 3, 4, 6, "armory"),
+            key_room,
+            terminal_room,
             exit_room
         ]
-        key_rooms = [r for r in rooms if r.tag == "key"]
-        middle_rooms = [r for r in rooms if r.tag not in ("spawn", "exit")]
+        key_rooms = [key_room]
+        middle_rooms = [great_hall, rooms[2], rooms[3], rooms[4], rooms[5]]
 
     elif resolved_theme == "hospital":
         # 🏥 CLINICAL HOSPITAL WING ARCHITECTURE:
         spawn_room = Room(2, mh // 2 - 3, 6, 6, "spawn")
         exit_room = Room(mw - 8, mh // 2 - 3, 6, 6, "exit")
         key_room = Room(15, 2, 6, 5, "key")
+        terminal_room = Room(23, 2, 6, 5, "terminal_room")
         rooms = [
             spawn_room,
             Room(7, 2, 6, 5, "icu_north"),
             key_room,
-            Room(23, 2, 6, 5, "ward_1"),
+            terminal_room,
             Room(7, mh - 7, 6, 5, "radiology"),
             Room(15, mh - 7, 6, 5, "triage_bay"),
             Room(23, mh - 7, 6, 5, "ward_2"),
@@ -764,45 +767,47 @@ def generate_procedural_level(
         if mw >= 34:
             rooms.append(Room(29, 2, 5, 5, "lab_north"))
             rooms.append(Room(29, mh - 7, 5, 5, "lab_south"))
-        key_rooms = [r for r in rooms if r.tag == "key"]
-        middle_rooms = [r for r in rooms if r.tag not in ("spawn", "exit")]
+        key_rooms = [key_room]
+        middle_rooms = [r for r in rooms if r.tag not in ("spawn", "exit", "terminal_room", "key")]
 
     elif resolved_theme in ("living_room", "home", "bedroom"):
         # 🛋️ OPEN-CONCEPT RESIDENTIAL BLUEPRINT:
         spawn_room = Room(2, mh // 2 - 3, 6, 6, "spawn")
         exit_room = Room(mw - 8, mh // 2 - 3, 6, 6, "exit")
-        living_lounge = Room(mw // 2 - 6, mh // 2 - 4, 12, 8, "living_room")
-        key_room = Room(mw // 2 - 5, 2, 10, 5, "key")
+        living_lounge = Room(mw // 2 - 5, mh // 2 - 3, 10, 7, "living_room")
+        key_room = Room(mw // 2 - 4, 2, 8, 5, "key")
+        terminal_room = Room(mw - 8, 2, 6, 5, "terminal_room")
         rooms = [
             spawn_room,
             living_lounge,
             key_room,
             Room(2, 2, 6, 5, "study"),
-            Room(mw - 8, 2, 6, 5, "guest_suite"),
+            terminal_room,
             Room(2, mh - 7, 6, 5, "veranda"),
             Room(mw - 8, mh - 7, 6, 5, "patio"),
             exit_room
         ]
-        key_rooms = [r for r in rooms if r.tag == "key"]
-        middle_rooms = [r for r in rooms if r.tag not in ("spawn", "exit")]
+        key_rooms = [key_room]
+        middle_rooms = [r for r in rooms if r.tag not in ("spawn", "exit", "terminal_room", "key")]
 
     elif resolved_theme == "gym":
         # 🏋️ ATHLETIC TRAINING COMPLEX:
         spawn_room = Room(2, mh // 2 - 3, 6, 6, "spawn")
         exit_room = Room(mw - 8, mh // 2 - 3, 6, 6, "exit")
-        iron_bay = Room(mw // 2 - 6, mh // 2 - 4, 12, 8, "weight_room")
-        key_room = Room(mw // 2 - 5, mh - 7, 10, 5, "key")
+        iron_bay = Room(mw // 2 - 5, mh // 2 - 3, 10, 7, "weight_room")
+        key_room = Room(mw // 2 - 4, mh - 7, 8, 5, "key")
+        terminal_room = Room(mw - 8, 2, 6, 5, "terminal_room")
         rooms = [
             spawn_room,
             iron_bay,
             key_room,
-            Room(mw // 2 - 5, 2, 10, 5, "cardio_deck"),
+            Room(mw // 2 - 4, 2, 8, 5, "cardio_deck"),
             Room(2, 2, 6, 5, "pro_shop"),
-            Room(mw - 8, 2, 6, 5, "championship_bay"),
+            terminal_room,
             exit_room
         ]
-        key_rooms = [r for r in rooms if r.tag == "key"]
-        middle_rooms = [r for r in rooms if r.tag not in ("spawn", "exit")]
+        key_rooms = [key_room]
+        middle_rooms = [r for r in rooms if r.tag not in ("spawn", "exit", "terminal_room", "key")]
 
     else:
         # Organic Rogue-like Dungeon Architecture for other themes
@@ -836,6 +841,11 @@ def generate_procedural_level(
 
         middle_rooms = rooms[1:-1]
         rng.shuffle(middle_rooms)
+        # Designate dedicated terminal room
+        terminal_room = middle_rooms[-1]
+        terminal_room.tag = "terminal_room"
+        middle_rooms = [r for r in middle_rooms if r.tag != "terminal_room"]
+
         key_rooms_count = 2 if level_num >= 2 else 1
         key_rooms = middle_rooms[:min(key_rooms_count, len(middle_rooms))]
         for kr in key_rooms:
@@ -893,16 +903,28 @@ def generate_procedural_level(
                 if 1 <= ny < mh - 1:
                     grid[ny][cx] = False
 
-    # Connect in sequence and add cross-branch corridors for loops
-    for i in range(len(rooms) - 1):
-        c1 = rooms[i].center
-        c2 = rooms[i + 1].center
+    # Connect non-terminal rooms in sequence
+    nav_rooms = [r for r in rooms if r.tag != "terminal_room"]
+    for i in range(len(nav_rooms) - 1):
+        c1 = nav_rooms[i].center
+        c2 = nav_rooms[i + 1].center
         carve_corridor(c1[0], c1[1], c2[0], c2[1])
 
-    # Extra interconnecting loop corridors
-    for i in range(len(rooms) // 2):
-        r_a = rng.choice(rooms)
-        r_b = rng.choice(rooms)
+    # Connect terminal_room cleanly to its nearest non-exit room
+    connect_candidates = [r for r in nav_rooms if r.tag != "exit"]
+    if not connect_candidates:
+        connect_candidates = nav_rooms
+    closest_room = min(
+        connect_candidates,
+        key=lambda r: (r.center[0] - terminal_room.center[0])**2 + (r.center[1] - terminal_room.center[1])**2
+    )
+    carve_corridor(terminal_room.center[0], terminal_room.center[1], closest_room.center[0], closest_room.center[1])
+
+    # Extra interconnecting loop corridors (exclude terminal_room and exit_room)
+    loop_candidates = [r for r in rooms if r.tag not in ("terminal_room", "exit")]
+    for i in range(len(loop_candidates) // 2):
+        r_a = rng.choice(loop_candidates)
+        r_b = rng.choice(loop_candidates)
         if r_a != r_b:
             carve_corridor(r_a.center[0], r_a.center[1], r_b.center[0], r_b.center[1])
 
@@ -1036,11 +1058,15 @@ def generate_procedural_level(
     gem_count = 10 + level_num * 3  # 13 items on lvl 1, 16 on lvl 2, 19 on lvl 3
     placed_gems = 0
     gem_attempts = 0
+    trx, try_, trw, trh = terminal_room.x, terminal_room.y, terminal_room.w, terminal_room.h
     while placed_gems < gem_count and gem_attempts < 250:
         gem_attempts += 1
         gx = rng.randint(2, mw - 3)
         gy = rng.randint(2, mh - 3)
         if not grid[gy][gx] and (gx, gy) != (px, py) and (gx, gy) != (ex, ey):
+            # Keep terminal sanctum free of random gems
+            if trx <= gx < trx + trw and try_ <= gy < try_ + trh:
+                continue
             if not any(c.x == gx and c.y == gy for c in collectibles):
                 is_star = placed_gems % 3 == 0
                 collectibles.append(
@@ -1055,36 +1081,133 @@ def generate_procedural_level(
                 )
                 placed_gems += 1
 
-    # 8. Interactive Objects & Security Terminals
+    # 8. Interactive Objects, Security Terminals, and Sanctum Barriers
     objects: List[GameObject] = []
     required_terminals: List[str] = []
 
-    # Add a Firewall Security Terminal that must be hacked to override sector lock
+    # Map theme-specific terminal and barrier naming
+    terminal_titles = {
+        "castle": "Royal Sovereign Altar",
+        "hospital": "Trauma ICU Central Workstation",
+        "living_room": "Smart Home Automation Hub",
+        "gym": "Titan Athletic Biometric Hub",
+        "bank": "Federal Vault Core Terminal",
+        "police": "Precinct Central Dispatch Console",
+        "railway": "Rail Interlocking Dispatch Board",
+        "snow": "Sub-Zero Cryo Command Terminal",
+        "volcano": "Geothermal Core Stabilizer",
+        "cyberpunk": "Quantum Firewall Terminal"
+    }
+    terminal_name = terminal_titles.get(resolved_theme, "Central Command Terminal")
+
+    barrier_titles = {
+        "castle": "Citadel Sanctum Iron Portcullis",
+        "hospital": "ICU Quarantine Laser Gate",
+        "living_room": "Penthouse Security Blast Door",
+        "gym": "Titan Biometric Security Gate",
+        "bank": "Federal Vault Laser Containment Grid",
+        "police": "Maximum Security Cell Barrier",
+        "railway": "Electrified Track Safety Gate",
+        "snow": "Cryo Hermetic Blast Gate",
+        "volcano": "Thermal Shield Containment Field",
+        "cyberpunk": "Cyber Matrix Security Barrier"
+    }
+    barrier_name = barrier_titles.get(resolved_theme, "Security Containment Barrier")
+
+    # Add a Theme-Specific Terminal inside dedicated sanctum room
     if level_num >= 1:
-        term_room = middle_rooms[-1] if middle_rooms else rooms[1]
+        term_room = terminal_room
         term_id = f"terminal_{level_num}"
         required_terminals.append(term_id)
-        tx = max(term_room.x + 1, min(term_room.x + term_room.w - 2, term_room.center[0] - 1))
-        ty = term_room.y + 1
+        tx = term_room.center[0] - 1
+        ty = term_room.center[1]
         objects.append(
             GameObject(
                 id=term_id,
                 type="interactive",
-                name="Security Override Terminal",
+                name=terminal_name,
                 x=tx,
                 y=ty,
                 width=2,
                 height=1,
                 color="#00f2fe",
-                description="FIREWALL OVERRIDE: Press E while nearby to bypass sector lock!"
+                description=f"{terminal_name.upper()}: Press E while nearby to override sector lock!"
             )
         )
 
-    # Thematic obstacle objects in rooms
+        # Place the terminal_barrier across doorway threshold tiles of terminal_room
+        doorway_tiles = []
+        for y in range(try_, try_ + trh):
+            for x in range(trx, trx + trw):
+                if x == trx or x == trx + trw - 1 or y == try_ or y == try_ + trh - 1:
+                    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                        nx, ny = x + dx, y + dy
+                        if not (trx <= nx < trx + trw and try_ <= ny < try_ + trh):
+                            if 0 <= nx < mw and 0 <= ny < mh and not grid[ny][nx]:
+                                if (x, y) not in doorway_tiles:
+                                    doorway_tiles.append((x, y))
+
+        if doorway_tiles:
+            doorway_tiles.sort()
+            same_y = all(t[1] == doorway_tiles[0][1] for t in doorway_tiles)
+            same_x = all(t[0] == doorway_tiles[0][0] for t in doorway_tiles)
+            if same_y:
+                bx = min(t[0] for t in doorway_tiles)
+                by = doorway_tiles[0][1]
+                bw = max(t[0] for t in doorway_tiles) - bx + 1
+                bh = 1
+                objects.append(
+                    GameObject(
+                        id=f"terminal_barrier_{level_num}",
+                        type="terminal_barrier",
+                        name=barrier_name,
+                        x=bx,
+                        y=by,
+                        width=bw,
+                        height=bh,
+                        color="#ef4444",
+                        description=f"🔒 {barrier_name}: Sealed until all keys are collected and required score is reached."
+                    )
+                )
+            elif same_x:
+                bx = doorway_tiles[0][0]
+                by = min(t[1] for t in doorway_tiles)
+                bw = 1
+                bh = max(t[1] for t in doorway_tiles) - by + 1
+                objects.append(
+                    GameObject(
+                        id=f"terminal_barrier_{level_num}",
+                        type="terminal_barrier",
+                        name=barrier_name,
+                        x=bx,
+                        y=by,
+                        width=bw,
+                        height=bh,
+                        color="#ef4444",
+                        description=f"🔒 {barrier_name}: Sealed until all keys are collected and required score is reached."
+                    )
+                )
+            else:
+                for idx, (bx, by) in enumerate(doorway_tiles):
+                    objects.append(
+                        GameObject(
+                            id=f"terminal_barrier_{level_num}_{idx}",
+                            type="terminal_barrier",
+                            name=barrier_name,
+                            x=bx,
+                            y=by,
+                            width=1,
+                            height=1,
+                            color="#ef4444",
+                            description=f"🔒 {barrier_name}: Sealed until all keys are collected and required score is reached."
+                        )
+                    )
+
+    # Thematic obstacle objects in rooms (strictly exclude terminal_room so terminal is never hidden!)
     theme_obj_names = theme_cfg.get("objects", ["Storage Unit", "Control Console", "Barrier Unit"])
     theme_obj_colors = theme_cfg.get("object_colors", ["#334155", "#475569", "#64748b"])
     for i, r in enumerate(rooms):
-        if r.tag not in ("spawn", "exit"):
+        if r.tag not in ("spawn", "exit", "terminal_room"):
             ox = r.x + 1
             oy = r.y + 1
             if not grid[oy][ox] and (ox, oy) != (px, py):
@@ -1155,10 +1278,10 @@ def generate_procedural_level(
     else:  # nightmare
         chaser_count = 2 if level_num == 1 else (3 if level_num == 2 else 4)
 
-    # Candidate rooms for chasers (excluding spawn room to avoid immediate unfair hits)
-    chaser_rooms = [r for r in (key_rooms + middle_rooms + rooms) if r.tag != "spawn"]
+    # Candidate rooms for chasers (excluding spawn room and terminal sanctum)
+    chaser_rooms = [r for r in (key_rooms + middle_rooms) if r.tag not in ("spawn", "terminal_room")]
     if not chaser_rooms:
-        chaser_rooms = rooms
+        chaser_rooms = [r for r in rooms if r.tag not in ("spawn", "terminal_room")]
 
     for c_i in range(chaser_count):
         target_r = chaser_rooms[c_i % len(chaser_rooms)]
@@ -1198,7 +1321,8 @@ def generate_procedural_level(
     for wy in range(2, mh - 2):
         for wx in range(2, mw - 2):
             if not grid[wy][wx] and math.hypot(wx - px, wy - py) >= 6 and (wx, wy) != (ex, ey):
-                walkable_coords.append((wx, wy))
+                if not (trx <= wx < trx + trw and try_ <= wy < try_ + trh):
+                    walkable_coords.append((wx, wy))
     rng.shuffle(walkable_coords)
 
     for p_i in range(patrol_count):
@@ -1240,8 +1364,8 @@ def generate_procedural_level(
         key_count_str = f"{len(required_items)} Sector Key{'s' if len(required_items)>1 else ''}"
         obj_parts.append(key_count_str)
     if required_terminals:
-        obj_parts.append("💻 Hack Security Terminal [E]")
-    obj_desc = f"Level {level_num}: " + " + ".join(obj_parts) + f" -> Evade {theme_cfg['guardian_name']}!"
+        obj_parts.append(f"💻 Hack {terminal_name}")
+    obj_desc = f"Level {level_num}: Collect Keys & Score {req_score}+ pts to Unlock Sanctum -> Hack {terminal_name} -> Escape!"
 
     objective = Objective(
         type="collect_then_exit",
@@ -1283,7 +1407,7 @@ def generate_procedural_level(
             name=guide_name,
             x=px + 1 if px + 1 < mw - 2 else px - 1,
             y=py,
-            dialogue=f"Sector {level_num} Intel: Watch out for {theme_cfg['guardian_name']} guarding the exit. Press [C] to SNEAK silently, [F] to STUN with EMP (stun, not kill!), grab {key_count_str if required_items else 'the keys'}, and hit {req_score} pts!"
+            dialogue=f"Sector {level_num} Intel: Evade {theme_cfg['guardian_name']}. Collect {key_count_str if required_items else 'the keys'} and reach {req_score} pts to open the {barrier_name}! Then hack the {terminal_name} to unlock the Sector Exit!"
         )
     ]
 

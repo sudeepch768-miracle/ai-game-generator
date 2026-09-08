@@ -15,7 +15,7 @@ class Wall(BaseModel):
 
 class GameObject(BaseModel):
     id: str
-    type: Literal["obstacle", "interactive"] = "obstacle"
+    type: Literal["obstacle", "interactive", "terminal_barrier"] = "obstacle"
     name: str
     x: int
     y: int

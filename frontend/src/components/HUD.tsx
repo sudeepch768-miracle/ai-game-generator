@@ -193,23 +193,38 @@ export const HUD: React.FC<HUDProps> = ({
             </div>
           )}
 
-          {/* Terminal Override Requirement */}
+          {/* Terminal Sanctum & Hack Requirement */}
           {reqTerminals.length > 0 && (
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '5px',
-              background: hasTerminals ? 'rgba(67, 233, 123, 0.2)' : 'rgba(0, 242, 254, 0.2)',
-              border: `1px solid ${hasTerminals ? '#43e97b' : '#00f2fe'}`,
+              background: hasTerminals
+                ? 'rgba(67, 233, 123, 0.2)'
+                : (!hasKey || !hasScore ? 'rgba(239, 68, 68, 0.2)' : 'rgba(0, 242, 254, 0.2)'),
+              border: `1px solid ${
+                hasTerminals
+                  ? '#43e97b'
+                  : (!hasKey || !hasScore ? '#ef4444' : '#00f2fe')
+              }`,
               padding: '3px 8px',
               borderRadius: '12px',
               fontSize: '11px',
               fontWeight: 800,
-              color: hasTerminals ? '#43e97b' : '#00f2fe',
-              boxShadow: hasTerminals ? '0 0 10px rgba(67, 233, 123, 0.3)' : '0 0 12px rgba(0, 242, 254, 0.35)',
+              color: hasTerminals
+                ? '#43e97b'
+                : (!hasKey || !hasScore ? '#f87171' : '#00f2fe'),
+              boxShadow: hasTerminals
+                ? '0 0 10px rgba(67, 233, 123, 0.3)'
+                : (!hasKey || !hasScore ? '0 0 10px rgba(239, 68, 68, 0.3)' : '0 0 12px rgba(0, 242, 254, 0.35)'),
             }}>
               <Cpu size={12} />
-              {hasTerminals ? '✅ FIREWALL HACKED' : '💻 HACK TERMINAL [E] (REQUIRED)'}
+              {hasTerminals
+                ? '✅ FIREWALL HACKED'
+                : (!hasKey || !hasScore
+                  ? '🔒 SANCTUM LOCKED (Keys & Pts Req)'
+                  : '💻 HACK TERMINAL [E] (SANCTUM OPEN)')
+              }
             </div>
           )}
         </div>

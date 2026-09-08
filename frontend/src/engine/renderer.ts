@@ -852,7 +852,8 @@ export class CanvasRenderer {
       const oy = obj.y * tileSize;
       const ow = obj.width * tileSize;
       const oh = obj.height * tileSize;
-      const isTerm = obj.id.includes('terminal') || obj.id.includes('term');
+      const isBarrier = obj.type === 'terminal_barrier' || obj.id.includes('terminal_barrier');
+      const isTerm = !isBarrier && (obj.id.includes('terminal') || obj.id.includes('term'));
 
       ctx.save();
 
@@ -860,30 +861,10 @@ export class CanvasRenderer {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
       ctx.fillRect(ox + 2, oy + 4, ow, oh);
 
-      if (isTerm) {
-        // 💻 Interactive Security Terminal
-        const isHacked = state.hackedTerminals && state.hackedTerminals[obj.id];
-        const pulse = Math.sin(time * 5) * 0.2 + 0.8;
-
-        ctx.fillStyle = '#0f172a';
-        ctx.beginPath();
-        ctx.roundRect(ox + 2, oy + 2, ow - 4, oh - 4, 6);
-        ctx.fill();
-        ctx.strokeStyle = isHacked ? '#43e97b' : '#00f2fe';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Screen glow
-        ctx.fillStyle = isHacked ? 'rgba(67, 233, 123, 0.25)' : `rgba(0, 242, 254, ${0.2 * pulse})`;
-        ctx.beginPath();
-        ctx.roundRect(ox + 5, oy + 5, ow - 10, oh - 10, 4);
-        ctx.fill();
-
-        // Terminal Label
-        ctx.fillStyle = isHacked ? '#43e97b' : '#00f2fe';
-        ctx.font = 'bold 8.5px "Press Start 2P", monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(isHacked ? '✅ OVERRIDDEN' : '💻 HACK [E]', ox + ow / 2, oy - 8);
+      if (isBarrier) {
+        this.renderTerminalBarrier(obj, ox, oy, ow, oh, time, state, world);
+      } else if (isTerm) {
+        this.renderThematicTerminal(obj, ox, oy, ow, oh, time, state, world);
       } else {
         // Dynamic Procedural Prop / Obstacle
         this.renderProp(obj, ox, oy, ow, oh, time);
@@ -891,6 +872,666 @@ export class CanvasRenderer {
 
       ctx.restore();
     }
+  }
+
+  private renderTerminalBarrier(
+    obj: GameObject,
+    ox: number,
+    oy: number,
+    ow: number,
+    oh: number,
+    time: number,
+    state: EngineState,
+    world: GameWorld
+  ) {
+    const ctx = this.ctx;
+    const required = world.objective.requiredItems || [];
+    const hasAllItems = required.every(id => (state.collectedItems[id] || 0) > 0);
+    const reqScore = world.objective.requiredScore || 0;
+    const hasReqScore = (state.levelScore !== undefined ? state.levelScore : state.score) >= reqScore;
+    const isUnlocked = hasAllItems && hasReqScore;
+
+    const pulse = Math.sin(time * 7) * 0.25 + 0.75;
+    const isHorizontal = ow >= oh;
+    const cx = ox + ow / 2;
+    const cy = oy + oh / 2;
+
+    if (!isUnlocked) {
+      // 🔒 LOCKED SANCTUM CONTAINMENT BARRIER
+      // 1. Heavy Base Grid Background
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.beginPath();
+      ctx.roundRect(ox, oy, ow, oh, 4);
+      ctx.fill();
+
+      // 2. High-Voltage Laser Containment Beams
+      ctx.save();
+      ctx.shadowColor = '#ef4444';
+      ctx.shadowBlur = 12 * pulse;
+      ctx.strokeStyle = `rgba(239, 68, 68, ${0.85 * pulse})`;
+      ctx.lineWidth = 2.5;
+
+      if (isHorizontal) {
+        const lineY1 = oy + oh * 0.3;
+        const lineY2 = oy + oh * 0.7;
+        ctx.beginPath();
+        ctx.moveTo(ox, lineY1);
+        ctx.lineTo(ox + ow, lineY1);
+        ctx.moveTo(ox, lineY2);
+        ctx.lineTo(ox + ow, lineY2);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(ox, lineY1);
+        ctx.lineTo(ox + ow, lineY1);
+        ctx.moveTo(ox, lineY2);
+        ctx.lineTo(ox + ow, lineY2);
+        ctx.stroke();
+      } else {
+        const lineX1 = ox + ow * 0.3;
+        const lineX2 = ox + ow * 0.7;
+        ctx.beginPath();
+        ctx.moveTo(lineX1, oy);
+        ctx.lineTo(lineX1, oy + oh);
+        ctx.moveTo(lineX2, oy);
+        ctx.lineTo(lineX2, oy + oh);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(lineX1, oy);
+        ctx.lineTo(lineX1, oy + oh);
+        ctx.moveTo(lineX2, oy);
+        ctx.lineTo(lineX2, oy + oh);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // 3. Side Pylons / Emitter Posts
+      ctx.fillStyle = '#1e293b';
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 1.5;
+      if (isHorizontal) {
+        ctx.fillRect(ox, oy, 6, oh);
+        ctx.strokeRect(ox, oy, 6, oh);
+        ctx.fillRect(ox + ow - 6, oy, 6, oh);
+        ctx.strokeRect(ox + ow - 6, oy, 6, oh);
+      } else {
+        ctx.fillRect(ox, oy, ow, 6);
+        ctx.strokeRect(ox, oy, ow, 6);
+        ctx.fillRect(ox, oy + oh - 6, ow, 6);
+        ctx.strokeRect(ox, oy + oh - 6, ow, 6);
+      }
+
+      // 4. Central Glowing Padlock Emblem
+      ctx.fillStyle = 'rgba(239, 68, 68, 0.9)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Padlock shackle
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(cx, cy - 2, 3, Math.PI, 0, false);
+      ctx.stroke();
+      // Padlock body
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(cx - 3.5, cy - 1, 7, 5);
+
+      // 5. Floating Badge Label
+      ctx.fillStyle = '#ef4444';
+      ctx.font = 'bold 8px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('🔒 SANCTUM LOCKED', cx, oy - 7);
+    } else {
+      // 🔓 UNLOCKED SANCTUM BARRIER (Deactivated!)
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.12)';
+      ctx.beginPath();
+      ctx.roundRect(ox, oy, ow, oh, 4);
+      ctx.fill();
+
+      // Soft green emitter posts
+      ctx.fillStyle = '#0f172a';
+      ctx.strokeStyle = '#43e97b';
+      ctx.lineWidth = 1.5;
+      if (isHorizontal) {
+        ctx.fillRect(ox, oy, 5, oh);
+        ctx.strokeRect(ox, oy, 5, oh);
+        ctx.fillRect(ox + ow - 5, oy, 5, oh);
+        ctx.strokeRect(ox + ow - 5, oy, 5, oh);
+      } else {
+        ctx.fillRect(ox, oy, ow, 5);
+        ctx.strokeRect(ox, oy, ow, 5);
+        ctx.fillRect(ox, oy + oh - 5, ow, 5);
+        ctx.strokeRect(ox, oy + oh - 5, ow, 5);
+      }
+
+      // Dissolved energy shimmer
+      ctx.strokeStyle = 'rgba(67, 233, 123, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      if (isHorizontal) {
+        ctx.moveTo(ox + 6, cy);
+        ctx.lineTo(ox + ow - 6, cy);
+      } else {
+        ctx.moveTo(cx, oy + 6);
+        ctx.lineTo(cx, oy + oh - 6);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#43e97b';
+      ctx.font = 'bold 8px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('🔓 SANCTUM OPEN', cx, oy - 7);
+    }
+  }
+
+  private renderThematicTerminal(
+    obj: GameObject,
+    ox: number,
+    oy: number,
+    ow: number,
+    oh: number,
+    time: number,
+    state: EngineState,
+    world: GameWorld
+  ) {
+    const isHacked = Boolean(state.hackedTerminals && state.hackedTerminals[obj.id]);
+    const theme = (world.map.theme || 'cyberpunk').toLowerCase();
+
+    if (theme.includes('castle') || theme.includes('citadel') || theme.includes('throne') || theme.includes('palace')) {
+      this.renderCastleTerminal(obj, ox, oy, ow, oh, time, isHacked);
+    } else if (theme.includes('hospital') || theme.includes('clinic') || theme.includes('medical') || theme.includes('surgery')) {
+      this.renderHospitalTerminal(obj, ox, oy, ow, oh, time, isHacked);
+    } else if (theme.includes('living') || theme.includes('couch') || theme.includes('sofa') || theme.includes('bedroom') || theme.includes('home')) {
+      this.renderLivingRoomTerminal(obj, ox, oy, ow, oh, time, isHacked);
+    } else if (theme.includes('gym') || theme.includes('fitness') || theme.includes('workout')) {
+      this.renderGymTerminal(obj, ox, oy, ow, oh, time, isHacked);
+    } else if (theme.includes('bank') || theme.includes('vault') || theme.includes('heist')) {
+      this.renderBankTerminal(obj, ox, oy, ow, oh, time, isHacked);
+    } else if (theme.includes('police') || theme.includes('cop') || theme.includes('jail') || theme.includes('precinct')) {
+      this.renderPoliceTerminal(obj, ox, oy, ow, oh, time, isHacked);
+    } else if (theme.includes('railway') || theme.includes('train') || theme.includes('metro') || theme.includes('station')) {
+      this.renderRailwayTerminal(obj, ox, oy, ow, oh, time, isHacked);
+    } else if (theme.includes('snow') || theme.includes('ice') || theme.includes('frost') || theme.includes('arctic')) {
+      this.renderSnowTerminal(obj, ox, oy, ow, oh, time, isHacked);
+    } else if (theme.includes('volcano') || theme.includes('lava') || theme.includes('fire')) {
+      this.renderVolcanoTerminal(obj, ox, oy, ow, oh, time, isHacked);
+    } else {
+      this.renderCyberTerminal(obj, ox, oy, ow, oh, time, isHacked);
+    }
+  }
+
+  private renderCastleTerminal(obj: GameObject, ox: number, oy: number, ow: number, oh: number, time: number, isHacked: boolean) {
+    const ctx = this.ctx;
+    const pulse = Math.sin(time * 5) * 0.15 + 0.85;
+    const cx = ox + ow / 2;
+
+    // 1. Gothic Carved Stone Altar Plinth
+    ctx.fillStyle = '#1e1b2e';
+    ctx.beginPath();
+    ctx.roundRect(ox + 2, oy + 4, ow - 4, oh - 6, 4);
+    ctx.fill();
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#d97706';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Stepped altar top
+    ctx.fillStyle = '#2e2540';
+    ctx.fillRect(ox + 6, oy + 2, ow - 12, 5);
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(ox + 8, oy + 2, ow - 16, 1.5);
+
+    // 2. Dual Twin Candelabras with Flickering Flame
+    for (const lx of [ox + 6, ox + ow - 8]) {
+      // Golden candle holder
+      ctx.fillStyle = '#d97706';
+      ctx.fillRect(lx, oy - 4, 3, 7);
+      ctx.fillRect(lx - 2, oy - 1, 7, 2);
+      // Flickering flame
+      const flameBob = Math.sin(time * 9 + lx) * 1.5;
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.ellipse(lx + 1.5, oy - 7 + flameBob, 2, 3.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.ellipse(lx + 1.5, oy - 6 + flameBob, 1, 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 3. Ancient Illuminated Grimoire Book
+    const bookW = 20;
+    const bookH = 10;
+    const bx = cx - bookW / 2;
+    const by = oy + 6;
+    ctx.fillStyle = '#451a03'; // leather cover
+    ctx.fillRect(bx - 1, by - 1, bookW + 2, bookH + 2);
+    ctx.fillStyle = '#fef3c7'; // parchment pages
+    ctx.fillRect(bx, by, bookW / 2 - 0.5, bookH);
+    ctx.fillRect(bx + bookW / 2 + 0.5, by, bookW / 2 - 0.5, bookH);
+    // Glowing script lines
+    ctx.fillStyle = isHacked ? '#43e97b' : '#d97706';
+    for (let l = 0; l < 3; l++) {
+      ctx.fillRect(bx + 2, by + 2 + l * 2.5, 6, 1);
+      ctx.fillRect(bx + bookW / 2 + 2, by + 2 + l * 2.5, 6, 1);
+    }
+
+    // 4. Floating Arcane Royal Seal / Crest
+    const sealY = oy - 12;
+    const rot = time * 2;
+    ctx.save();
+    ctx.translate(cx, sealY);
+    ctx.rotate(rot);
+    ctx.strokeStyle = isHacked ? `rgba(67, 233, 123, ${pulse})` : `rgba(251, 191, 36, ${pulse})`;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(-5, -5, 10, 10);
+    ctx.rotate(Math.PI / 4);
+    ctx.strokeRect(-5, -5, 10, 10);
+    ctx.restore();
+
+    // 5. Label
+    ctx.fillStyle = isHacked ? '#43e97b' : '#fbbf24';
+    ctx.font = 'bold 8.5px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(isHacked ? '✅ ROYAL SEAL CLAIMED' : '✨ ROYAL ALTAR [E]', cx, oy - 22);
+  }
+
+  private renderHospitalTerminal(obj: GameObject, ox: number, oy: number, ow: number, oh: number, time: number, isHacked: boolean) {
+    const ctx = this.ctx;
+    const cx = ox + ow / 2;
+    const pulse = Math.sin(time * 6) * 0.15 + 0.85;
+
+    // 1. Clinical Mobile Cart / Chassis (Pristine White & Teal)
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.roundRect(ox + 2, oy + 3, ow - 4, oh - 5, 5);
+    ctx.fill();
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#06b6d4';
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+
+    // 2. Dual Screens
+    const scrW = (ow - 14) / 2;
+    const scrH = oh - 12;
+    const sY = oy + 6;
+
+    // Left Screen: Live ECG Heartbeat Waveform
+    const s1X = ox + 5;
+    ctx.fillStyle = '#022c22';
+    ctx.fillRect(s1X, sY, scrW, scrH);
+    ctx.strokeStyle = '#065f46';
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(s1X, sY, scrW, scrH);
+
+    // Dynamic ECG wave line
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#22c55e';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    const ecgMid = sY + scrH / 2;
+    const ecgPhase = (time * 28) % scrW;
+    ctx.moveTo(s1X, ecgMid);
+    for (let x = 0; x < scrW; x += 2) {
+      let dy = 0;
+      const distFromPulse = Math.abs(x - ecgPhase);
+      if (distFromPulse < 3) {
+        dy = -scrH * 0.38; // QRS spike
+      } else if (distFromPulse < 6) {
+        dy = scrH * 0.22;
+      }
+      ctx.lineTo(s1X + x, ecgMid + dy);
+    }
+    ctx.stroke();
+
+    // Right Screen: Digital Telemetry
+    const s2X = s1X + scrW + 4;
+    ctx.fillStyle = '#0c4a6e';
+    ctx.fillRect(s2X, sY, scrW, scrH);
+    ctx.fillStyle = isHacked ? '#43e97b' : '#38bdf8';
+    ctx.font = 'bold 6px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('BPM 78', s2X + 3, sY + 7);
+    ctx.fillText(isHacked ? 'SPO2 99%' : 'SECURE', s2X + 3, sY + 14);
+
+    // 3. Status LEDs
+    for (let i = 0; i < 3; i++) {
+      ctx.fillStyle = isHacked ? '#43e97b' : (i === 0 ? `rgba(6, 182, 212, ${pulse})` : '#64748b');
+      ctx.beginPath();
+      ctx.arc(s2X + 6 + i * 6, sY + scrH - 3, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 4. Label
+    ctx.fillStyle = isHacked ? '#43e97b' : '#00f2fe';
+    ctx.font = 'bold 8.5px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(isHacked ? '✅ ICU OVERRIDDEN' : '💻 ICU WORKSTATION [E]', cx, oy - 8);
+  }
+
+  private renderLivingRoomTerminal(obj: GameObject, ox: number, oy: number, ow: number, oh: number, time: number, isHacked: boolean) {
+    const ctx = this.ctx;
+    const cx = ox + ow / 2;
+    const pulse = Math.sin(time * 5) * 0.2 + 0.8;
+
+    // 1. Handcrafted Dark Walnut Wood Pedestal
+    ctx.fillStyle = '#451a03';
+    ctx.beginPath();
+    ctx.roundRect(ox + 3, oy + 4, ow - 6, oh - 6, 4);
+    ctx.fill();
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Brass corner brackets
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(ox + 4, oy + 5, 4, 4);
+    ctx.fillRect(ox + ow - 8, oy + 5, 4, 4);
+
+    // 2. Frameless Glass Smart-Home Tablet Console
+    const tabW = ow - 16;
+    const tabH = oh - 12;
+    const tabX = cx - tabW / 2;
+    const tabY = oy + 6;
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.roundRect(tabX, tabY, tabW, tabH, 3);
+    ctx.fill();
+    ctx.strokeStyle = isHacked ? '#43e97b' : `rgba(251, 191, 36, ${pulse})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Blueprint floor plan lines on screen
+    ctx.strokeStyle = isHacked ? 'rgba(67, 233, 123, 0.4)' : 'rgba(56, 189, 248, 0.4)';
+    ctx.lineWidth = 0.8;
+    ctx.strokeRect(tabX + 3, tabY + 3, 10, 8);
+    ctx.strokeRect(tabX + 15, tabY + 3, 12, 8);
+    // Indicator LED
+    ctx.fillStyle = isHacked ? '#43e97b' : '#fbbf24';
+    ctx.beginPath();
+    ctx.arc(tabX + tabW - 4, tabY + tabH - 4, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 3. Label
+    ctx.fillStyle = isHacked ? '#43e97b' : '#fbbf24';
+    ctx.font = 'bold 8.5px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(isHacked ? '✅ HOME AUTOMATION OVERRIDDEN' : '💻 SMART HOME HUB [E]', cx, oy - 8);
+  }
+
+  private renderGymTerminal(obj: GameObject, ox: number, oy: number, ow: number, oh: number, time: number, isHacked: boolean) {
+    const ctx = this.ctx;
+    const cx = ox + ow / 2;
+    const pulse = Math.sin(time * 6) * 0.2 + 0.8;
+
+    // 1. High-Impact Carbon Fiber Kiosk (Matte Black & Crimson)
+    ctx.fillStyle = '#18181b';
+    ctx.beginPath();
+    ctx.roundRect(ox + 2, oy + 3, ow - 4, oh - 5, 4);
+    ctx.fill();
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#ef4444';
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+
+    // Athletic racing stripes
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(ox + 4, oy + 4, 3, oh - 7);
+    ctx.fillRect(ox + ow - 7, oy + 4, 3, oh - 7);
+
+    // 2. Biometric Laser Palm Scanner Plate
+    const scanW = 18;
+    const scanH = oh - 12;
+    const scanX = ox + 10;
+    const scanY = oy + 6;
+    ctx.fillStyle = '#09090b';
+    ctx.fillRect(scanX, scanY, scanW, scanH);
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#00f2fe';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(scanX, scanY, scanW, scanH);
+
+    // Laser scanning beam
+    const beamY = scanY + (Math.sin(time * 6) * 0.5 + 0.5) * (scanH - 2);
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#00f2fe';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(scanX, beamY);
+    ctx.lineTo(scanX + scanW, beamY);
+    ctx.stroke();
+
+    // 3. Telemetry Matrix Display
+    const telX = scanX + scanW + 4;
+    const telW = ow - scanW - 22;
+    ctx.fillStyle = '#042f2e';
+    ctx.fillRect(telX, scanY, telW, scanH);
+    // Performance bars
+    for (let b = 0; b < 4; b++) {
+      const bH = (Math.sin(time * 4 + b) * 0.3 + 0.6) * (scanH - 4);
+      ctx.fillStyle = isHacked ? '#43e97b' : (b % 2 === 0 ? '#00f2fe' : '#ef4444');
+      ctx.fillRect(telX + 3 + b * 5, scanY + scanH - 2 - bH, 3.5, bH);
+    }
+
+    // 4. Label
+    ctx.fillStyle = isHacked ? '#43e97b' : '#00f2fe';
+    ctx.font = 'bold 8.5px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(isHacked ? '✅ BIOMETRIC ACCESS GRANTED' : '💻 BIOMETRIC HUB [E]', cx, oy - 8);
+  }
+
+  private renderBankTerminal(obj: GameObject, ox: number, oy: number, ow: number, oh: number, time: number, isHacked: boolean) {
+    const ctx = this.ctx;
+    const cx = ox + ow / 2;
+    const pulse = Math.sin(time * 5) * 0.2 + 0.8;
+
+    // 1. Heavy Titanium Vault Console
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.roundRect(ox + 2, oy + 3, ow - 4, oh - 5, 4);
+    ctx.fill();
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#eab308';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Hazard Stripes
+    for (let s = 0; s < ow - 10; s += 8) {
+      ctx.fillStyle = '#eab308';
+      ctx.fillRect(ox + 5 + s, oy + 4, 4, 3);
+    }
+
+    // 2. Monochrome Green CRT Security Screen
+    const crtW = ow - 24;
+    const crtH = oh - 14;
+    const crtX = ox + 6;
+    const crtY = oy + 9;
+    ctx.fillStyle = '#052e16';
+    ctx.fillRect(crtX, crtY, crtW, crtH);
+    ctx.strokeStyle = '#166534';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(crtX, crtY, crtW, crtH);
+
+    // Cryptographic stream text
+    ctx.fillStyle = isHacked ? '#43e97b' : `rgba(34, 197, 94, ${pulse})`;
+    ctx.font = 'bold 6.5px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(isHacked ? 'OVERRIDE: 100%' : 'DECRYPT: [OK]', crtX + 3, crtY + 8);
+
+    // 3. Rotary Dial on Right
+    const dialX = ox + ow - 10;
+    const dialY = oy + oh / 2 + 2;
+    ctx.fillStyle = '#64748b';
+    ctx.beginPath();
+    ctx.arc(dialX, dialY, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // 4. Label
+    ctx.fillStyle = isHacked ? '#43e97b' : '#eab308';
+    ctx.font = 'bold 8.5px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(isHacked ? '✅ VAULT LOCK BYPASSED' : '💻 VAULT TERMINAL [E]', cx, oy - 8);
+  }
+
+  private renderPoliceTerminal(obj: GameObject, ox: number, oy: number, ow: number, oh: number, time: number, isHacked: boolean) {
+    const ctx = this.ctx;
+    const cx = ox + ow / 2;
+
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.roundRect(ox + 2, oy + 3, ow - 4, oh - 5, 4);
+    ctx.fill();
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#3b82f6';
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+
+    // Dispatch beacon (alternating blue & red)
+    const isBluePhase = Math.floor(time * 6) % 2 === 0;
+    ctx.fillStyle = isHacked ? '#43e97b' : (isBluePhase ? '#3b82f6' : '#ef4444');
+    ctx.fillRect(cx - 5, oy - 2, 10, 4);
+
+    // CCTV grid
+    const cW = (ow - 16) / 2;
+    const cH = oh - 12;
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(ox + 6, oy + 6, cW, cH);
+    ctx.fillRect(ox + 8 + cW, oy + 6, cW, cH);
+
+    ctx.fillStyle = isHacked ? '#43e97b' : '#3b82f6';
+    ctx.font = 'bold 8.5px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(isHacked ? '✅ DISPATCH CLEARED' : '💻 DISPATCH CONSOLE [E]', cx, oy - 8);
+  }
+
+  private renderRailwayTerminal(obj: GameObject, ox: number, oy: number, ow: number, oh: number, time: number, isHacked: boolean) {
+    const ctx = this.ctx;
+    const cx = ox + ow / 2;
+
+    ctx.fillStyle = '#1c1917';
+    ctx.beginPath();
+    ctx.roundRect(ox + 2, oy + 3, ow - 4, oh - 5, 4);
+    ctx.fill();
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#f59e0b';
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+
+    // Brass levers
+    for (let l = 0; l < 4; l++) {
+      ctx.fillStyle = '#d97706';
+      ctx.fillRect(ox + 8 + l * 8, oy + 6, 3, oh - 12);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(ox + 7 + l * 8, oy + 5, 5, 3);
+    }
+
+    // Signal lights
+    ctx.fillStyle = isHacked ? '#43e97b' : '#ef4444';
+    ctx.beginPath();
+    ctx.arc(ox + ow - 10, oy + oh / 2, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = isHacked ? '#43e97b' : '#f59e0b';
+    ctx.font = 'bold 8.5px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(isHacked ? '✅ RAIL INTERLOCK CLEARED' : '💻 SIGNAL CONSOLE [E]', cx, oy - 8);
+  }
+
+  private renderSnowTerminal(obj: GameObject, ox: number, oy: number, ow: number, oh: number, time: number, isHacked: boolean) {
+    const ctx = this.ctx;
+    const cx = ox + ow / 2;
+
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.roundRect(ox + 2, oy + 3, ow - 4, oh - 5, 4);
+    ctx.fill();
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#38bdf8';
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+
+    // Frost glazing on top
+    ctx.fillStyle = 'rgba(224, 242, 254, 0.4)';
+    ctx.fillRect(ox + 3, oy + 3, ow - 6, 3);
+
+    // Screen
+    ctx.fillStyle = '#082f49';
+    ctx.fillRect(ox + 6, oy + 7, ow - 12, oh - 12);
+    ctx.fillStyle = isHacked ? '#43e97b' : '#7dd3fc';
+    ctx.font = 'bold 7px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(isHacked ? 'CRYO: STABLE' : '-40°C CRYO LOCK', cx, oy + oh / 2 + 3);
+
+    ctx.fillStyle = isHacked ? '#43e97b' : '#38bdf8';
+    ctx.font = 'bold 8.5px "Press Start 2P", monospace';
+    ctx.fillText(isHacked ? '✅ CRYO MATRIX UNLOCKED' : '💻 CRYO TERMINAL [E]', cx, oy - 8);
+  }
+
+  private renderVolcanoTerminal(obj: GameObject, ox: number, oy: number, ow: number, oh: number, time: number, isHacked: boolean) {
+    const ctx = this.ctx;
+    const cx = ox + ow / 2;
+    const pulse = Math.sin(time * 6) * 0.2 + 0.8;
+
+    ctx.fillStyle = '#1c1917';
+    ctx.beginPath();
+    ctx.roundRect(ox + 2, oy + 3, ow - 4, oh - 5, 4);
+    ctx.fill();
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#f97316';
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+
+    // Molten lava conduit pipe
+    ctx.fillStyle = isHacked ? '#43e97b' : `rgba(249, 115, 22, ${pulse})`;
+    ctx.fillRect(ox + 6, oy + oh - 7, ow - 12, 3);
+
+    // Gauge
+    ctx.fillStyle = '#451a03';
+    ctx.beginPath();
+    ctx.arc(cx, oy + 12, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#f97316';
+    ctx.stroke();
+
+    ctx.fillStyle = isHacked ? '#43e97b' : '#f97316';
+    ctx.font = 'bold 8.5px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(isHacked ? '✅ GEOTHERMAL CORE STABILIZED' : '💻 CORE REGULATOR [E]', cx, oy - 8);
+  }
+
+  private renderCyberTerminal(obj: GameObject, ox: number, oy: number, ow: number, oh: number, time: number, isHacked: boolean) {
+    const ctx = this.ctx;
+    const cx = ox + ow / 2;
+    const pulse = Math.sin(time * 5) * 0.2 + 0.8;
+
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.roundRect(ox + 2, oy + 2, ow - 4, oh - 4, 6);
+    ctx.fill();
+    ctx.strokeStyle = isHacked ? '#43e97b' : '#00f2fe';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Screen glow
+    ctx.fillStyle = isHacked ? 'rgba(67, 233, 123, 0.25)' : `rgba(0, 242, 254, ${0.2 * pulse})`;
+    ctx.beginPath();
+    ctx.roundRect(ox + 5, oy + 5, ow - 10, oh - 10, 4);
+    ctx.fill();
+
+    // Matrix lines
+    ctx.fillStyle = isHacked ? '#43e97b' : '#00f2fe';
+    ctx.font = 'bold 6.5px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(isHacked ? 'BYPASS: 100%' : 'ROOT_ACCESS: 0x9F', ox + 8, oy + 14);
+
+    // Terminal Label
+    ctx.fillStyle = isHacked ? '#43e97b' : '#00f2fe';
+    ctx.font = 'bold 8.5px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(isHacked ? '✅ FIREWALL BYPASSED' : '💻 HACK TERMINAL [E]', cx, oy - 8);
   }
 
   private renderProp(obj: GameObject, ox: number, oy: number, ow: number, oh: number, time: number) {
@@ -5065,16 +5706,9 @@ export class CanvasRenderer {
 
     ctx.save();
 
-    // Stealth Camo Aura
+    // Stealth Camo (Stealth active: 55% opacity without artificial bubble aura)
     if (state.isStealth) {
-      ctx.globalAlpha = 0.75;
-      ctx.fillStyle = 'rgba(168, 85, 247, 0.2)';
-      ctx.beginPath();
-      ctx.arc(px, py, 18 + Math.sin(time * 6) * 2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(168, 85, 247, 0.4)';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+      ctx.globalAlpha = 0.55;
     }
 
     // Dash Trail based on equipped skin trail effect
@@ -5280,58 +5914,8 @@ export class CanvasRenderer {
   }
 
   private renderLighting(world: GameWorld, player: EngineState['player'], time: number) {
-    const ctx = this.ctx;
-    const px = player.x + player.width / 2;
-    const py = player.y + player.height / 2;
-    const theme = (world.map.theme || 'cyberpunk').toLowerCase();
-
-    const isCastle = theme.includes('castle') || theme.includes('fortress') || theme.includes('citadel') || theme.includes('palace') || theme.includes('throne');
-    const isHospital = theme.includes('hospital') || theme.includes('clinic') || theme.includes('medical') || theme.includes('surgery');
-    const isLiving = theme.includes('living') || theme.includes('couch') || theme.includes('sofa') || theme.includes('bedroom') || theme.includes('home');
-    const isGym = theme.includes('gym') || theme.includes('fitness') || theme.includes('workout');
-
-    let lightRad = 280;
-    let coreColor = 'rgba(0, 242, 254, 0.06)';
-    let midColor = 'rgba(0, 0, 0, 0)';
-    let edgeColor = 'rgba(5, 8, 18, 0.45)';
-
-    if (isCastle) {
-      // Warm flickering torchlight with organic pulse & dark castle shadows
-      const flicker = Math.sin(time * 7) * 9 + Math.cos(time * 13) * 5;
-      lightRad = 285 + flicker;
-      coreColor = 'rgba(245, 158, 11, 0.16)';
-      midColor = 'rgba(217, 119, 6, 0.04)';
-      edgeColor = 'rgba(10, 8, 16, 0.58)';
-    } else if (isHospital) {
-      // Sterile, bright clinical white/cyan fluorescent illumination
-      lightRad = 330;
-      coreColor = 'rgba(224, 242, 254, 0.12)';
-      midColor = 'rgba(56, 189, 248, 0.02)';
-      edgeColor = 'rgba(8, 15, 24, 0.35)';
-    } else if (isLiving) {
-      // Cozy 2700K golden domestic lamp glow
-      lightRad = 295;
-      coreColor = 'rgba(251, 191, 36, 0.13)';
-      midColor = 'rgba(245, 158, 11, 0.03)';
-      edgeColor = 'rgba(18, 12, 10, 0.48)';
-    } else if (isGym) {
-      // High-contrast athletic lighting with subtle neon rim
-      lightRad = 310;
-      coreColor = 'rgba(244, 63, 94, 0.08)';
-      midColor = 'rgba(0, 242, 254, 0.02)';
-      edgeColor = 'rgba(10, 12, 16, 0.42)';
-    }
-
-    ctx.save();
-    const lightGrad = ctx.createRadialGradient(px, py, 50, px, py, lightRad);
-    lightGrad.addColorStop(0, coreColor);
-    lightGrad.addColorStop(0.5, midColor);
-    lightGrad.addColorStop(1, edgeColor);
-    ctx.fillStyle = lightGrad;
-    ctx.beginPath();
-    ctx.arc(px, py, lightRad, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    // Artificial player-following aura removed per user requirement!
+    // Environment is crisply visible with authentic thematic palettes.
   }
 
   private renderRadar(world: GameWorld, state: EngineState) {
@@ -5375,10 +5959,26 @@ export class CanvasRenderer {
       );
     }
 
-    // Terminals
-    ctx.fillStyle = '#38bdf8';
+    // Sanctum Barriers & Terminals
+    const required = world.objective.requiredItems || [];
+    const hasAllItems = required.every(id => (state.collectedItems[id] || 0) > 0);
+    const reqScore = world.objective.requiredScore || 0;
+    const hasReqScore = (state.levelScore !== undefined ? state.levelScore : state.score) >= reqScore;
+    const isSanctumOpen = hasAllItems && hasReqScore;
+
     for (const obj of world.objects) {
-      if (obj.id.includes('term')) {
+      const isBarrier = obj.type === 'terminal_barrier' || obj.id.includes('terminal_barrier');
+      const isTerm = !isBarrier && (obj.id.includes('terminal') || obj.id.includes('term'));
+      if (isBarrier) {
+        ctx.fillStyle = isSanctumOpen ? '#43e97b' : '#ef4444';
+        ctx.fillRect(
+          offsetX + obj.x * tileSize * scaleX,
+          offsetY + obj.y * tileSize * scaleY,
+          Math.max(2, obj.width * tileSize * scaleX),
+          Math.max(2, obj.height * tileSize * scaleY)
+        );
+      } else if (isTerm) {
+        ctx.fillStyle = '#38bdf8';
         ctx.fillRect(offsetX + obj.x * tileSize * scaleX, offsetY + obj.y * tileSize * scaleY, 4, 4);
       }
     }

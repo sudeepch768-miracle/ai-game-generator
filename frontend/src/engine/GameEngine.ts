@@ -127,6 +127,8 @@ export class GameEngine {
   private nextTextId: number = 0;
   private lastExitWarningTime: number = 0;
   private isExitUnlocked: boolean = false;
+  private isSanctumUnlocked: boolean = false;
+  private sanctumAlertCooldown: number = 0;
   private interactionCooldown: number = 0;
   public onStateChange?: (state: EngineState) => void;
   public onWin?: (score: number, timeLeft: number) => void;
@@ -426,6 +428,10 @@ export class GameEngine {
       this.state.screenShake = Math.max(0, this.state.screenShake - dt * 3.5);
     }
 
+    if (this.sanctumAlertCooldown > 0) {
+      this.sanctumAlertCooldown = Math.max(0, this.sanctumAlertCooldown - dt);
+    }
+
     // 2. Stealth Mode (Hold C or Ctrl, or toggle)
     this.state.isStealth = this.input.isStealthHeld();
 
@@ -522,6 +528,9 @@ export class GameEngine {
 
     // 10. Check Interactions (NPCs, Terminals, and Sneak Takedowns)
     this.checkInteractions();
+
+    // 10.5 Terminal Sanctum Barrier Unlock Check
+    this.checkSanctumUnlockState();
 
     // 11. Exit Unlock & Portal Check
     this.checkExitUnlockState();
@@ -981,15 +990,24 @@ export class GameEngine {
       }
     }
 
-    // 3. Obstacles Collision
+    // 3. Obstacles & Locked Sanctum Barriers Collision
     for (const obj of this.world.objects) {
-      if (obj.type === 'obstacle') {
+      const isBarrier = obj.type === 'terminal_barrier' || obj.id.includes('terminal_barrier');
+      if (obj.type === 'obstacle' || (isBarrier && !this.isSanctumBarrierOpen())) {
         const ox = obj.x * tileSize;
         const oy = obj.y * tileSize;
         const ow = obj.width * tileSize;
         const oh = obj.height * tileSize;
 
         if (px < ox + ow && px + pw > ox && py < oy + oh && py + ph > oy) {
+          if (isBarrier && this.sanctumAlertCooldown <= 0) {
+            this.sanctumAlertCooldown = 1.8;
+            const reqScore = this.world.objective.requiredScore || 0;
+            const required = this.world.objective.requiredItems || [];
+            const keyCount = required.length;
+            this.addFloatingText(`🔒 SANCTUM LOCKED! Collect ${keyCount} Keys & ${reqScore} pts!`, ox + ow / 2, oy - 16, '#f43f5e');
+            sound.playBump();
+          }
           return true;
         }
       }
@@ -1051,6 +1069,38 @@ export class GameEngine {
 
         this.spawnBurstParticles(cx, cy, isKey ? '#ffd700' : '#00f2fe');
       }
+    }
+  }
+
+  public isSanctumBarrierOpen(): boolean {
+    const required = this.world.objective.requiredItems || [];
+    const hasAllItems = required.every(
+      (itemId) => (this.state.collectedItems[itemId] || 0) > 0
+    );
+    const reqScore = this.world.objective.requiredScore || 0;
+    const hasReqScore = (this.state.levelScore !== undefined ? this.state.levelScore : this.state.score) >= reqScore;
+    return hasAllItems && hasReqScore;
+  }
+
+  private checkSanctumUnlockState() {
+    const isUnlocked = this.isSanctumBarrierOpen();
+    if (isUnlocked && !this.isSanctumUnlocked) {
+      this.isSanctumUnlocked = true;
+      sound.playKey();
+
+      const tileSize = this.world.map.tileSize;
+      const barriers = this.world.objects.filter(o => o.type === 'terminal_barrier' || o.id.includes('terminal_barrier'));
+      for (const b of barriers) {
+        const bx = b.x * tileSize + (b.width * tileSize) / 2;
+        const by = b.y * tileSize + (b.height * tileSize) / 2;
+        this.spawnBurstParticles(bx, by, '#43e97b');
+        this.spawnBurstParticles(bx, by, '#00f2fe');
+        this.addFloatingText('🔓 SANCTUM UNLOCKED!', bx, by - 24, '#43e97b');
+      }
+
+      const px = this.state.player.x + this.state.player.width / 2;
+      const py = this.state.player.y + this.state.player.height / 2;
+      this.addFloatingText('🔓 SANCTUM OPEN! ACCESS MASTER TERMINAL!', px, py - 36, '#43e97b');
     }
   }
 
@@ -1183,6 +1233,8 @@ export class GameEngine {
       this.state.nearbyInteractable = null;
       this.state.stunAmmo = this.state.maxStunAmmo;
       this.isExitUnlocked = false;
+      this.isSanctumUnlocked = false;
+      this.sanctumAlertCooldown = 0;
 
       // Lives reset for every level
       const levelStartingHealth = this.getStartingHealthForWorld(this.world);

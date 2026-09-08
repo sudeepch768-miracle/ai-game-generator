@@ -27,7 +27,7 @@ export interface Wall {
 
 export interface GameObject {
   id: string;
-  type: 'obstacle' | 'interactive';
+  type: 'obstacle' | 'interactive' | 'terminal_barrier';
   name: string;
   x: number;
   y: number;
