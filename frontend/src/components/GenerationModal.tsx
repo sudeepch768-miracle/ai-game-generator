@@ -136,8 +136,8 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   background: isActive
                     ? 'rgba(0, 242, 254, 0.12)'
                     : isDone
-                    ? 'rgba(255, 255, 255, 0.04)'
-                    : 'rgba(255, 255, 255, 0.02)',
+                      ? 'rgba(255, 255, 255, 0.04)'
+                      : 'rgba(255, 255, 255, 0.02)',
                   border: `1px solid ${isActive ? step.color : isDone ? '#334155' : 'rgba(255, 255, 255, 0.05)'}`,
                   transition: 'all 0.3s ease',
                   opacity: isActive || isDone ? 1 : 0.45,

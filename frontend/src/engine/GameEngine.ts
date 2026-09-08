@@ -450,7 +450,7 @@ export class GameEngine {
       sound.playDash();
 
       const tileSize = this.world.map.tileSize;
-      const dashDist = tileSize * 1.55; // Controllable, tight tactical dash
+      const dashDist = tileSize * 2.35; // Farther tactical dash
       let dashDx = dx;
       let dashDy = dy;
       if (dashDx === 0 && dashDy === 0) {
@@ -460,8 +460,8 @@ export class GameEngine {
         else if (player.facing === 'right') dashDx = 1;
       }
 
-      // Step along dash path with fixed increment to prevent compounding runaway
-      const steps = 4;
+      // Step along dash path with fixed increment to prevent clipping through obstacles
+      const steps = 6;
       const stepIncX = (dashDx * dashDist) / steps;
       const stepIncY = (dashDy * dashDist) / steps;
 
@@ -1036,13 +1036,10 @@ export class GameEngine {
         this.state.comboCount = (this.state.comboCount || 0) + 1;
         this.state.comboTimer = 2.8;
 
-        // Rebalanced scarce point values: Key=20, Star=15, Common Shard/Orb=10
+        const isHeal = c.type === 'heal' || c.id.includes('heal');
         const isKey = c.type === 'key' || c.id.includes('key');
-        const defaultVal = isKey ? 20 : (c.type === 'star' ? 15 : 10);
-        let baseVal = c.value ?? defaultVal;
-        if (baseVal > 20 && isKey) baseVal = 20;
-        if (baseVal > 15 && c.type === 'star') baseVal = 15;
-        if (baseVal > 10 && !isKey && c.type !== 'star') baseVal = 10;
+        const defaultVal = isHeal ? 15 : (isKey ? 25 : (c.type === 'star' ? 25 : 10));
+        const baseVal = c.value ?? defaultVal;
 
         // Controlled combo bonus: +1 point per combo tier above 1, capped at +3 pts
         const comboTier = Math.max(1, this.state.comboCount);
@@ -1052,22 +1049,32 @@ export class GameEngine {
         this.state.score += totalVal;
         this.state.levelScore += totalVal;
 
-        // Bank collectible into persistent gem wallet!
-        addGems(isKey ? 5 : (c.type === 'star' ? 3 : 1));
-
-        if (isKey) {
+        if (isHeal) {
+          const maxH = this.state.maxHealth || 3;
+          if (this.state.health < maxH) {
+            this.state.health = Math.min(maxH, this.state.health + 1);
+            this.addFloatingText(`❤️ +1 HEART RECOVERED! (${this.state.health}/${maxH})`, cx, cy - 14, '#ef4444');
+          } else {
+            this.addFloatingText(`❤️ HEALTH FULL! +${totalVal} PTS`, cx, cy - 14, '#ef4444');
+          }
+          sound.playKey();
+          this.spawnBurstParticles(cx, cy, '#ef4444');
+          this.spawnBurstParticles(cx, cy, '#f43f5e');
+        } else if (isKey) {
+          addGems(5);
           sound.playKey();
           this.addFloatingText(`🔑 KEY FOUND! +${totalVal}`, cx, cy - 10, '#f6d365');
+          this.spawnBurstParticles(cx, cy, '#ffd700');
         } else {
+          addGems(c.type === 'star' ? 3 : 1);
           sound.playCoinCollect();
           if (comboTier > 1) {
             this.addFloatingText(`🔥 x${comboTier} COMBO! +${totalVal}`, cx, cy - 12, '#ff9800');
           } else {
             this.addFloatingText(`+${totalVal}`, cx, cy - 10, '#00f2fe');
           }
+          this.spawnBurstParticles(cx, cy, '#00f2fe');
         }
-
-        this.spawnBurstParticles(cx, cy, isKey ? '#ffd700' : '#00f2fe');
       }
     }
   }

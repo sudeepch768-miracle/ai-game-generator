@@ -150,6 +150,23 @@ def classify_image_theme(
     if any(k in words for k in ("street", "city", "urban", "road", "alley", "plaza", "car", "cars")):
         return "cyberpunk_street", "Neon Urban District", extracted_palette, ["Neon Billboard Frame", "Cyber Dumpster Unit", "Steel Barrier Gate", "Pneumatic Tube Terminal", "Street Hydrant Core"], "#00f2fe"
 
+    # If the user typed ANY custom prompt, use it directly to synthesize a dynamic custom world!
+    if custom_prompt and custom_prompt.strip():
+        clean_prompt = custom_prompt.strip()
+        clean_title = clean_prompt.title()
+        words_list = clean_title.split()
+        prop_base = words_list[0] if words_list else "Sanctum"
+        custom_props = [
+            f"{clean_title} Primary Core",
+            f"{prop_base} Pillar Beacon",
+            f"{prop_base} Energy Console",
+            f"{clean_title} Security Barrier",
+            f"{prop_base} Power Array"
+        ]
+        accent_color = extracted_palette.get("wall_rim", "#00f2fe")
+        theme_slug = re.sub(r'[^a-z0-9]+', '_', clean_prompt.lower()).strip('_')
+        return theme_slug or "custom", clean_title, extracted_palette, custom_props, accent_color
+
     # 2. Deep Visual Pixel & HSV Analysis
     img = img.convert("RGB")
     pixels = list(img.getdata())

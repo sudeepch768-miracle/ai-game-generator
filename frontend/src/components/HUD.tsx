@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { EngineState, GameWorld } from '../types/game';
 import { getGemBalance } from '../types/avatar';
-import { Heart, Target, Star, Clock, Volume2, VolumeX, Pause, Play, Key, LogOut, Zap, Flame, ShieldAlert, Cpu, EyeOff, Radio, ShoppingBag, Maximize2, Minimize2 } from 'lucide-react';
+import { getPersonalBest } from '../utils/scoreboard';
+import { Heart, Target, Star, Clock, Volume2, VolumeX, Pause, Play, Key, LogOut, Zap, Flame, ShieldAlert, Cpu, EyeOff, Radio, ShoppingBag, Maximize2, Minimize2, Award } from 'lucide-react';
 
 interface HUDProps {
   world: GameWorld;
@@ -92,6 +93,7 @@ export const HUD: React.FC<HUDProps> = ({
   const reqScore = world.objective.requiredScore || 0;
   const currentScore = state.levelScore !== undefined ? state.levelScore : state.score;
   const hasScore = currentScore >= reqScore;
+  const mapPb = getPersonalBest(world.title || 'Sector');
 
   // Terminal hack status
   const reqTerminals = world.objective.requiredTerminals || [];
@@ -250,6 +252,25 @@ export const HUD: React.FC<HUDProps> = ({
 
         {/* RIGHT: Score, Timer, Gem Shop Button, Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Map Personal Best Badge */}
+          {mapPb > 0 && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: 'rgba(245, 158, 11, 0.15)',
+              border: '1px solid rgba(245, 158, 11, 0.5)',
+              padding: '4px 8px',
+              borderRadius: '10px',
+              fontSize: '11px',
+              color: '#fbbf24',
+              fontWeight: 700,
+            }} title="Your Personal Best on this map">
+              <Award size={13} color="#fbbf24" />
+              <span>PB: {mapPb}</span>
+            </div>
+          )}
+
           {/* Score & Points Target */}
           <div style={{
             display: 'flex',

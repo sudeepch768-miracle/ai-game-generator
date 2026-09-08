@@ -18,6 +18,7 @@ import {
 import { RECOMMENDATIONS, RecommendationItem } from '../data/recommendations';
 import { GameWorld } from '../types/game';
 import { getGemBalance } from '../types/avatar';
+import { BlackHoleIcon } from './BlackHoleIcon';
 
 const DEMO_MAP: Record<string, GameWorld> = {
   DEMO_HOSPITAL,
@@ -228,6 +229,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
       <div className="holoverse-hero-container">
         {/* Hologram Projector Light Cone / Aura */}
         <div className="holoverse-projector-glow" />
+
+        {/* Animated Gravitational Singularity Black Hole */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom: '16px',
+        }}>
+          <BlackHoleIcon size={88} />
+        </div>
 
         {/* Top Holographic Tag */}
         <div className="holoverse-tagline-badge">

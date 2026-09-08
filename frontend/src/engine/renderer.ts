@@ -4639,6 +4639,7 @@ export class CanvasRenderer {
       const nameLower = (c.name || '').toLowerCase();
       const idLower = (c.id || '').toLowerCase();
 
+      const isHeal = typeLower === 'heal' || idLower.includes('heal') || nameLower.includes('medkit') || nameLower.includes('heart') || nameLower.includes('heal');
       const isKey = typeLower === 'key' || idLower.includes('key') || nameLower.includes('key');
       const isCash = typeLower === 'cash' || nameLower.includes('cash') || nameLower.includes('money') || nameLower.includes('dollar') || nameLower.includes('banknote');
       const isGold = typeLower === 'gold' || nameLower.includes('gold') || nameLower.includes('bullion') || nameLower.includes('ingot');
@@ -4656,7 +4657,62 @@ export class CanvasRenderer {
       ctx.ellipse(cx, cy + 10, 8, 3.5, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      if (isCash) {
+      if (isHeal) {
+        // ❤️ Animated 3D Glowing Healing Heart (+1 Life)
+        const heartPulse = Math.sin(time * 6 + cx) * 0.15 + 1.0;
+        const hr = 7 * heartPulse;
+
+        // Radiant Red Glow
+        const hGlow = ctx.createRadialGradient(cx, cy + bob, 2, cx, cy + bob, 18);
+        hGlow.addColorStop(0, 'rgba(239, 68, 68, 0.65)');
+        hGlow.addColorStop(0.5, 'rgba(244, 63, 94, 0.25)');
+        hGlow.addColorStop(1, 'rgba(244, 63, 94, 0)');
+        ctx.fillStyle = hGlow;
+        ctx.beginPath();
+        ctx.arc(cx, cy + bob, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3D Heart Geometry
+        ctx.save();
+        ctx.translate(cx, cy + bob - 1);
+        ctx.scale(heartPulse, heartPulse);
+
+        ctx.beginPath();
+        ctx.moveTo(0, hr * 0.35);
+        ctx.bezierCurveTo(-hr, -hr * 0.55, -hr * 1.25, hr * 0.55, 0, hr * 1.3);
+        ctx.bezierCurveTo(hr * 1.25, hr * 0.55, hr, -hr * 0.55, 0, hr * 0.35);
+        ctx.closePath();
+
+        const heartGrad = ctx.createLinearGradient(0, -hr, 0, hr);
+        heartGrad.addColorStop(0, '#f87171');
+        heartGrad.addColorStop(0.4, '#ef4444');
+        heartGrad.addColorStop(1, '#991b1b');
+        ctx.fillStyle = heartGrad;
+        ctx.fill();
+
+        ctx.strokeStyle = '#fecdd3';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // Specular glint on left lobe
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.beginPath();
+        ctx.arc(-hr * 0.45, -hr * 0.1, hr * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+
+        // White cross badge in center
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-1.5, hr * 0.15, 3, 6);
+        ctx.fillRect(-3, hr * 0.15 + 1.5, 6, 3);
+
+        ctx.restore();
+
+        // Heart label
+        ctx.fillStyle = '#f87171';
+        ctx.font = 'bold 7px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('+1 HP', cx, cy - 12 + bob);
+      } else if (isCash) {
         // 💵 Banded Stack of Currency Notes
         ctx.fillStyle = '#065f46';
         ctx.fillRect(cx - 8, cy - 3 + bob, 16, 7);

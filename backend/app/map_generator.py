@@ -673,7 +673,7 @@ def resolve_theme_key(theme_str: str) -> str:
         return "nature"
     if any(w in words for w in ["street", "city", "urban", "road", "alley", "plaza"]):
         return "cyberpunk_street"
-    return "bank"
+    return t if t else "custom"
 
 def generate_procedural_level(
     level_num: int,
@@ -691,7 +691,40 @@ def generate_procedural_level(
 
     # Resolve enemy theme config via semantic alias resolver
     resolved_theme = resolve_theme_key(theme)
-    theme_cfg = dict(ENEMY_THEMES.get(resolved_theme, ENEMY_THEMES["cyberpunk"]))
+    if resolved_theme in ENEMY_THEMES:
+        theme_cfg = dict(ENEMY_THEMES[resolved_theme])
+    else:
+        # Dynamically synthesize full custom theme config for ANY novel prompt or setting
+        clean_env = env_name.split(":")[0].strip() or "Custom Zone"
+        theme_cfg = {
+            "guardian_name": f"{clean_env.upper()} GUARDIAN",
+            "guardian_sprite": "monster",
+            "guardian_shape": "golem_titan",
+            "guardian_color": "#00f2fe",
+            "guardian_eyes": "#ff007f",
+            "guardian_accessory": "flame_aura",
+            "chaser_name": f"{clean_env.upper()} ENFORCER",
+            "chaser_sprite": "beast",
+            "chaser_shape": "quadruped_beast",
+            "chaser_color": "#3b82f6",
+            "chaser_eyes": "#00f2fe",
+            "patrol_name": f"{clean_env.upper()} SENTRY",
+            "patrol_sprite": "laser",
+            "patrol_shape": "mechanical_turret",
+            "patrol_color": "#1e293b",
+            "patrol_eyes": "#ef4444",
+            "objects": [f"{clean_env} Apparatus", f"{clean_env} Terminal Core", "Power Capacitor Array", "Reinforced Pillar", "Energy Pylon"],
+            "object_colors": ["#00f2fe", "#3b82f6", "#f59e0b", "#10b981", "#8b5cf6"],
+            "palette": {
+                "floorColor": "#0a0e1c",
+                "floorTexture": "grid",
+                "wallTop": "#1e293b",
+                "wallFront": "#0f172a",
+                "wallRim": "#00f2fe",
+                "weather": "dust",
+                "ambientLight": "#00f2fe"
+            }
+        }
 
     if custom_enemies:
         for k in (
@@ -1052,15 +1085,15 @@ def generate_procedural_level(
                 name=k_label if k_idx == 0 else f"{k_label} Part {k_idx+1}",
                 x=kr.center[0],
                 y=kr.center[1],
-                value=20
+                value=25
             )
         )
 
-    # Scatter thematic collectibles across rooms and corridors
-    gem_count = 10 + level_num * 3  # 13 items on lvl 1, 16 on lvl 2, 19 on lvl 3
+    # Scatter thematic collectibles across rooms and corridors (Abundant points: >4x required score)
+    gem_count = 22 + level_num * 6  # 28 items on lvl 1, 34 on lvl 2, 40 on lvl 3
     placed_gems = 0
     gem_attempts = 0
-    while placed_gems < gem_count and gem_attempts < 250:
+    while placed_gems < gem_count and gem_attempts < 350:
         gem_attempts += 1
         gx = rng.randint(2, mw - 3)
         gy = rng.randint(2, mh - 3)
@@ -1077,16 +1110,41 @@ def generate_procedural_level(
                         name=primary_item_name if not is_star else high_val_name,
                         x=gx,
                         y=gy,
-                        value=10 if not is_star else 20
+                        value=10 if not is_star else 25
                     )
                 )
                 placed_gems += 1
+
+    # Spawn exactly 2 Healing Items per level (strictly for Level >= 2, 0 on Level 1)
+    if level_num >= 2:
+        heal_placed = 0
+        heal_attempts = 0
+        while heal_placed < 2 and heal_attempts < 200:
+            heal_attempts += 1
+            hx = rng.randint(2, mw - 3)
+            hy = rng.randint(2, mh - 3)
+            if not grid[hy][hx] and (hx, hy) != (px, py) and (hx, hy) != (ex, ey):
+                if is_in_terminal_room(hx, hy):
+                    continue
+                if not any(c.x == hx and c.y == hy for c in collectibles):
+                    collectibles.append(
+                        Collectible(
+                            id=f"heal_{level_num}_{heal_placed}",
+                            type="heal",
+                            name="Emergency Medkit (+1 Heart)",
+                            x=hx,
+                            y=hy,
+                            value=15
+                        )
+                    )
+                    heal_placed += 1
 
     # 8. Interactive Objects, Security Terminals, and Sanctum Barriers
     objects: List[GameObject] = []
     required_terminals: List[str] = []
 
     # Map theme-specific terminal and barrier naming
+    clean_env = env_name.split(":")[0].strip() or "Sector"
     terminal_titles = {
         "castle": "Royal Sovereign Altar",
         "hospital": "Trauma ICU Central Workstation",
@@ -1099,7 +1157,7 @@ def generate_procedural_level(
         "volcano": "Geothermal Core Stabilizer",
         "cyberpunk": "Quantum Firewall Terminal"
     }
-    terminal_name = terminal_titles.get(resolved_theme, "Central Command Terminal")
+    terminal_name = terminal_titles.get(resolved_theme, f"{clean_env} Central Terminal")
 
     barrier_titles = {
         "castle": "Citadel Sanctum Iron Portcullis",
@@ -1113,7 +1171,7 @@ def generate_procedural_level(
         "volcano": "Thermal Shield Containment Field",
         "cyberpunk": "Cyber Matrix Security Barrier"
     }
-    barrier_name = barrier_titles.get(resolved_theme, "Security Containment Barrier")
+    barrier_name = barrier_titles.get(resolved_theme, f"{clean_env} Security Gate")
 
     # Add a Theme-Specific Terminal inside dedicated sanctum room (Only Level >= 2)
     if level_num >= 2 and terminal_room is not None and terminal_door is not None:
@@ -1296,16 +1354,10 @@ def generate_procedural_level(
             )
         )
 
-    # 10. FAIR SCORE QUOTAS SCALED TO DIFFICULTY
-    if difficulty == "easy":
-        score_thresholds = {1: 80, 2: 100, 3: 120}
-    elif difficulty == "medium":
-        score_thresholds = {1: 100, 2: 130, 3: 150}
-    elif difficulty == "hard":
-        score_thresholds = {1: 120, 2: 150, 3: 180}
-    else:  # nightmare
-        score_thresholds = {1: 140, 2: 170, 3: 200}
-    req_score = score_thresholds.get(level_num, 100)
+    # 10. FAIR SCORE QUOTAS (Increases by exactly 10% per level)
+    base_scores = {"easy": 80, "medium": 100, "hard": 120, "nightmare": 140}
+    base_score = base_scores.get(difficulty, 100)
+    req_score = round(base_score * (1.10 ** (level_num - 1)))
 
     obj_parts = [f"Score {req_score}+ pts"]
     if required_items:

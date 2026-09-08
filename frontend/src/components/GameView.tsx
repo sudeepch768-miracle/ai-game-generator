@@ -248,6 +248,7 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
           score={finalScore}
           timeRemaining={timeRemaining}
           reason={gameOverReason}
+          mapTitle={world.title}
           onPlayAgain={handleRestart}
           onCreateAnother={onCreateNew}
           onExitToMenu={onExitToMenu}

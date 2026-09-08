@@ -102,8 +102,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   };
 
   const handleStartGeneration = () => {
-    // If user uploaded an image, do NOT force a recommendation theme unless user explicitly typed a prompt
-    const effectiveTheme = selectedFile ? (customPrompt.trim() ? selectedTheme : undefined) : (selectedTheme || undefined);
+    // If user uploaded an image or typed custom prompt, pass effectiveTheme
+    const effectiveTheme = selectedTheme || (customPrompt.trim() ? customPrompt.trim().toLowerCase() : undefined);
     const settings: CustomGameSettings = {
       difficulty,
       mapSize,
@@ -291,6 +291,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             else if (lower.includes('class') || lower.includes('school') || lower.includes('lecture') || lower.includes('study')) setSelectedTheme('classroom');
             else if (lower.includes('office') || lower.includes('desk') || lower.includes('work') || lower.includes('corporate') || lower.includes('cubicle')) setSelectedTheme('office');
             else if (lower.includes('dungeon') || lower.includes('catacomb') || lower.includes('cave') || lower.includes('stone') || lower.includes('ruin')) setSelectedTheme('dungeon');
+            else if (val.trim()) setSelectedTheme(val.trim());
+            else setSelectedTheme('');
           }}
           style={{
             width: '100%',
@@ -305,7 +307,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             outline: 'none',
           }}
         />
-        {selectedTheme && (
+        {customPrompt.trim() && (
           <div style={{ marginTop: '6px', fontSize: '11px', color: '#43e97b', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span>Active Thematic Profile:</span>
             <span style={{ fontWeight: 700, textTransform: 'uppercase', background: 'rgba(67, 233, 123, 0.15)', padding: '2px 8px', borderRadius: '6px' }}>
@@ -323,7 +325,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                                     selectedTheme === 'railway' ? '🚆 Grand Railway (Tracks & Electrified Gate)' :
                                       selectedTheme === 'police' ? '👮 Police Precinct (Holding Cells & Dispatch)' :
                                         selectedTheme === 'kitchen' ? '🍳 Culinary Kitchen (Pantry Vault)' :
-                                          selectedTheme}
+                                          `✨ Custom AI World: "${customPrompt.trim()}"`}
             </span>
           </div>
         )}

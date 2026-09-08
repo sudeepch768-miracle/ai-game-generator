@@ -359,6 +359,31 @@ export function resolveEnvironmentDefinition(
     };
   }
 
+  // Any custom words prompt provided by the user
+  if (prompt && prompt.trim()) {
+    const cleanPrompt = prompt.trim();
+    const cleanTitle = cleanPrompt.charAt(0).toUpperCase() + cleanPrompt.slice(1);
+    const wordsList = cleanTitle.split(' ');
+    const propBase = wordsList[0] || 'Sanctum';
+    return {
+      title: formattedFileName || `${cleanTitle} Infiltration`,
+      theme: cleanPrompt.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
+      baseGame: DEMO_BANK,
+      obstacles: [
+        `${cleanTitle} Central Unit`,
+        `${propBase} Power Conduit`,
+        `${propBase} Console`,
+        `${cleanTitle} Security Gate`,
+        `${propBase} Storage Unit`
+      ],
+      obstacleColors: [colors.wallRim, colors.wallTop, '#3b82f6', '#f59e0b', '#10b981'],
+      guardianName: `${cleanTitle.toUpperCase()} GUARDIAN`,
+      chaserName: `${cleanTitle.toUpperCase()} ENFORCER`,
+      description: `Infiltrate ${cleanTitle}. Evade alert sentries, hack sector terminals, and reach the extraction portal.`,
+      defaultRim: colors.wallRim,
+    };
+  }
+
   // Visual Palette Fallback: Derived directly from image color clustering
   let autoTitle = formattedFileName || 'Custom Sector Infiltration';
   let chosenBase = DEMO_BANK;
@@ -502,6 +527,8 @@ export async function buildDynamicGameFromPhoto(
     },
   };
 
+  const baseScore = diff === 'easy' ? 80 : (diff === 'hard' ? 120 : (diff === 'nightmare' ? 140 : 100));
+
   const campaignLevels: GameWorld[] = [1, 2, 3].map((lvlNum) => {
     const rawObjs = lvlNum === 1 ? level1Objects : customizedObjects;
     const lvlObjects = rawObjs.map((o) => ({
@@ -515,23 +542,52 @@ export async function buildDynamicGameFromPhoto(
       speed: Math.round((e.speed + (lvlNum - 1) * 0.25) * 100) / 100,
     }));
 
+    // Point requirement increases by exactly 10% per level
+    const reqScore = Math.round(baseScore * Math.pow(1.10, lvlNum - 1));
+
+    // Deep copy collectibles and add 2 healing items for Level >= 2
+    const lvlCollectibles = JSON.parse(JSON.stringify(base.collectibles || []));
+    if (lvlNum >= 2) {
+      lvlCollectibles.push(
+        {
+          id: `heal_${lvlNum}_1`,
+          type: 'heal',
+          name: 'Emergency Medkit (+1 Heart)',
+          x: Math.max(3, Math.min((base.map?.width || 25) - 4, (base.player?.x || 3) + 4)),
+          y: Math.max(3, Math.min((base.map?.height || 18) - 4, (base.player?.y || 3) + 3)),
+          value: 15,
+        },
+        {
+          id: `heal_${lvlNum}_2`,
+          type: 'heal',
+          name: 'Emergency Medkit (+1 Heart)',
+          x: Math.max(3, Math.min((base.map?.width || 25) - 4, (base.exit?.x || 20) - 3)),
+          y: Math.max(3, Math.min((base.map?.height || 18) - 4, (base.exit?.y || 15) - 2)),
+          value: 15,
+        }
+      );
+    }
+
     return {
       ...level1,
       title: envDef.title + ' - Sector ' + lvlNum,
       levelNumber: lvlNum,
       objects: lvlObjects,
       enemies: lvlEnemies,
+      collectibles: lvlCollectibles,
       timeLimit: Math.max(45, (timeLimits[diff] || 100) - (lvlNum - 1) * 15),
       objective: {
         ...level1.objective,
+        requiredScore: reqScore,
         requiredTerminals: lvlNum === 1 ? [] : ['terminal_' + lvlNum],
         description: lvlNum === 1
-          ? 'Level 1: Collect keys, score ' + (base.objective?.requiredScore || 130) + '+ pts, evade ' + envDef.guardianName + ', and escape!'
-          : 'Sector ' + lvlNum + ': Score ' + ((base.objective?.requiredScore || 130) + (lvlNum - 1) * 50) + '+ pts, open sanctum, and override ' + terminalName + '!',
+          ? `Level 1: Collect keys, score ${reqScore}+ pts, evade ${envDef.guardianName}, and escape!`
+          : `Sector ${lvlNum}: Score ${reqScore}+ pts, open sanctum, and override ${terminalName}!`,
       },
     };
   });
 
+  level1.objective.requiredScore = baseScore;
   level1.levels = campaignLevels;
   return level1;
 }

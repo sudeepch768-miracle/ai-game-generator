@@ -128,6 +128,8 @@ def analyze_and_generate_world(
             resolved_theme = "living_room"
         elif any(w in tokens for w in ["forest", "park", "garden", "plant", "jungle", "nature", "tree", "yard"]):
             resolved_theme = "nature"
+        elif custom_prompt and custom_prompt.strip():
+            resolved_theme = custom_prompt.strip().lower()
         elif not image_bytes:
             resolved_theme = "bank"
 
@@ -261,7 +263,7 @@ Return a custom top-down game world JSON matching this exact structure:
             image_filename=image_filename
         )
 
-    theme_to_use = resolved_theme or "bank"
+    theme_to_use = resolved_theme or (custom_prompt.strip().lower() if custom_prompt else "bank")
     title_env = custom_prompt.title() if custom_prompt else "Tactical Zone"
     campaign_levels = []
     for lvl_num in (1, 2, 3):
