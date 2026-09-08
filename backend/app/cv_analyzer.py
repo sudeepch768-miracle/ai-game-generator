@@ -94,6 +94,11 @@ def classify_image_theme(
     extracted_palette = extract_image_palette(img)
 
     # 1. Exact textual keyword matches
+    if any(k in words for k in ("castle", "fortress", "palace", "citadel", "kingdom", "throne", "medieval", "keep", "tower", "knight")):
+        clean_name = "Royal Citadel Fortress"
+        if image_filename and not any(x in image_filename.lower() for x in ("img_", "photo", "image", "screenshot")):
+            clean_name = image_filename.rsplit('.', 1)[0].replace('_', ' ').replace('-', ' ').title()
+        return "castle", clean_name, extracted_palette, ["Royal Velvet Throne", "Suit of Medieval Plate Armor", "Flaming Iron Brazier", "Brass-banded Treasure Chest", "Stone Sarcophagus"], "#fbbf24"
     if any(k in words for k in ("gym", "fitness", "workout", "weights", "crossfit", "bench", "barbell", "dumbbell", "treadmill")):
         return "gym", "Titan Athletic Gym", extracted_palette, ["Heavy Olympic Barbell Rack", "Incline Dumbbell Bench", "Power Squat Cage", "Cardio Treadmill Station", "Kettlebell Pyramids"], "#e11d48"
     if any(k in words for k in ("cafe", "coffee", "tea", "espresso", "latte", "barista", "bakery")):

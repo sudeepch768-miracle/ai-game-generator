@@ -52,7 +52,7 @@ export class CanvasRenderer {
     this.renderFloor(world, tileSize, time);
 
     // 2. Render 3D Beveled Walls
-    this.renderWalls(world, tileSize);
+    this.renderWalls(world, tileSize, time);
 
     // 3. Render Objects / Obstacles & Terminals
     this.renderObjects(world, tileSize, time, state);
@@ -82,7 +82,7 @@ export class CanvasRenderer {
     this.renderPlayer(state.player, time, state);
 
     // 10. Atmospheric Lighting & Vignette
-    this.renderLighting(state.player, time);
+    this.renderLighting(world, state.player, time);
 
     // 10.5 Dynamic Ambient Weather Particles (Snowflakes, Embers, Bubbles, Fog, Dust)
     this.renderWeather(world, time);
@@ -116,6 +116,9 @@ export class CanvasRenderer {
 
     // Base Floor color
     const baseColors: Record<string, string> = {
+      castle: '#13111c',
+      living_room: '#1c140e',
+      gym: '#111317',
       snow: '#0c1a2e',
       volcano: '#180606',
       desert: '#1a1307',
@@ -139,17 +142,20 @@ export class CanvasRenderer {
 
     // Determine floor texture
     const floorTex = palette?.floorTexture || (
-      theme.includes('railway') || theme.includes('train') || theme.includes('station') || theme.includes('metro') || theme.includes('subway') || theme.includes('airport') ? 'railway' :
-        theme.includes('police') || theme.includes('cop') || theme.includes('precinct') || theme.includes('jail') ? 'police' :
-          theme.includes('hospital') || theme.includes('clinic') || theme.includes('medical') ? 'hospital' :
-            theme.includes('kitchen') || theme.includes('restaurant') || theme.includes('chef') ? 'kitchen' :
-              theme.includes('snow') || theme.includes('ice') || theme.includes('frost') || theme.includes('mountain') || theme.includes('arctic') ? 'snow' :
-                theme.includes('volcano') || theme.includes('lava') || theme.includes('fire') ? 'cracks' :
-                  theme.includes('desert') || theme.includes('sand') || theme.includes('pyramid') ? 'sand' :
-                    theme.includes('ocean') || theme.includes('water') || theme.includes('sea') ? 'water' :
-                      theme.includes('haunted') || theme.includes('dungeon') ? 'cobblestone' :
-                        theme.includes('nature') ? 'organic' :
-                          theme.includes('cyber') || theme.includes('space') ? 'circuit' : 'grid'
+      theme.includes('castle') || theme.includes('fortress') || theme.includes('citadel') || theme.includes('palace') || theme.includes('throne') ? 'castle_stone' :
+        theme.includes('hospital') || theme.includes('clinic') || theme.includes('medical') || theme.includes('surgery') || theme.includes('ward') ? 'hospital' :
+          theme.includes('living') || theme.includes('couch') || theme.includes('sofa') || theme.includes('bedroom') || theme.includes('home') || theme.includes('lounge') || theme.includes('room') ? 'wood' :
+            theme.includes('gym') || theme.includes('fitness') || theme.includes('workout') || theme.includes('weights') ? 'gym' :
+              theme.includes('railway') || theme.includes('train') || theme.includes('station') || theme.includes('metro') || theme.includes('subway') || theme.includes('airport') ? 'railway' :
+                theme.includes('police') || theme.includes('cop') || theme.includes('precinct') || theme.includes('jail') ? 'police' :
+                  theme.includes('kitchen') || theme.includes('restaurant') || theme.includes('chef') ? 'kitchen' :
+                    theme.includes('snow') || theme.includes('ice') || theme.includes('frost') || theme.includes('mountain') || theme.includes('arctic') ? 'snow' :
+                      theme.includes('volcano') || theme.includes('lava') || theme.includes('fire') ? 'cracks' :
+                        theme.includes('desert') || theme.includes('sand') || theme.includes('pyramid') ? 'sand' :
+                          theme.includes('ocean') || theme.includes('water') || theme.includes('sea') ? 'water' :
+                            theme.includes('haunted') || theme.includes('dungeon') ? 'cobblestone' :
+                              theme.includes('nature') ? 'organic' :
+                                theme.includes('cyber') || theme.includes('space') ? 'circuit' : 'grid'
     );
 
     // Procedural Floor Tile Pattern
@@ -264,23 +270,274 @@ export class CanvasRenderer {
             ctx.lineWidth = 1;
             ctx.strokeRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
           }
-        } else if (floorTex === 'police' || floorTex === 'hospital' || floorTex === 'kitchen') {
-          // 👮 / 🏥 / 🍳 Polished Checkered Linoleum Tiles with Wax Sheen
-          const isLight = (x + y) % 2 === 0;
-          if (floorTex === 'police') {
-            ctx.fillStyle = isLight ? '#131b2e' : '#0c1220';
-          } else if (floorTex === 'hospital') {
-            ctx.fillStyle = isLight ? '#112233' : '#0a1622';
+        } else if (floorTex === 'castle_stone') {
+          // 🏰 ROYAL CITADEL STONE PAVEMENT & CRIMSON VELVET RUNNER
+          const centerAisleX = Math.floor(world.map.width / 2);
+          const isAisle = Math.abs(x - centerAisleX) <= 1;
+
+          if (isAisle) {
+            // Royal Crimson Velvet Processional Carpet Runner
+            ctx.fillStyle = '#881337';
+            ctx.fillRect(px, py, tileSize, tileSize);
+
+            // Rich velvet plush texture
+            if ((x + y) % 2 === 0) {
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+              ctx.fillRect(px, py, tileSize, tileSize);
+            }
+
+            // Gold Braided Fringe Borders on Outer Edges of Aisle
+            if (x === centerAisleX - 1) {
+              ctx.fillStyle = '#f59e0b';
+              ctx.fillRect(px, py, 3.5, tileSize);
+              ctx.fillStyle = '#fbbf24';
+              for (let d = 0; d < tileSize; d += 4) {
+                ctx.fillRect(px + 3.5, py + d, 1.5, 2);
+              }
+            } else if (x === centerAisleX + 1) {
+              ctx.fillStyle = '#f59e0b';
+              ctx.fillRect(px + tileSize - 3.5, py, 3.5, tileSize);
+              ctx.fillStyle = '#fbbf24';
+              for (let d = 0; d < tileSize; d += 4) {
+                ctx.fillRect(px + tileSize - 5, py + d, 1.5, 2);
+              }
+            }
+
+            // Royal Gold Fleur-de-lis / Star Medallion in Center
+            if (x === centerAisleX && y % 3 === 0) {
+              const mcx = px + tileSize / 2;
+              const mcy = py + tileSize / 2;
+              ctx.fillStyle = '#fbbf24';
+              ctx.beginPath();
+              ctx.arc(mcx, mcy, 3.5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = '#f59e0b';
+              ctx.lineWidth = 1;
+              ctx.stroke();
+              // Diamond accents
+              ctx.fillRect(mcx - 1, mcy - 6, 2, 12);
+              ctx.fillRect(mcx - 6, mcy - 1, 12, 2);
+            }
           } else {
-            ctx.fillStyle = isLight ? '#221411' : '#140c09';
+            // Ancient Chiseled Flagstone Pavers
+            const isStoneAlt = (x * 3 + y * 7) % 5 === 0;
+            ctx.fillStyle = isStoneAlt ? '#1a1624' : '#14111c';
+            ctx.fillRect(px, py, tileSize, tileSize);
+
+            // Mortar joint seams
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.lineWidth = 1.2;
+            ctx.strokeRect(px + 0.5, py + 0.5, tileSize - 1, tileSize - 1);
+
+            // Chiseled flagstone edge highlight
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(px + 2, py + tileSize - 2);
+            ctx.lineTo(px + 2, py + 2);
+            ctx.lineTo(px + tileSize - 2, py + 2);
+            ctx.stroke();
+
+            // Weathered stone cracks / moss accents
+            if ((x * 11 + y * 17) % 13 === 0) {
+              ctx.fillStyle = 'rgba(34, 197, 94, 0.12)';
+              ctx.fillRect(px + 3, py + tileSize - 5, 4, 3);
+            }
           }
+
+        } else if (floorTex === 'hospital') {
+          // 🏥 STERILE CLINICAL VINYL TILES & DIRECTIONAL TRIAGE STRIPES
+          const isLight = (x + y) % 2 === 0;
+          ctx.fillStyle = isLight ? '#122536' : '#0c1b29';
           ctx.fillRect(px, py, tileSize, tileSize);
 
+          // Sterile sealant grout lines
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
           ctx.lineWidth = 0.75;
           ctx.strokeRect(px, py, tileSize, tileSize);
 
-          // Diagonal Wax Sheen Reflection
+          // Diagonal wax sheen reflection
+          if (isLight) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.035)';
+            ctx.beginPath();
+            ctx.moveTo(px + 4, py + 2);
+            ctx.lineTo(px + tileSize - 2, py + tileSize - 4);
+            ctx.lineTo(px + tileSize - 6, py + tileSize - 2);
+            ctx.lineTo(px + 2, py + 6);
+            ctx.fill();
+          }
+
+          // Colored Directional Triage Navigation Floor Lines
+          // (Real hospitals use colored floor lines to direct patients to ER, ICU, Surgery)
+          const isCorridorY = y % 5 === 2;
+          if (isCorridorY) {
+            // Red Line: Emergency / Trauma
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(px, py + 7, tileSize, 2.5);
+            // Cyan Line: Intensive Care Unit (ICU)
+            ctx.fillStyle = '#00f2fe';
+            ctx.fillRect(px, py + tileSize / 2 - 1, tileSize, 2.5);
+            // Amber Line: Surgery & Radiology
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(px, py + tileSize - 9, tileSize, 2.5);
+          }
+
+          // Red Cross Emergency Floor Medallion at corridor intersections
+          if ((x * 5 + y * 7) % 19 === 0) {
+            const cx = px + tileSize / 2;
+            const cy = py + tileSize / 2;
+            // White circular badge base
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+            ctx.fill();
+            // Red Cross
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(cx - 4, cy - 1.5, 8, 3);
+            ctx.fillRect(cx - 1.5, cy - 4, 3, 8);
+          }
+
+        } else if (floorTex === 'wood') {
+          // 🪵 HARDWOOD PARQUET PLANKS & ORNATE LIVING ROOM AREA RUG
+          const isCenterRoom = (
+            x >= Math.floor(world.map.width * 0.35) &&
+            x <= Math.floor(world.map.width * 0.65) &&
+            y >= Math.floor(world.map.height * 0.35) &&
+            y <= Math.floor(world.map.height * 0.65)
+          );
+
+          if (isCenterRoom) {
+            // Ornate Woven Persian Area Rug
+            ctx.fillStyle = '#7f1d1d'; // Rich crimson base
+            ctx.fillRect(px, py, tileSize, tileSize);
+
+            // Navy blue inner medallion field
+            ctx.fillStyle = '#1e1b4b';
+            ctx.fillRect(px + 3, py + 3, tileSize - 6, tileSize - 6);
+
+            // Gold floral border fretwork
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
+
+            // Center gold medallion
+            if ((x + y) % 2 === 0) {
+              ctx.fillStyle = '#fbbf24';
+              ctx.beginPath();
+              ctx.arc(px + tileSize / 2, py + tileSize / 2, 3, 0, Math.PI * 2);
+              ctx.fill();
+            }
+
+            // Rug fringe along north and south perimeter of the rug
+            if (y === Math.floor(world.map.height * 0.35)) {
+              ctx.fillStyle = '#f8fafc';
+              for (let f = 0; f < tileSize; f += 3) {
+                ctx.fillRect(px + f, py, 1.5, 2.5);
+              }
+            } else if (y === Math.floor(world.map.height * 0.65)) {
+              ctx.fillStyle = '#f8fafc';
+              for (let f = 0; f < tileSize; f += 3) {
+                ctx.fillRect(px + f, py + tileSize - 2.5, 1.5, 2.5);
+              }
+            }
+          } else {
+            // Warm Staggered Oak / Walnut Hardwood Planks
+            const plankOffset = (y % 2) * (tileSize * 0.4);
+            const isPlankAlt = (x + y) % 2 === 0;
+            ctx.fillStyle = isPlankAlt ? '#261811' : '#1d120c';
+            ctx.fillRect(px, py, tileSize, tileSize);
+
+            // Horizontal plank seams
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(px, py + tileSize / 2);
+            ctx.lineTo(px + tileSize, py + tileSize / 2);
+            ctx.moveTo(px, py + tileSize);
+            ctx.lineTo(px + tileSize, py + tileSize);
+            ctx.stroke();
+
+            // Vertical staggered end-joints
+            const jointX = px + ((plankOffset + 12) % tileSize);
+            ctx.beginPath();
+            ctx.moveTo(jointX, py);
+            ctx.lineTo(jointX, py + tileSize / 2);
+            ctx.stroke();
+
+            // Tiny brass / copper finish nail heads
+            ctx.fillStyle = '#b45309';
+            ctx.fillRect(jointX - 2, py + 3, 1.5, 1.5);
+            ctx.fillRect(jointX + 2, py + 3, 1.5, 1.5);
+
+            // Fine wood grain lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(px, py + 4);
+            ctx.lineTo(px + tileSize, py + 4);
+            ctx.moveTo(px, py + tileSize / 2 + 5);
+            ctx.lineTo(px + tileSize, py + tileSize / 2 + 5);
+            ctx.stroke();
+          }
+
+        } else if (floorTex === 'gym') {
+          // 🏋️ INTERLOCKING HEAVY RUBBER ATHLETIC MATS & HAZARD ZONES
+          ctx.fillStyle = '#14161b';
+          ctx.fillRect(px, py, tileSize, tileSize);
+
+          // Interlocking puzzle seam border
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
+
+          // Speckled multicolored EPDM rubber flecks (authentic gym floor texture!)
+          const seed = (x * 37 + y * 67);
+          ctx.fillStyle = '#f43f5e'; // Crimson fleck
+          ctx.fillRect(px + (seed % (tileSize - 6)) + 3, py + ((seed * 3) % (tileSize - 6)) + 3, 1.5, 1.5);
+          ctx.fillStyle = '#38bdf8'; // Cyan fleck
+          ctx.fillRect(px + ((seed * 7) % (tileSize - 6)) + 3, py + ((seed * 5) % (tileSize - 6)) + 3, 1.5, 1.5);
+          ctx.fillStyle = '#fbbf24'; // Gold fleck
+          ctx.fillRect(px + ((seed * 11) % (tileSize - 6)) + 3, py + ((seed * 2) % (tileSize - 6)) + 3, 1.5, 1.5);
+
+          // High-visibility yellow safety border around room perimeters
+          const isBorderZone = (x === 2 || x === world.map.width - 3 || y === 2 || y === world.map.height - 3);
+          if (isBorderZone) {
+            ctx.fillStyle = '#eab308';
+            ctx.fillRect(px, py + tileSize - 4, tileSize, 4);
+            ctx.fillStyle = '#000000';
+            for (let d = 0; d < tileSize; d += 6) {
+              ctx.fillRect(px + d, py + tileSize - 4, 3, 4);
+            }
+          }
+
+        } else if (floorTex === 'kitchen') {
+          // 🍳 COMMERCIAL QUARRY KITCHEN TILES & DRAINAGE GRATES
+          const isQuarryLight = (x + y) % 2 === 0;
+          ctx.fillStyle = isQuarryLight ? '#381c15' : '#28130d';
+          ctx.fillRect(px, py, tileSize, tileSize);
+
+          ctx.strokeStyle = '#140805';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(px + 0.5, py + 0.5, tileSize - 1, tileSize - 1);
+
+          // Occasional stainless steel drainage grate
+          if ((x * 7 + y * 13) % 23 === 0) {
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(px + 4, py + 4, tileSize - 8, tileSize - 8);
+            ctx.fillStyle = '#0f172a';
+            for (let g = 6; g < tileSize - 6; g += 4) {
+              ctx.fillRect(px + 6, py + g, tileSize - 12, 1.5);
+            }
+          }
+
+        } else if (floorTex === 'police') {
+          // 👮 POLICE PRECINCT CHECKERED LINOLEUM TILES
+          const isLight = (x + y) % 2 === 0;
+          ctx.fillStyle = isLight ? '#131b2e' : '#0c1220';
+          ctx.fillRect(px, py, tileSize, tileSize);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+          ctx.lineWidth = 0.75;
+          ctx.strokeRect(px, py, tileSize, tileSize);
           if (isLight) {
             ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
             ctx.beginPath();
@@ -309,12 +566,15 @@ export class CanvasRenderer {
     ctx.restore();
   }
 
-  private renderWalls(world: GameWorld, tileSize: number) {
+  private renderWalls(world: GameWorld, tileSize: number, time: number) {
     const ctx = this.ctx;
     const theme = (world.map.theme || 'cyberpunk').toLowerCase();
     const palette = world.palette;
 
     const wallThemes: Record<string, { top: string; front: string; rim: string }> = {
+      castle: { top: '#475569', front: '#1e293b', rim: '#f59e0b' },
+      living_room: { top: '#451a03', front: '#270e02', rim: '#f59e0b' },
+      gym: { top: '#334155', front: '#18181b', rim: '#f43f5e' },
       railway: { top: '#334155', front: '#1e293b', rim: '#f59e0b' },
       police: { top: '#1e293b', front: '#0f172a', rim: '#3b82f6' },
       hospital: { top: '#1e3a5f', front: '#0f233d', rim: '#38bdf8' },
@@ -340,6 +600,13 @@ export class CanvasRenderer {
     const rimColor = palette?.wallRim || fallbackColors.rim;
     const isSnow = theme.includes('snow') || theme.includes('ice') || theme.includes('frost') || theme.includes('mountain') || palette?.weather === 'snow';
 
+    const isCastle = theme.includes('castle') || theme.includes('fortress') || theme.includes('citadel') || theme.includes('palace') || theme.includes('throne');
+    const isHospital = theme.includes('hospital') || theme.includes('clinic') || theme.includes('medical') || theme.includes('surgery') || theme.includes('ward');
+    const isLiving = theme.includes('living') || theme.includes('couch') || theme.includes('sofa') || theme.includes('bedroom') || theme.includes('home') || theme.includes('lounge');
+    const isGym = theme.includes('gym') || theme.includes('fitness') || theme.includes('workout');
+    const isRailway = theme.includes('railway') || theme.includes('train') || theme.includes('subway') || theme.includes('metro');
+    const isBank = theme.includes('bank') || theme.includes('vault');
+
     ctx.save();
     for (const wall of world.walls) {
       const wx = wall.x * tileSize;
@@ -351,7 +618,7 @@ export class CanvasRenderer {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
       ctx.fillRect(wx + 3, wy + 5, ww, wh);
 
-      // Front Face
+      // Base Front Face
       ctx.fillStyle = frontColor;
       ctx.fillRect(wx, wy, ww, wh);
 
@@ -364,6 +631,209 @@ export class CanvasRenderer {
       if (isSnow) {
         ctx.fillStyle = 'rgba(241, 245, 249, 0.65)';
         ctx.fillRect(wx + 1, wy + 1, ww - 2, 2.5);
+      }
+
+      // --- THEME-SPECIFIC ARCHITECTURAL WALL SURFACE DETAILS ---
+      if (isCastle) {
+        // 🏰 Medieval Ashlar Stone Masonry Courses
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.lineWidth = 1;
+        const courseH = 8;
+        for (let cy = wy + bevelH + courseH; cy < wy + wh; cy += courseH) {
+          ctx.beginPath();
+          ctx.moveTo(wx, cy);
+          ctx.lineTo(wx + ww, cy);
+          ctx.stroke();
+
+          // Staggered vertical stone joints
+          const courseIdx = Math.floor((cy - wy) / courseH);
+          const jointOffset = (courseIdx % 2) * 12;
+          for (let jx = wx + jointOffset; jx < wx + ww; jx += 24) {
+            ctx.beginPath();
+            ctx.moveTo(jx, cy - courseH);
+            ctx.lineTo(jx, cy);
+            ctx.stroke();
+          }
+        }
+
+        // Top Battlements / Crenellations along top bevel face
+        const merlonW = Math.max(5, tileSize / 4);
+        for (let mx = wx; mx < wx + ww; mx += merlonW * 2) {
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+          ctx.fillRect(mx, wy, Math.min(merlonW, wx + ww - mx), bevelH);
+        }
+
+        // Wall-Mounted Flickering Iron Torch Sconce on walls of length >= 2 tiles
+        if (ww >= tileSize * 1.8 && wh >= tileSize) {
+          const torchX = wx + ww / 2;
+          const torchY = wy + bevelH + 5;
+          const flamePulse = Math.sin(time * 9 + wx) * 2;
+
+          // Torch warm radial wall glow
+          const torchGlow = ctx.createRadialGradient(torchX, torchY, 2, torchX, torchY, 18);
+          torchGlow.addColorStop(0, 'rgba(245, 158, 11, 0.55)');
+          torchGlow.addColorStop(0.5, 'rgba(234, 88, 12, 0.2)');
+          torchGlow.addColorStop(1, 'rgba(234, 88, 12, 0)');
+          ctx.fillStyle = torchGlow;
+          ctx.beginPath();
+          ctx.arc(torchX, torchY, 18, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Iron sconce bracket
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(torchX - 1.5, torchY, 3, 7);
+          ctx.fillRect(torchX - 4, torchY + 1, 8, 2);
+
+          // Animated fire tongues
+          ctx.fillStyle = '#f97316';
+          ctx.beginPath();
+          ctx.arc(torchX, torchY - 2 + flamePulse * 0.4, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(torchX, torchY - 2 + flamePulse * 0.4, 1.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+      } else if (isHospital) {
+        // 🏥 Glazed Ceramic Subway Tiles & Rubber Crash Bumper Rail
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+        ctx.lineWidth = 0.5;
+        const tileH = 6;
+        for (let hy = wy + bevelH + tileH; hy < wy + wh; hy += tileH) {
+          ctx.beginPath();
+          ctx.moveTo(wx, hy);
+          ctx.lineTo(wx + ww, hy);
+          ctx.stroke();
+        }
+
+        // Continuous Horizontal Rubber Crash Bumper Rail (Gurney Guard)
+        const railY = wy + bevelH + Math.max(4, (wh - bevelH) * 0.42);
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(wx, railY, ww, 4);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(wx, railY, ww, 1.2);
+
+        // Stainless Steel Bottom Kickplate
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(wx, wy + wh - 3, ww, 3);
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(wx, wy + wh - 3, ww, 0.75);
+
+        // Red Cross Medical Wall Plaque on walls of length >= 2 tiles
+        if (ww >= tileSize * 1.8 && wh >= tileSize) {
+          const plaqueX = wx + ww / 2 - 5;
+          const plaqueY = wy + bevelH + 3;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.roundRect(plaqueX, plaqueY, 10, 10, 2);
+          ctx.fill();
+          // Red cross
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(plaqueX + 2, plaqueY + 4, 6, 2);
+          ctx.fillRect(plaqueX + 4, plaqueY + 2, 2, 6);
+        }
+
+      } else if (isLiving) {
+        // 🛋️ Striped Damask Wallpaper, Walnut Crown Molding, & Framed Art
+        // Striped wallpaper pinstripes
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+        for (let lx = wx + 4; lx < wx + ww; lx += 8) {
+          ctx.fillRect(lx, wy + bevelH, 3, wh - bevelH - 4);
+        }
+
+        // Walnut Crown Molding on top bevel
+        ctx.fillStyle = '#3b1809';
+        ctx.fillRect(wx, wy, ww, bevelH);
+        ctx.strokeStyle = '#78350f';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(wx, wy, ww, bevelH);
+
+        // Classic White Baseboard Trim along floor
+        ctx.fillStyle = '#f1f5f9';
+        ctx.fillRect(wx, wy + wh - 4, ww, 4);
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(wx, wy + wh - 4, ww, 1);
+
+        // Gilded Framed Oil Painting hung on wall if wide enough
+        if (ww >= tileSize * 2 && wh >= tileSize) {
+          const picW = 16;
+          const picH = 11;
+          const picX = wx + ww / 2 - picW / 2;
+          const picY = wy + bevelH + 2;
+
+          // Gold frame
+          ctx.fillStyle = '#ffd700';
+          ctx.beginPath();
+          ctx.roundRect(picX, picY, picW, picH, 1.5);
+          ctx.fill();
+          ctx.strokeStyle = '#b45309';
+          ctx.lineWidth = 0.75;
+          ctx.stroke();
+
+          // Canvas landscape art
+          ctx.fillStyle = '#0284c7'; // Sky
+          ctx.fillRect(picX + 2, picY + 2, picW - 4, picH - 4);
+          ctx.fillStyle = '#16a34a'; // Rolling hills
+          ctx.beginPath();
+          ctx.arc(picX + 6, picY + picH - 2, 4, Math.PI, 0, false);
+          ctx.arc(picX + 11, picY + picH - 2, 3.5, Math.PI, 0, false);
+          ctx.fill();
+          ctx.fillStyle = '#fef08a'; // Sun
+          ctx.beginPath();
+          ctx.arc(picX + 4, picY + 4, 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+      } else if (isGym) {
+        // 🏋️ Mirrored Wall Panels & Hazard Base Stripe
+        // Mirrored upper panels
+        const mirrorH = Math.max(4, (wh - bevelH) * 0.55);
+        ctx.fillStyle = 'rgba(148, 163, 184, 0.22)';
+        ctx.fillRect(wx + 2, wy + bevelH + 2, ww - 4, mirrorH);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+        ctx.lineWidth = 0.75;
+        ctx.strokeRect(wx + 2, wy + bevelH + 2, ww - 4, mirrorH);
+
+        // Diagonal mirror reflection glint
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+        ctx.beginPath();
+        ctx.moveTo(wx + 6, wy + bevelH + 2);
+        ctx.lineTo(wx + 14, wy + bevelH + 2);
+        ctx.lineTo(wx + 8, wy + bevelH + 2 + mirrorH);
+        ctx.lineTo(wx + 2, wy + bevelH + 2 + mirrorH);
+        ctx.fill();
+
+        // Safety caution base stripe
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(wx, wy + wh - 4, ww, 4);
+        ctx.fillStyle = '#000000';
+        for (let d = 0; d < ww; d += 8) {
+          ctx.fillRect(wx + d, wy + wh - 4, 4, 4);
+        }
+
+      } else if (isRailway) {
+        // 🚆 Enamelled Ceramic Subway Tiles with Colored Transit Line Stripe
+        const bandY = wy + bevelH + (wh - bevelH) * 0.45;
+        ctx.fillStyle = '#2563eb';
+        ctx.fillRect(wx, bandY, ww, 4);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(wx, bandY - 1, ww, 1);
+        ctx.fillRect(wx, bandY + 4, ww, 1);
+
+      } else if (isBank) {
+        // 🏦 Polished Granite with Inlaid Gold Seams
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.35)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(wx, wy + bevelH + (wh - bevelH) / 2);
+        ctx.lineTo(wx + ww, wy + bevelH + (wh - bevelH) / 2);
+        ctx.stroke();
+
+        // Chrome hex rivets on corners
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(wx + 2, wy + bevelH + 2, 2, 2);
+        ctx.fillRect(wx + ww - 4, wy + bevelH + 2, 2, 2);
       }
 
       // Neon / Highlight Rim
@@ -889,6 +1359,83 @@ export class CanvasRenderer {
       ctx.arc(cx, cy, Math.min(ow, oh) * 0.8, 0, Math.PI * 2);
       ctx.fill();
 
+    } else if (name.includes('medicine') || name.includes('pharmacy') || name.includes('cabinet') || name.includes('medical supply')) {
+      // 💊 EMERGENCY PHARMACY & MEDICINE CABINET
+      ctx.fillStyle = '#f8fafc';
+      ctx.beginPath();
+      ctx.roundRect(ox + 3, oy + 3, ow - 6, oh - 6, 4);
+      ctx.fill();
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Top Red Cross Badge
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(ox + ow / 2 - 4, oy + 5, 8, 2.5);
+      ctx.fillRect(ox + ow / 2 - 1.25, oy + 2.5, 2.5, 7.5);
+
+      // Glass Door Shelves
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+      ctx.fillRect(ox + 5, oy + 12, ow - 10, oh - 16);
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(ox + 5, oy + oh * 0.5);
+      ctx.lineTo(ox + ow - 5, oy + oh * 0.5);
+      ctx.stroke();
+
+      // Amber Pill Bottles & Blue Saline Vials on Shelves
+      ctx.fillStyle = '#d97706'; // Amber bottle
+      ctx.fillRect(ox + 7, oy + 14, 4, 6);
+      ctx.fillStyle = '#ffffff'; // White cap
+      ctx.fillRect(ox + 7, oy + 13, 4, 1.5);
+
+      ctx.fillStyle = '#38bdf8'; // Blue vial
+      ctx.fillRect(ox + 14, oy + 15, 3.5, 5);
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(ox + 14, oy + 14, 3.5, 1.5);
+
+      ctx.fillStyle = '#10b981'; // Green tincture
+      ctx.fillRect(ox + ow - 12, oy + oh * 0.55, 4, 6);
+
+    } else if (name.includes('mri') || name.includes('scanner') || name.includes('ct ') || name.includes('diagnostic')) {
+      // 🩻 MOBILE MRI / CT SCANNER GANTRY
+      const cx = ox + ow * 0.42;
+      const cy = oy + oh / 2;
+
+      // Outer Aerodynamic White Gantry
+      ctx.fillStyle = '#f1f5f9';
+      ctx.beginPath();
+      ctx.roundRect(ox + 2, oy + 2, ow * 0.75, oh - 4, 8);
+      ctx.fill();
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Circular Magnet Bore
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(cx, cy, Math.min(ow * 0.25, oh * 0.35), 0, Math.PI * 2);
+      ctx.fill();
+
+      // Cyan Bore Illumination Ring
+      const borePulse = Math.sin(time * 4) * 0.2 + 0.8;
+      ctx.strokeStyle = `rgba(0, 242, 254, ${borePulse})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, Math.min(ow * 0.25, oh * 0.35) - 2, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Sliding Motorized Examination Table extending to the right
+      ctx.fillStyle = '#cbd5e1';
+      ctx.beginPath();
+      ctx.roundRect(cx, cy - 3, ow - cx + ox - 3, 6, 2);
+      ctx.fill();
+
+      // Diagnostic LED Panel
+      ctx.fillStyle = '#10b981';
+      ctx.fillRect(ox + 6, oy + 5, 8, 3);
+
     } else if (name.includes('stove') || name.includes('range') || name.includes('burner') || name.includes('cooking')) {
       // 🍳 COMMERCIAL KITCHEN STOVE RANGE WITH GAS BURNERS
       ctx.fillStyle = '#94a3b8';
@@ -1347,6 +1894,597 @@ export class CanvasRenderer {
       ctx.fillRect(ox + 2, oy + 2, ow - 4, 4);
       ctx.fillRect(ox + 2, oy + oh - 6, ow - 4, 4);
 
+    } else if (name.includes('throne')) {
+      // 👑 ROYAL VELVET THRONE
+      // Stone Step Dais
+      ctx.fillStyle = '#334155';
+      ctx.beginPath();
+      ctx.roundRect(ox + 2, oy + oh - 7, ow - 4, 6, 2);
+      ctx.fill();
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Ornate Carved Gold Chair Frame
+      ctx.fillStyle = '#b45309';
+      ctx.beginPath();
+      ctx.roundRect(ox + 4, oy + 4, ow - 8, oh - 10, 4);
+      ctx.fill();
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Gothic Arched Backrest with Crimson Velvet Padding
+      ctx.fillStyle = '#881337';
+      ctx.beginPath();
+      ctx.roundRect(ox + 7, oy + 6, ow - 14, Math.max(8, (oh - 14) * 0.6), 3);
+      ctx.fill();
+
+      // Gold Diamond Button Tufting Grid on Velvet
+      ctx.fillStyle = '#ffd700';
+      const tuftCols = 3;
+      for (let c = 0; c < tuftCols; c++) {
+        const tx = ox + 10 + c * ((ow - 20) / (tuftCols - 1 || 1));
+        ctx.fillRect(tx - 1, oy + 10, 2, 2);
+        ctx.fillRect(tx - 1, oy + 16, 2, 2);
+      }
+
+      // Plush Crimson Seat Cushion
+      ctx.fillStyle = '#991b1b';
+      ctx.beginPath();
+      ctx.roundRect(ox + 6, oy + oh - 13, ow - 12, 6, 2);
+      ctx.fill();
+
+      // Gilded Crown Finials on Left & Right Peaks
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath();
+      ctx.moveTo(ox + 5, oy + 4);
+      ctx.lineTo(ox + 3, oy - 2);
+      ctx.lineTo(ox + 7, oy + 2);
+      ctx.moveTo(ox + ow - 5, oy + 4);
+      ctx.lineTo(ox + ow - 3, oy - 2);
+      ctx.lineTo(ox + ow - 7, oy + 2);
+      ctx.fill();
+
+      // Ruby Jewels on Finials
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(ox + 2, oy - 3, 2, 2);
+      ctx.fillRect(ox + ow - 4, oy - 3, 2, 2);
+
+    } else if (name.includes('armor') || name.includes('knight') || name.includes('cuirass')) {
+      // 🛡️ SUIT OF MEDIEVAL PLATE ARMOR
+      const cx = ox + ow / 2;
+
+      // Wooden Oak Plinth Base
+      ctx.fillStyle = '#451a03';
+      ctx.beginPath();
+      ctx.roundRect(ox + 4, oy + oh - 6, ow - 8, 5, 2);
+      ctx.fill();
+
+      // Steel Sabatons & Greaves (Legs)
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(cx - 6, oy + oh * 0.55, 4, oh * 0.35);
+      ctx.fillRect(cx + 2, oy + oh * 0.55, 4, oh * 0.35);
+
+      // Steel Cuirass (Breastplate)
+      ctx.fillStyle = '#94a3b8';
+      ctx.beginPath();
+      ctx.roundRect(cx - 8, oy + oh * 0.28, 16, Math.max(8, oh * 0.32), 4);
+      ctx.fill();
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Flared Pauldrons (Shoulder Guards)
+      ctx.fillStyle = '#cbd5e1';
+      ctx.beginPath();
+      ctx.arc(cx - 8, oy + oh * 0.32, 4, 0, Math.PI * 2);
+      ctx.arc(cx + 8, oy + oh * 0.32, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Knight Visored Great Helm
+      ctx.fillStyle = '#cbd5e1';
+      ctx.beginPath();
+      ctx.arc(cx, oy + oh * 0.18, 6, 0, Math.PI * 2);
+      ctx.fill();
+      // Visor eye slit
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(cx - 4, oy + oh * 0.18 - 1, 8, 2);
+
+      // Crimson Plume Feather on Helm
+      ctx.fillStyle = '#dc2626';
+      ctx.beginPath();
+      ctx.moveTo(cx, oy + oh * 0.18 - 6);
+      ctx.quadraticCurveTo(cx + 6, oy + oh * 0.18 - 12, cx + 10, oy + oh * 0.18 - 5);
+      ctx.stroke();
+
+      // Ceremonial Broadsword held tip down
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(cx - 0.75, oy + oh * 0.3, 1.5, oh * 0.6);
+      ctx.fillStyle = '#ffd700'; // Crossguard & pommel
+      ctx.fillRect(cx - 4, oy + oh * 0.35, 8, 2);
+      ctx.beginPath();
+      ctx.arc(cx, oy + oh * 0.3, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+    } else if (name.includes('brazier') || name.includes('fire basin') || name.includes('fire pit') || name.includes('cauldron')) {
+      // 🔥 MEDIEVAL FLAMING IRON BRAZIER
+      const cx = ox + ow / 2;
+      const cy = oy + oh / 2;
+      const bRad = Math.min(ow, oh) * 0.38;
+
+      // Radial Torchlight Warm Floor Illumination
+      const bGlow = ctx.createRadialGradient(cx, cy, 3, cx, cy, bRad * 2.2);
+      bGlow.addColorStop(0, 'rgba(249, 115, 22, 0.45)');
+      bGlow.addColorStop(0.5, 'rgba(234, 88, 12, 0.15)');
+      bGlow.addColorStop(1, 'rgba(234, 88, 12, 0)');
+      ctx.fillStyle = bGlow;
+      ctx.beginPath();
+      ctx.arc(cx, cy, bRad * 2.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Wrought Iron Tripod Leg Splay
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + 4);
+      ctx.lineTo(ox + 4, oy + oh - 2);
+      ctx.moveTo(cx, cy + 4);
+      ctx.lineTo(ox + ow - 4, oy + oh - 2);
+      ctx.moveTo(cx, cy + 4);
+      ctx.lineTo(cx, oy + oh - 1);
+      ctx.stroke();
+
+      // Heavy Iron Cauldron Basin Bowl
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.arc(cx, cy + 2, bRad, 0, Math.PI);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Glowing Hot Coals
+      ctx.fillStyle = '#7c2d12';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 2, bRad * 0.85, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Procedural Animated Dancing Flame Tongues
+      const fPulse1 = Math.sin(time * 12) * 3;
+      const fPulse2 = Math.cos(time * 15) * 3;
+      const fPulse3 = Math.sin(time * 9 + 1) * 2;
+
+      // Outer Orange Flames
+      ctx.fillStyle = '#ea580c';
+      ctx.beginPath();
+      ctx.moveTo(cx - bRad * 0.6, cy);
+      ctx.quadraticCurveTo(cx - 3 + fPulse1, cy - bRad * 1.3, cx, cy - bRad * 1.5 + fPulse2);
+      ctx.quadraticCurveTo(cx + 3 + fPulse2, cy - bRad * 1.3, cx + bRad * 0.6, cy);
+      ctx.closePath();
+      ctx.fill();
+
+      // Inner Yellow/Gold Flame Core
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.moveTo(cx - bRad * 0.35, cy + 1);
+      ctx.quadraticCurveTo(cx + fPulse3, cy - bRad * 0.9, cx, cy - bRad * 1.1 + fPulse1);
+      ctx.quadraticCurveTo(cx + fPulse2, cy - bRad * 0.9, cx + bRad * 0.35, cy + 1);
+      ctx.closePath();
+      ctx.fill();
+
+      // Hot White Core
+      ctx.fillStyle = '#fef08a';
+      ctx.beginPath();
+      ctx.arc(cx, cy, bRad * 0.25, 0, Math.PI * 2);
+      ctx.fill();
+
+    } else if (name.includes('chest') || name.includes('treasure')) {
+      // 💎 BRASS-BANDED TREASURE CHEST
+      // Drop shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      ctx.beginPath();
+      ctx.roundRect(ox + 4, oy + 4, ow - 8, oh - 6, 4);
+      ctx.fill();
+
+      // Rich Hardwood Oak Box Base
+      ctx.fillStyle = '#5c2c16';
+      ctx.beginPath();
+      ctx.roundRect(ox + 3, oy + 4, ow - 6, oh - 8, 3);
+      ctx.fill();
+
+      // Arched Wooden Lid
+      ctx.fillStyle = '#7c3a1d';
+      ctx.beginPath();
+      ctx.roundRect(ox + 2, oy + 2, ow - 4, Math.max(5, (oh - 8) * 0.45), 4);
+      ctx.fill();
+
+      // Brass Strapping Bands with Rivets
+      ctx.fillStyle = '#d97706';
+      ctx.fillRect(ox + 6, oy + 2, 4, oh - 8);
+      ctx.fillRect(ox + ow - 10, oy + 2, 4, oh - 8);
+
+      // Gold rivets
+      ctx.fillStyle = '#ffd700';
+      ctx.fillRect(ox + 7, oy + 4, 2, 2);
+      ctx.fillRect(ox + 7, oy + oh - 8, 2, 2);
+      ctx.fillRect(ox + ow - 9, oy + 4, 2, 2);
+      ctx.fillRect(ox + ow - 9, oy + oh - 8, 2, 2);
+
+      // Heavy Brass Lock Plate & Keyhole
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.roundRect(ox + ow / 2 - 4, oy + oh * 0.35, 8, 7, 2);
+      ctx.fill();
+      ctx.fillStyle = '#0f172a'; // Keyhole
+      ctx.fillRect(ox + ow / 2 - 1, oy + oh * 0.35 + 2, 2, 3);
+
+      // Glistening gold coins peeking out under lid
+      const glint = Math.sin(time * 6) > 0;
+      ctx.fillStyle = '#fef08a';
+      ctx.beginPath();
+      ctx.arc(ox + ow * 0.38, oy + oh * 0.38, 2, 0, Math.PI * 2);
+      ctx.arc(ox + ow * 0.65, oy + oh * 0.4, 2, 0, Math.PI * 2);
+      ctx.fill();
+      if (glint) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(ox + ow * 0.37, oy + oh * 0.37, 2, 2);
+      }
+
+    } else if (name.includes('sarcophagus') || name.includes('tomb') || name.includes('crypt')) {
+      // ⚰️ CARVED STONE SARCOPHAGUS
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.roundRect(ox + 3, oy + 3, ow - 6, oh - 6, 5);
+      ctx.fill();
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Raised Chiseled Stone Lid
+      ctx.fillStyle = '#334155';
+      ctx.beginPath();
+      ctx.roundRect(ox + 6, oy + 6, ow - 12, oh - 12, 4);
+      ctx.fill();
+
+      // Carved Sovereign Effigy / Cross Motif on Lid
+      const cx = ox + ow / 2;
+      const cy = oy + oh / 2;
+      ctx.fillStyle = '#64748b';
+      // Effigy head
+      ctx.beginPath();
+      ctx.arc(cx, oy + 12, 4, 0, Math.PI * 2);
+      ctx.fill();
+      // Effigy body / cross
+      ctx.fillRect(cx - 2, oy + 16, 4, oh - 26);
+      ctx.fillRect(cx - 8, oy + 20, 16, 3);
+
+      // Celtic / Gothic Runes engraved along border
+      ctx.fillStyle = '#94a3b8';
+      for (let r = 0; r < 4; r++) {
+        ctx.fillRect(ox + 8 + r * 6, oy + oh - 8, 3, 1.5);
+      }
+
+    } else if (name.includes('sofa') || name.includes('couch') || name.includes('sectional')) {
+      // 🛋️ PLUSH VELVET SECTIONAL SOFA
+      // Drop shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      ctx.beginPath();
+      ctx.roundRect(ox + 3, oy + 5, ow - 6, oh - 6, 6);
+      ctx.fill();
+
+      // Main Plush Sofa Base (Warm Amber-Gold / Cognac Velvet)
+      ctx.fillStyle = '#b45309';
+      ctx.beginPath();
+      ctx.roundRect(ox + 3, oy + 3, ow - 6, oh - 6, 6);
+      ctx.fill();
+      ctx.strokeStyle = '#78350f';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Thick Padded Deep Seat Cushions
+      const cushionW = (ow - 12) / 2;
+      ctx.fillStyle = '#d97706';
+      ctx.beginPath();
+      ctx.roundRect(ox + 6, oy + 8, cushionW - 2, oh - 14, 4);
+      ctx.roundRect(ox + 6 + cushionW, oy + 8, cushionW - 2, oh - 14, 4);
+      ctx.fill();
+
+      // Rounded Armrests on Left & Right
+      ctx.fillStyle = '#92400e';
+      ctx.beginPath();
+      ctx.roundRect(ox + 2, oy + 4, 5, oh - 8, 3);
+      ctx.roundRect(ox + ow - 7, oy + 4, 5, oh - 8, 3);
+      ctx.fill();
+
+      // Throw Pillows in Contrasting Colors
+      ctx.fillStyle = '#e11d48'; // Crimson throw pillow
+      ctx.beginPath();
+      ctx.roundRect(ox + 8, oy + 10, 6, 6, 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#0284c7'; // Navy throw pillow
+      ctx.beginPath();
+      ctx.roundRect(ox + ow - 14, oy + 10, 6, 6, 2);
+      ctx.fill();
+
+    } else if (name.includes('coffee table') || name.includes('tea table') || (name.includes('table') && !name.includes('interrogation'))) {
+      // ☕ POLISHED MAHOGANY COFFEE TABLE WITH STEAMING MUG
+      ctx.fillStyle = '#3b1809';
+      ctx.beginPath();
+      ctx.roundRect(ox + 4, oy + 4, ow - 8, oh - 8, 4);
+      ctx.fill();
+      ctx.strokeStyle = '#78350f';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Beveled Tabletop Surface Highlight
+      ctx.fillStyle = '#5c2c16';
+      ctx.fillRect(ox + 6, oy + 6, ow - 12, oh - 12);
+
+      // Stack of Art Books / Magazines
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(ox + 8, oy + oh * 0.45, 10, 6);
+      ctx.fillStyle = '#e11d48';
+      ctx.fillRect(ox + 9, oy + oh * 0.45 - 2, 8, 2);
+
+      // Porcelain Coffee Mug on Saucer
+      const mugX = ox + ow - 12;
+      const mugY = oy + oh * 0.45;
+      // White saucer
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.ellipse(mugX, mugY + 4, 4, 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Mug body
+      ctx.fillStyle = '#f8fafc';
+      ctx.beginPath();
+      ctx.roundRect(mugX - 2.5, mugY - 2, 5, 6, 1.5);
+      ctx.fill();
+      // Steaming Vapor animated curls
+      const steamY = mugY - 4 - ((time * 12) % 8);
+      const steamAlpha = 1 - ((time * 12) % 8) / 8;
+      ctx.strokeStyle = `rgba(255, 255, 255, ${0.6 * steamAlpha})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(mugX, mugY - 2);
+      ctx.quadraticCurveTo(mugX + 2, steamY + 2, mugX - 1, steamY);
+      ctx.stroke();
+
+    } else if (name.includes('bookshelf') || name.includes('bookcase') || name.includes('library')) {
+      // 📚 TALL HARDWOOD BOOKSHELF WITH COLORFUL BOOKS
+      ctx.fillStyle = '#3b1809';
+      ctx.beginPath();
+      ctx.roundRect(ox + 3, oy + 3, ow - 6, oh - 6, 3);
+      ctx.fill();
+      ctx.strokeStyle = '#78350f';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Inner Shelves
+      const shelfCount = 3;
+      const shelfH = (oh - 10) / shelfCount;
+      const bookColors = ['#dc2626', '#2563eb', '#16a34a', '#d97706', '#9333ea', '#0284c7'];
+
+      for (let s = 0; s < shelfCount; s++) {
+        const sy = oy + 5 + s * shelfH;
+        // Shelf divider
+        ctx.fillStyle = '#5c2c16';
+        ctx.fillRect(ox + 5, sy + shelfH - 2, ow - 10, 2);
+
+        // Books stacked vertically on shelf
+        let bx = ox + 6;
+        let cIdx = s * 2;
+        while (bx < ox + ow - 10) {
+          const bw = Math.min(4, ox + ow - 8 - bx);
+          const bh = Math.max(5, shelfH - 4 - (cIdx % 3));
+          ctx.fillStyle = bookColors[cIdx % bookColors.length];
+          ctx.fillRect(bx, sy + shelfH - 2 - bh, bw, bh);
+          // Book spine gold title foil
+          ctx.fillStyle = '#ffd700';
+          ctx.fillRect(bx + 1, sy + shelfH - 2 - bh + 2, bw - 2, 1);
+          bx += bw + 1.5;
+          cIdx++;
+        }
+      }
+
+    } else if (name.includes('standing lamp') || name.includes('floor lamp') || name.includes('arc lamp')) {
+      // 💡 MODERN ARCHED FLOOR LAMP WITH WARM LIGHT POOL
+      const cx = ox + ow * 0.35;
+      const shadeX = ox + ow * 0.7;
+      const shadeY = oy + oh * 0.35;
+
+      // Warm Golden Floor Light Pool
+      const lampGlow = ctx.createRadialGradient(shadeX, shadeY, 3, shadeX, shadeY, Math.min(ow, oh) * 0.9);
+      lampGlow.addColorStop(0, 'rgba(254, 240, 138, 0.45)');
+      lampGlow.addColorStop(0.6, 'rgba(251, 191, 36, 0.15)');
+      lampGlow.addColorStop(1, 'rgba(251, 191, 36, 0)');
+      ctx.fillStyle = lampGlow;
+      ctx.beginPath();
+      ctx.arc(shadeX, shadeY, Math.min(ow, oh) * 0.9, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Heavy Brass Round Base
+      ctx.fillStyle = '#b45309';
+      ctx.beginPath();
+      ctx.arc(cx, oy + oh - 5, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Elegant Curved Brass Arc Pole
+      ctx.strokeStyle = '#d97706';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx, oy + oh - 5);
+      ctx.quadraticCurveTo(cx - 2, oy + 4, shadeX, shadeY - 4);
+      ctx.stroke();
+
+      // Glowing Pleated Translucent Lampshade
+      ctx.fillStyle = '#fef08a';
+      ctx.beginPath();
+      ctx.moveTo(shadeX - 5, shadeY + 4);
+      ctx.lineTo(shadeX - 3, shadeY - 4);
+      ctx.lineTo(shadeX + 3, shadeY - 4);
+      ctx.lineTo(shadeX + 5, shadeY + 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+    } else if (name.includes('bench') || name.includes('barbell') || name.includes('weight bench')) {
+      // 🏋️ OLYMPIC FLAT BENCH PRESS & HEAVY 45LB BUMPER PLATES
+      const cx = ox + ow / 2;
+      const cy = oy + oh / 2;
+
+      // Padded Black Vinyl Weight Bench with Red Trim
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.roundRect(cx - 4, oy + 3, 8, oh - 6, 2);
+      ctx.fill();
+      ctx.strokeStyle = '#e11d48';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Twin Upright Barbell Cradle Posts
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(ox + 4, cy - 4, 3, 8);
+      ctx.fillRect(ox + ow - 7, cy - 4, 3, 8);
+
+      // Knurled Polished Steel Olympic Barbell (7ft bar)
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillRect(ox + 2, cy - 1.5, ow - 4, 3);
+
+      // Heavy 45lb Black Bumper Plates on Both Ends
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.roundRect(ox + 2, cy - 8, 4, 16, 2);
+      ctx.roundRect(ox + 7, cy - 7, 3, 14, 2);
+      ctx.roundRect(ox + ow - 6, cy - 8, 4, 16, 2);
+      ctx.roundRect(ox + ow - 10, cy - 7, 3, 14, 2);
+      ctx.fill();
+
+      // Chrome Spring Collars
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(ox + 10.5, cy - 3, 2, 6);
+      ctx.fillRect(ox + ow - 12.5, cy - 3, 2, 6);
+
+    } else if (name.includes('dumbbell') || name.includes('weights') || name.includes('free weights')) {
+      // 🏋️ TWO-TIER COMMERCIAL DUMBBELL RACK
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.roundRect(ox + 2, oy + 3, ow - 4, oh - 6, 3);
+      ctx.fill();
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Two Tier Angled Racks
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(ox + 3, oy + 5, ow - 6, 3);
+      ctx.fillRect(ox + 3, oy + oh - 8, ow - 6, 3);
+
+      // Pairs of Hexagonal Dumbbells on Tiers
+      const pairCount = Math.max(3, Math.floor((ow - 8) / 8));
+      for (let d = 0; d < pairCount; d++) {
+        const dx = ox + 5 + d * 8;
+        // Upper tier dumbbell
+        ctx.fillStyle = '#0f172a'; // Hex heads
+        ctx.fillRect(dx, oy + 4, 2.5, 4);
+        ctx.fillRect(dx + 3.5, oy + 4, 2.5, 4);
+        ctx.fillStyle = '#e2e8f0'; // Chrome handle
+        ctx.fillRect(dx + 2, oy + 5, 2, 2);
+
+        // Lower tier dumbbell (heavier)
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(dx, oy + oh - 9, 2.5, 5);
+        ctx.fillRect(dx + 3.5, oy + oh - 9, 2.5, 5);
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(dx + 2, oy + oh - 8, 2, 2);
+      }
+
+    } else if (name.includes('squat') || name.includes('cage') || name.includes('power rack')) {
+      // 🏋️ POWER SQUAT CAGE / RACK
+      // 4 Heavy Steel Upright Corner Posts
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(ox + 3, oy + 3, 4, 4);
+      ctx.fillRect(ox + ow - 7, oy + 3, 4, 4);
+      ctx.fillRect(ox + 3, oy + oh - 7, 4, 4);
+      ctx.fillRect(ox + ow - 7, oy + oh - 7, 4, 4);
+
+      // Overhead Crossbars & Pull-up Bar
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(ox + 5, oy + 5, ow - 10, oh - 10);
+
+      // Bright Yellow Safety Spotter Catch Arms
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(ox + 3, oy + oh * 0.45, 4, oh * 0.35);
+      ctx.fillRect(ox + ow - 7, oy + oh * 0.45, 4, oh * 0.35);
+
+      // Barbell racked inside
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillRect(ox + 2, oy + oh * 0.48, ow - 4, 2.5);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(ox + 2, oy + oh * 0.48 - 3, 3, 8.5);
+      ctx.fillRect(ox + ow - 5, oy + oh * 0.48 - 3, 3, 8.5);
+
+    } else if (name.includes('treadmill') || name.includes('cardio')) {
+      // 🏃 COMMERCIAL CARDIO TREADMILL STATION
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.roundRect(ox + 3, oy + 3, ow - 6, oh - 6, 4);
+      ctx.fill();
+
+      // Slanted Black Textured Running Belt
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(ox + 6, oy + 12, ow - 12, oh - 16);
+
+      // White Foot-Rest Rails on Sides
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(ox + 4, oy + 12, 2, oh - 16);
+      ctx.fillRect(ox + ow - 6, oy + 12, 2, oh - 16);
+
+      // Elevated Console Dashboard & LED Display
+      ctx.fillStyle = '#334155';
+      ctx.beginPath();
+      ctx.roundRect(ox + 4, oy + 4, ow - 8, 7, 2);
+      ctx.fill();
+
+      // Digital Green LED Metrics Display
+      ctx.fillStyle = '#10b981';
+      ctx.fillRect(ox + ow * 0.3, oy + 6, ow * 0.4, 3);
+
+      // Red Emergency Safety Stop Clip
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(ox + ow / 2 - 1.5, oy + 9, 3, 2);
+
+    } else if (name.includes('kettlebell')) {
+      // 🔔 KETTLEBELL GRADUATED PYRAMID STACK
+      const kbData = [
+        { col: '#ef4444', rad: 5, x: ox + ow * 0.3, y: oy + oh * 0.6 },
+        { col: '#3b82f6', rad: 4.5, x: ox + ow * 0.7, y: oy + oh * 0.6 },
+        { col: '#f59e0b', rad: 3.8, x: ox + ow * 0.5, y: oy + oh * 0.35 },
+      ];
+
+      for (const kb of kbData) {
+        // Cast Iron Ball
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(kb.x, kb.y, kb.rad, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Color-coded Handle Arch
+        ctx.strokeStyle = kb.col;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(kb.x, kb.y - kb.rad * 0.8, kb.rad * 0.65, Math.PI, 0, false);
+        ctx.stroke();
+      }
+
     } else {
       // ⚙️ UNIVERSAL SMART PROCEDURAL APPARATUS (Fallback for ANY novel real-world prop!)
       // Never a flat grey box! Rich 3D beveled volumetric equipment chassis.
@@ -1505,6 +2643,15 @@ export class CanvasRenderer {
       case 'dungeon':
         this.renderDungeonExitDoor(ex, ey, tileSize, isUnlocked, time);
         break;
+      case 'castle':
+        this.renderCastleExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'living_room':
+        this.renderLivingRoomExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
+      case 'gym':
+        this.renderGymExitDoor(ex, ey, tileSize, isUnlocked, time);
+        break;
       default:
         this.renderDefaultExitDoor(ex, ey, tileSize, isUnlocked, time);
         break;
@@ -1517,6 +2664,9 @@ export class CanvasRenderer {
     const explicit = (world.map?.theme || (world as any).theme || '').toLowerCase().trim();
     if (explicit && explicit !== 'default') return explicit;
     const text = `${world.title || ''} ${world.description || ''}`.toLowerCase();
+    if (text.includes('castle') || text.includes('fortress') || text.includes('citadel') || text.includes('palace') || text.includes('throne')) return 'castle';
+    if (text.includes('gym') || text.includes('fitness') || text.includes('workout') || text.includes('weights')) return 'gym';
+    if (text.includes('living') || text.includes('couch') || text.includes('sofa') || text.includes('bedroom') || text.includes('home') || text.includes('lounge')) return 'living_room';
     if (text.includes('bank') || text.includes('vault') || text.includes('heist') || text.includes('gold')) return 'bank';
     if (text.includes('hospital') || text.includes('clinic') || text.includes('trauma') || text.includes('medical') || text.includes('ward')) return 'hospital';
     if (text.includes('train') || text.includes('rail') || text.includes('station') || text.includes('metro') || text.includes('subway')) return 'railway';
@@ -1532,7 +2682,7 @@ export class CanvasRenderer {
     if (text.includes('classroom') || text.includes('school') || text.includes('academy') || text.includes('teacher') || text.includes('student')) return 'classroom';
     if (text.includes('office') || text.includes('corporate') || text.includes('cubicle') || text.includes('firm') || text.includes('agency')) return 'office';
     if (text.includes('nature') || text.includes('forest') || text.includes('jungle') || text.includes('grove') || text.includes('garden')) return 'nature';
-    if (text.includes('dungeon') || text.includes('castle') || text.includes('keep') || text.includes('fortress') || text.includes('catacomb')) return 'dungeon';
+    if (text.includes('dungeon') || text.includes('relic') || text.includes('catacomb')) return 'dungeon';
     if (text.includes('cyber') || text.includes('neon') || text.includes('matrix') || text.includes('hacker') || text.includes('tech')) return 'cyberpunk';
     return 'default';
   }
@@ -2549,7 +3699,273 @@ export class CanvasRenderer {
     this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'GATE');
   }
 
-  // 18. DEFAULT: Sci-Fi Quantum Energy Gate
+  // 18. CASTLE: Grand Citadel Portcullis & Flanking Wall Torches
+  private renderCastleExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.35;
+    const h = tileSize * 1.45;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+
+    // Heavy Ashlar Stone Arch Frame
+    ctx.fillStyle = '#1e1b29';
+    ctx.fillRect(x - 5, y - 6, w + 10, h + 10);
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x - 5, y - 6, w + 10, h + 10);
+
+    // Stone Arch Keystone with Sculpted Gold Lion
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(ex - 4, y - 9, 8, 5);
+
+    // Royal Throne Chamber behind portcullis
+    ctx.fillStyle = isUnlocked ? '#881337' : '#0b0914';
+    ctx.fillRect(x, y, w, h);
+    if (isUnlocked) {
+      // Golden sovereign light beam streaming from throne room
+      const gateGlow = ctx.createLinearGradient(ex, y, ex, y + h);
+      gateGlow.addColorStop(0, 'rgba(251, 191, 36, 0.45)');
+      gateGlow.addColorStop(1, 'rgba(245, 158, 11, 0.1)');
+      ctx.fillStyle = gateGlow;
+      ctx.fillRect(x, y, w, h);
+    }
+
+    // Heavy Iron Portcullis Spikes
+    // When unlocked: hoisted high into ceiling slot; when locked: dropped down
+    const portcullisYOffset = isUnlocked ? -h * 0.65 : 0;
+    const barSpacing = 7;
+    const barCount = Math.floor((w - 8) / barSpacing);
+
+    ctx.save();
+    // Clip to doorway opening so raised portcullis disappears into stone lintel
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    ctx.clip();
+
+    for (let b = 0; b < barCount; b++) {
+      const bx = x + 4 + b * barSpacing;
+      const by = y + portcullisYOffset;
+
+      // Vertical Iron Bar
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(bx, by, 3, h - 8);
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(bx + 1, by, 1, h - 8);
+
+      // Pointed Iron Lower Spike Tip
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.moveTo(bx, by + h - 8);
+      ctx.lineTo(bx + 1.5, by + h - 2);
+      ctx.lineTo(bx + 3, by + h - 8);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Horizontal Iron Portcullis Crossbars
+    const crossY1 = y + 10 + portcullisYOffset;
+    const crossY2 = y + h / 2 + portcullisYOffset;
+    const crossY3 = y + h - 14 + portcullisYOffset;
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(x + 2, crossY1, w - 4, 3);
+    ctx.fillRect(x + 2, crossY2, w - 4, 3);
+    ctx.fillRect(x + 2, crossY3, w - 4, 3);
+    ctx.restore();
+
+    // Twin Flanking Wall Torch Sconces with Animated Fire
+    const flameY = y + 4 + Math.sin(time * 9) * 2;
+    // Left torch
+    const lGlow = ctx.createRadialGradient(x - 7, flameY, 2, x - 7, flameY, 16);
+    lGlow.addColorStop(0, 'rgba(245, 158, 11, 0.55)');
+    lGlow.addColorStop(1, 'rgba(245, 158, 11, 0)');
+    ctx.fillStyle = lGlow;
+    ctx.beginPath();
+    ctx.arc(x - 7, flameY, 16, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    ctx.arc(x - 7, flameY, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fef08a';
+    ctx.beginPath();
+    ctx.arc(x - 7, flameY, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Right torch
+    const rGlow = ctx.createRadialGradient(x + w + 7, flameY, 2, x + w + 7, flameY, 16);
+    rGlow.addColorStop(0, 'rgba(245, 158, 11, 0.55)');
+    rGlow.addColorStop(1, 'rgba(245, 158, 11, 0)');
+    ctx.fillStyle = rGlow;
+    ctx.beginPath();
+    ctx.arc(x + w + 7, flameY, 16, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    ctx.arc(x + w + 7, flameY, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fef08a';
+    ctx.beginPath();
+    ctx.arc(x + w + 7, flameY, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'PORTCULLIS');
+  }
+
+  // 19. LIVING ROOM: French Terrace Garden Doors & Warm Sunlight
+  private renderLivingRoomExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.3;
+    const h = tileSize * 1.4;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+
+    // Classic White Lacquered Door Casing
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.roundRect(x - 4, y - 5, w + 8, h + 8, 3);
+    ctx.fill();
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Garden Terrace View behind Doors
+    if (isUnlocked) {
+      // Lush green blooming terrace & streaming sunbeam
+      ctx.fillStyle = '#16a34a';
+      ctx.fillRect(x, y, w, h);
+
+      const sunbeam = ctx.createLinearGradient(ex, y, ex, y + h);
+      sunbeam.addColorStop(0, 'rgba(254, 240, 138, 0.55)');
+      sunbeam.addColorStop(1, 'rgba(251, 191, 36, 0.15)');
+      ctx.fillStyle = sunbeam;
+      ctx.fillRect(x, y, w, h);
+    } else {
+      ctx.fillStyle = '#1e1b4b'; // Night terrace exterior
+      ctx.fillRect(x, y, w, h);
+    }
+
+    // Double French Door Leaves
+    const leafW = w / 2 - 2;
+    const openAngle = isUnlocked ? tileSize * 0.32 : 0;
+
+    // Left French Door Leaf
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fillRect(x - openAngle, y, leafW, h);
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(x - openAngle, y, leafW, h);
+
+    // 4 Glass Divided Panes in Left Door
+    for (let p = 0; p < 4; p++) {
+      const py_pane = y + 6 + p * (h / 4 - 2);
+      ctx.fillStyle = isUnlocked ? 'rgba(254, 240, 138, 0.4)' : 'rgba(56, 189, 248, 0.3)';
+      ctx.fillRect(x - openAngle + 3, py_pane, leafW - 6, h / 4 - 5);
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.strokeRect(x - openAngle + 3, py_pane, leafW - 6, h / 4 - 5);
+    }
+
+    // Right French Door Leaf
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fillRect(ex + 2 + openAngle, y, leafW, h);
+    ctx.strokeStyle = '#94a3b8';
+    ctx.strokeRect(ex + 2 + openAngle, y, leafW, h);
+
+    // 4 Glass Divided Panes in Right Door
+    for (let p = 0; p < 4; p++) {
+      const py_pane = y + 6 + p * (h / 4 - 2);
+      ctx.fillStyle = isUnlocked ? 'rgba(254, 240, 138, 0.4)' : 'rgba(56, 189, 248, 0.3)';
+      ctx.fillRect(ex + 2 + openAngle + 3, py_pane, leafW - 6, h / 4 - 5);
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.strokeRect(ex + 2 + openAngle + 3, py_pane, leafW - 6, h / 4 - 5);
+    }
+
+    // Polished Brass Lever Handles
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(ex - 3 - openAngle, ey - 2, 4, 3);
+    ctx.fillRect(ex + 3 + openAngle, ey - 2, 4, 3);
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'TERRACE');
+  }
+
+  // 20. GYM: Heavy Commercial Glass Double Exit & RFID Biometrics
+  private renderGymExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
+    const ctx = this.ctx;
+    const w = tileSize * 1.35;
+    const h = tileSize * 1.4;
+    const x = ex - w / 2;
+    const y = ey - h / 2;
+    const slide = isUnlocked ? tileSize * 0.32 : 0;
+
+    // Brushed Stainless Steel Jamb Casing
+    ctx.fillStyle = '#334155';
+    ctx.beginPath();
+    ctx.roundRect(x - 4, y - 5, w + 8, h + 8, 3);
+    ctx.fill();
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Interior Concourse behind glass
+    ctx.fillStyle = isUnlocked ? '#0f172a' : '#05070a';
+    ctx.fillRect(x, y, w, h);
+    if (isUnlocked) {
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+      ctx.fillRect(x, y, w, h);
+    }
+
+    // Frosted Heavy Tempered Glass Door Leaves
+    const leafW = w / 2 - 2;
+
+    // Left Door Leaf
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.35)';
+    ctx.fillRect(x - slide, y, leafW, h);
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(x - slide, y, leafW, h);
+
+    // Frosted Privacy Safety Stripes across glass
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.fillRect(x - slide + 2, ey - 10, leafW - 4, 4);
+    ctx.fillRect(x - slide + 2, ey - 3, leafW - 4, 4);
+    ctx.fillRect(x - slide + 2, ey + 4, leafW - 4, 4);
+
+    // Right Door Leaf
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.35)';
+    ctx.fillRect(ex + 2 + slide, y, leafW, h);
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.strokeRect(ex + 2 + slide, y, leafW, h);
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.fillRect(ex + 4 + slide, ey - 10, leafW - 4, 4);
+    ctx.fillRect(ex + 4 + slide, ey - 3, leafW - 4, 4);
+    ctx.fillRect(ex + 4 + slide, ey + 4, leafW - 4, 4);
+
+    // Long Vertical Chrome Tubular Push Handles
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(ex - 4 - slide, ey - 16, 2.5, 32);
+    ctx.fillRect(ex + 4 + slide, ey - 16, 2.5, 32);
+
+    // Wall-Mounted Biometric RFID Access Scanner on Side
+    const scanX = x + w + 3;
+    const scanY = ey - 8;
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.roundRect(scanX, scanY, 6, 16, 2);
+    ctx.fill();
+    ctx.strokeStyle = '#334155';
+    ctx.stroke();
+
+    // Biometric Status LED (Green if unlocked, pulsating red if locked)
+    const scanBlink = Math.sin(time * 8) > 0;
+    ctx.fillStyle = isUnlocked ? '#10b981' : (scanBlink ? '#ef4444' : '#7f1d1d');
+    ctx.beginPath();
+    ctx.arc(scanX + 3, scanY + 4, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    this.renderDoorBadge(ex, ey, tileSize, isUnlocked, 'VIP EXIT');
+  }
+
+  // 21. DEFAULT: Sci-Fi Quantum Energy Gate
   private renderDefaultExitDoor(ex: number, ey: number, tileSize: number, isUnlocked: boolean, time: number) {
     const ctx = this.ctx;
     const pulse = Math.sin(time * 4) * 3;
@@ -3863,17 +5279,54 @@ export class CanvasRenderer {
     ctx.restore();
   }
 
-  private renderLighting(player: EngineState['player'], time: number) {
+  private renderLighting(world: GameWorld, player: EngineState['player'], time: number) {
     const ctx = this.ctx;
     const px = player.x + player.width / 2;
     const py = player.y + player.height / 2;
+    const theme = (world.map.theme || 'cyberpunk').toLowerCase();
+
+    const isCastle = theme.includes('castle') || theme.includes('fortress') || theme.includes('citadel') || theme.includes('palace') || theme.includes('throne');
+    const isHospital = theme.includes('hospital') || theme.includes('clinic') || theme.includes('medical') || theme.includes('surgery');
+    const isLiving = theme.includes('living') || theme.includes('couch') || theme.includes('sofa') || theme.includes('bedroom') || theme.includes('home');
+    const isGym = theme.includes('gym') || theme.includes('fitness') || theme.includes('workout');
+
+    let lightRad = 280;
+    let coreColor = 'rgba(0, 242, 254, 0.06)';
+    let midColor = 'rgba(0, 0, 0, 0)';
+    let edgeColor = 'rgba(5, 8, 18, 0.45)';
+
+    if (isCastle) {
+      // Warm flickering torchlight with organic pulse & dark castle shadows
+      const flicker = Math.sin(time * 7) * 9 + Math.cos(time * 13) * 5;
+      lightRad = 285 + flicker;
+      coreColor = 'rgba(245, 158, 11, 0.16)';
+      midColor = 'rgba(217, 119, 6, 0.04)';
+      edgeColor = 'rgba(10, 8, 16, 0.58)';
+    } else if (isHospital) {
+      // Sterile, bright clinical white/cyan fluorescent illumination
+      lightRad = 330;
+      coreColor = 'rgba(224, 242, 254, 0.12)';
+      midColor = 'rgba(56, 189, 248, 0.02)';
+      edgeColor = 'rgba(8, 15, 24, 0.35)';
+    } else if (isLiving) {
+      // Cozy 2700K golden domestic lamp glow
+      lightRad = 295;
+      coreColor = 'rgba(251, 191, 36, 0.13)';
+      midColor = 'rgba(245, 158, 11, 0.03)';
+      edgeColor = 'rgba(18, 12, 10, 0.48)';
+    } else if (isGym) {
+      // High-contrast athletic lighting with subtle neon rim
+      lightRad = 310;
+      coreColor = 'rgba(244, 63, 94, 0.08)';
+      midColor = 'rgba(0, 242, 254, 0.02)';
+      edgeColor = 'rgba(10, 12, 16, 0.42)';
+    }
 
     ctx.save();
-    const lightRad = 280;
-    const lightGrad = ctx.createRadialGradient(px, py, 60, px, py, lightRad);
-    lightGrad.addColorStop(0, 'rgba(0, 242, 254, 0.06)');
-    lightGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0)');
-    lightGrad.addColorStop(1, 'rgba(5, 8, 18, 0.45)');
+    const lightGrad = ctx.createRadialGradient(px, py, 50, px, py, lightRad);
+    lightGrad.addColorStop(0, coreColor);
+    lightGrad.addColorStop(0.5, midColor);
+    lightGrad.addColorStop(1, edgeColor);
     ctx.fillStyle = lightGrad;
     ctx.beginPath();
     ctx.arc(px, py, lightRad, 0, Math.PI * 2);

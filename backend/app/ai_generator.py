@@ -116,7 +116,9 @@ def analyze_and_generate_world(
             resolved_theme = "bank"
         elif any(w in tokens for w in ["cyber", "cyberpunk", "tech", "server", "matrix", "drone", "lab", "robot"]):
             resolved_theme = "cyberpunk"
-        elif any(w in tokens for w in ["dungeon", "tomb", "catacomb", "castle", "relic", "stone", "cave"]):
+        elif any(w in tokens for w in ["castle", "fortress", "palace", "citadel", "kingdom", "throne", "medieval", "keep", "tower", "knight"]):
+            resolved_theme = "castle"
+        elif any(w in tokens for w in ["dungeon", "tomb", "catacomb", "relic", "stone", "cave"]):
             resolved_theme = "dungeon"
         elif any(w in tokens for w in ["class", "classroom", "school", "auditorium", "lecture", "study"]):
             resolved_theme = "classroom"

@@ -164,6 +164,21 @@ export function resolveEnvironmentDefinition(
     ? rawName.charAt(0).toUpperCase() + rawName.slice(1)
     : '';
 
+  // Castle / Fortress / Palace / Medieval
+  if (['castle', 'fortress', 'palace', 'citadel', 'kingdom', 'throne', 'medieval', 'keep', 'tower', 'knight'].some(w => words.has(w))) {
+    return {
+      title: formattedFileName || (prompt ? prompt.charAt(0).toUpperCase() + prompt.slice(1) : 'Royal Citadel Fortress'),
+      theme: 'castle',
+      baseGame: DEMO_DUNGEON,
+      obstacles: ['Royal Velvet Throne', 'Suit of Medieval Plate Armor', 'Flaming Iron Brazier', 'Brass-banded Treasure Chest', 'Stone Sarcophagus'],
+      obstacleColors: ['#ffd700', '#94a3b8', '#f97316', '#d97706', '#64748b'],
+      guardianName: 'ROYAL HIGH COMMANDER',
+      chaserName: 'CITADEL ROYAL GUARD',
+      description: 'Infiltrate the stone corridors of the Royal Citadel. Evade armored sentries, claim sovereign relics, and breach the throne portal.',
+      defaultRim: '#fbbf24',
+    };
+  }
+
   // Gym / Fitness
   if (['gym', 'fitness', 'workout', 'weights', 'crossfit', 'bench', 'barbell', 'dumbbell', 'treadmill'].some(w => words.has(w))) {
     return {
@@ -392,13 +407,19 @@ export async function buildDynamicGameFromPhoto(
   const diff = settings?.difficulty || 'medium';
   const timeLimits: Record<string, number> = { easy: 130, medium: 100, hard: 75, nightmare: 55 };
 
+  let resolvedFloorTex = extractedColors.floorTexture;
+  if (envDef.theme === 'castle') resolvedFloorTex = 'castle_stone';
+  else if (envDef.theme === 'hospital') resolvedFloorTex = 'hospital';
+  else if (envDef.theme === 'living_room') resolvedFloorTex = 'wood';
+  else if (envDef.theme === 'gym') resolvedFloorTex = 'gym';
+
   const customPalette: VisualPalette = {
     floorColor: extractedColors.floorColor,
-    floorTexture: extractedColors.floorTexture,
+    floorTexture: resolvedFloorTex,
     wallTop: extractedColors.wallTop,
     wallFront: extractedColors.wallFront,
     wallRim: extractedColors.wallRim || envDef.defaultRim,
-    weather: extractedColors.isGreen ? 'fog' : (extractedColors.isDark ? 'dust' : 'sparks'),
+    weather: envDef.theme === 'castle' ? 'dust' : (extractedColors.isGreen ? 'fog' : (extractedColors.isDark ? 'dust' : 'sparks')),
     ambientLight: extractedColors.wallRim || envDef.defaultRim,
   };
 

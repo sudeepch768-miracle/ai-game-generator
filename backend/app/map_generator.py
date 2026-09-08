@@ -591,6 +591,35 @@ ENEMY_THEMES = {
             "weather": "sparks",
             "ambientLight": "#f43f5e"
         }
+    },
+    "castle": {
+        "guardian_name": "ROYAL CASTLE HIGH COMMANDER",
+        "guardian_sprite": "guard",
+        "guardian_shape": "humanoid_guard",
+        "guardian_color": "#475569",
+        "guardian_eyes": "#f59e0b",
+        "guardian_accessory": "horns",
+        "chaser_name": "CASTLE GUARD SENTINEL",
+        "chaser_sprite": "guard",
+        "chaser_shape": "humanoid_guard",
+        "chaser_color": "#334155",
+        "chaser_eyes": "#ef4444",
+        "patrol_name": "FLAMING BRAZIER SENTRY",
+        "patrol_sprite": "laser",
+        "patrol_shape": "mechanical_turret",
+        "patrol_color": "#1e293b",
+        "patrol_eyes": "#f59e0b",
+        "objects": ["Royal Velvet Throne", "Suit of Medieval Plate Armor", "Flaming Iron Brazier", "Brass-banded Treasure Chest", "Stone Sarcophagus"],
+        "object_colors": ["#ffd700", "#94a3b8", "#f97316", "#d97706", "#64748b"],
+        "palette": {
+            "floorColor": "#17141f",
+            "floorTexture": "castle_stone",
+            "wallTop": "#3f3952",
+            "wallFront": "#252033",
+            "wallRim": "#f59e0b",
+            "weather": "dust",
+            "ambientLight": "#f59e0b"
+        }
     }
 }
 
@@ -600,6 +629,8 @@ def resolve_theme_key(theme_str: str) -> str:
     t = (theme_str or "").lower().strip()
     words = set(re.findall(r'[a-z0-9]+', t))
 
+    if any(w in words for w in ["castle", "fortress", "palace", "citadel", "kingdom", "throne", "medieval", "keep"]):
+        return "castle"
     if any(w in words for w in ["gym", "fitness", "workout", "weights", "crossfit", "bench", "barbell", "dumbbell", "treadmill"]):
         return "gym"
     if any(w in words for w in ["hospital", "haspital", "hopital", "hosp", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance", "stretcher", "ward", "health", "trauma", "triage", "icu", "er", "emergency"]):
@@ -630,7 +661,7 @@ def resolve_theme_key(theme_str: str) -> str:
         return "bank"
     if any(w in words for w in ["cyber", "cyberpunk", "tech", "server", "matrix", "drone", "lab", "robot"]):
         return "cyberpunk"
-    if any(w in words for w in ["dungeon", "catacomb", "castle", "relic", "stone", "cave"]):
+    if any(w in words for w in ["dungeon", "catacomb", "relic", "stone", "cave"]):
         return "dungeon"
     if any(w in words for w in ["class", "classroom", "school", "auditorium", "lecture", "study"]):
         return "classroom"
@@ -693,46 +724,122 @@ def generate_procedural_level(
     # Grid: True = Wall, False = Floor (Open)
     grid = [[True for _ in range(mw)] for _ in range(mh)]
 
-    # 2. Generate Rooms (8 to 12 chambers for large organic feel)
+    # 2. Theme-Specific Architectural Blueprint
     rooms: List[Room] = []
-    target_rooms = 7 + level_num * 2  # 9 rooms for lvl 1, 11 for lvl 2, 13 for lvl 3
 
-    attempts = 0
-    while len(rooms) < target_rooms and attempts < 250:
-        attempts += 1
-        rw = rng.randint(4, 7)
-        rh = rng.randint(4, 6)
-        rx = rng.randint(2, mw - rw - 2)
-        ry = rng.randint(2, mh - rh - 2)
-        new_room = Room(rx, ry, rw, rh)
+    if resolved_theme == "castle":
+        # 🏰 ROYAL CASTLE ARCHITECTURE:
+        spawn_room = Room(mw // 2 - 3, mh - 7, 7, 5, "spawn")
+        exit_room = Room(mw // 2 - 4, 2, 8, 5, "exit")
+        great_hall = Room(mw // 2 - 5, mh // 2 - 4, 11, 8, "great_hall")
+        rooms = [
+            spawn_room,
+            great_hall,
+            Room(2, 2, 6, 6, "nw_tower"),
+            Room(mw - 8, 2, 6, 6, "ne_tower"),
+            Room(2, mh - 8, 6, 6, "sw_tower"),
+            Room(mw - 8, mh - 8, 6, 6, "se_tower"),
+            Room(mw // 2 - 9, mh // 2 - 3, 4, 6, "key"),
+            Room(mw // 2 + 5, mh // 2 - 3, 4, 6, "armory"),
+            exit_room
+        ]
+        key_rooms = [r for r in rooms if r.tag == "key"]
+        middle_rooms = [r for r in rooms if r.tag not in ("spawn", "exit")]
 
-        if any(new_room.intersects(r, padding=1) for r in rooms):
-            continue
+    elif resolved_theme == "hospital":
+        # 🏥 CLINICAL HOSPITAL WING ARCHITECTURE:
+        spawn_room = Room(2, mh // 2 - 3, 6, 6, "spawn")
+        exit_room = Room(mw - 8, mh // 2 - 3, 6, 6, "exit")
+        key_room = Room(15, 2, 6, 5, "key")
+        rooms = [
+            spawn_room,
+            Room(7, 2, 6, 5, "icu_north"),
+            key_room,
+            Room(23, 2, 6, 5, "ward_1"),
+            Room(7, mh - 7, 6, 5, "radiology"),
+            Room(15, mh - 7, 6, 5, "triage_bay"),
+            Room(23, mh - 7, 6, 5, "ward_2"),
+            exit_room
+        ]
+        if mw >= 34:
+            rooms.append(Room(29, 2, 5, 5, "lab_north"))
+            rooms.append(Room(29, mh - 7, 5, 5, "lab_south"))
+        key_rooms = [r for r in rooms if r.tag == "key"]
+        middle_rooms = [r for r in rooms if r.tag not in ("spawn", "exit")]
 
-        rooms.append(new_room)
+    elif resolved_theme in ("living_room", "home", "bedroom"):
+        # 🛋️ OPEN-CONCEPT RESIDENTIAL BLUEPRINT:
+        spawn_room = Room(2, mh // 2 - 3, 6, 6, "spawn")
+        exit_room = Room(mw - 8, mh // 2 - 3, 6, 6, "exit")
+        living_lounge = Room(mw // 2 - 6, mh // 2 - 4, 12, 8, "living_room")
+        key_room = Room(mw // 2 - 5, 2, 10, 5, "key")
+        rooms = [
+            spawn_room,
+            living_lounge,
+            key_room,
+            Room(2, 2, 6, 5, "study"),
+            Room(mw - 8, 2, 6, 5, "guest_suite"),
+            Room(2, mh - 7, 6, 5, "veranda"),
+            Room(mw - 8, mh - 7, 6, 5, "patio"),
+            exit_room
+        ]
+        key_rooms = [r for r in rooms if r.tag == "key"]
+        middle_rooms = [r for r in rooms if r.tag not in ("spawn", "exit")]
 
-    # Fallback: ensure at least 5 rooms exist if density was tight
-    if len(rooms) < 5:
-        rooms.append(Room(2, 2, 6, 6, "spawn"))
-        rooms.append(Room(mw - 8, mh - 8, 6, 6, "exit"))
-        rooms.append(Room(mw - 8, 2, 6, 6, "key"))
-        rooms.append(Room(2, mh - 8, 6, 6, "storage"))
-        rooms.append(Room(mw // 2 - 3, mh // 2 - 3, 6, 6, "center"))
+    elif resolved_theme == "gym":
+        # 🏋️ ATHLETIC TRAINING COMPLEX:
+        spawn_room = Room(2, mh // 2 - 3, 6, 6, "spawn")
+        exit_room = Room(mw - 8, mh // 2 - 3, 6, 6, "exit")
+        iron_bay = Room(mw // 2 - 6, mh // 2 - 4, 12, 8, "weight_room")
+        key_room = Room(mw // 2 - 5, mh - 7, 10, 5, "key")
+        rooms = [
+            spawn_room,
+            iron_bay,
+            key_room,
+            Room(mw // 2 - 5, 2, 10, 5, "cardio_deck"),
+            Room(2, 2, 6, 5, "pro_shop"),
+            Room(mw - 8, 2, 6, 5, "championship_bay"),
+            exit_room
+        ]
+        key_rooms = [r for r in rooms if r.tag == "key"]
+        middle_rooms = [r for r in rooms if r.tag not in ("spawn", "exit")]
 
-    # Assign room roles based on spatial distance
-    rooms.sort(key=lambda r: r.center[0] + r.center[1])
-    spawn_room = rooms[0]
-    spawn_room.tag = "spawn"
-    exit_room = rooms[-1]
-    exit_room.tag = "exit"
+    else:
+        # Organic Rogue-like Dungeon Architecture for other themes
+        target_rooms = 7 + level_num * 2
+        attempts = 0
+        while len(rooms) < target_rooms and attempts < 250:
+            attempts += 1
+            rw = rng.randint(4, 7)
+            rh = rng.randint(4, 6)
+            rx = rng.randint(2, mw - rw - 2)
+            ry = rng.randint(2, mh - rh - 2)
+            new_room = Room(rx, ry, rw, rh)
 
-    # Key rooms should be placed in dead-end / distant chambers
-    middle_rooms = rooms[1:-1]
-    rng.shuffle(middle_rooms)
-    key_rooms_count = 2 if level_num >= 2 else 1
-    key_rooms = middle_rooms[:min(key_rooms_count, len(middle_rooms))]
-    for kr in key_rooms:
-        kr.tag = "key"
+            if any(new_room.intersects(r, padding=1) for r in rooms):
+                continue
+
+            rooms.append(new_room)
+
+        if len(rooms) < 5:
+            rooms.append(Room(2, 2, 6, 6, "spawn"))
+            rooms.append(Room(mw - 8, mh - 8, 6, 6, "exit"))
+            rooms.append(Room(mw - 8, 2, 6, 6, "key"))
+            rooms.append(Room(2, mh - 8, 6, 6, "storage"))
+            rooms.append(Room(mw // 2 - 3, mh // 2 - 3, 6, 6, "center"))
+
+        rooms.sort(key=lambda r: r.center[0] + r.center[1])
+        spawn_room = rooms[0]
+        spawn_room.tag = "spawn"
+        exit_room = rooms[-1]
+        exit_room.tag = "exit"
+
+        middle_rooms = rooms[1:-1]
+        rng.shuffle(middle_rooms)
+        key_rooms_count = 2 if level_num >= 2 else 1
+        key_rooms = middle_rooms[:min(key_rooms_count, len(middle_rooms))]
+        for kr in key_rooms:
+            kr.tag = "key"
 
     # 3. Carve Rooms into Grid
     for room in rooms:
@@ -765,6 +872,26 @@ def generate_procedural_level(
                     ny = y2 + dy
                     if 1 <= ny < mh - 1 and 1 <= x < mw - 1:
                         grid[ny][x] = False
+
+    # Theme-Specific Aisle & Hallway Carving
+    if resolved_theme == "hospital":
+        for cx in range(3, mw - 3):
+            for cdy in range(3):
+                ny = mh // 2 - 1 + cdy
+                if 1 <= ny < mh - 1:
+                    grid[ny][cx] = False
+    elif resolved_theme == "castle":
+        for cy in range(3, mh - 3):
+            for cdx in range(3):
+                nx = mw // 2 - 1 + cdx
+                if 1 <= nx < mw - 1:
+                    grid[cy][nx] = False
+    elif resolved_theme in ("living_room", "home"):
+        for cx in range(mw // 2 - 4, mw // 2 + 4):
+            for cdy in range(3):
+                ny = mh // 2 - 5 + cdy
+                if 1 <= ny < mh - 1:
+                    grid[ny][cx] = False
 
     # Connect in sequence and add cross-branch corridors for loops
     for i in range(len(rooms) - 1):
@@ -822,6 +949,9 @@ def generate_procedural_level(
         "hospital": "Pharmacy Keycard",
         "kitchen": "Pantry Vault Key",
         "airport": "Tarmac Gate Keycard",
+        "castle": "Royal Citadel Key",
+        "living_room": "Master Suite Key",
+        "gym": "VIP Locker Key",
     }
 
     # Theme-tailored collectibles:
@@ -860,6 +990,21 @@ def generate_procedural_level(
         primary_type = "tag"
         high_val_name = "Golden Boarding Pass"
         high_val_type = "pass"
+    elif resolved_theme == "castle":
+        primary_item_name = "Ancient Gold Sovereign"
+        primary_type = "gold"
+        high_val_name = "Royal Crown Jewel"
+        high_val_type = "star"
+    elif resolved_theme == "living_room":
+        primary_item_name = "Antique Pocket Watch"
+        primary_type = "gem"
+        high_val_name = "Heirloom Gold Pendant"
+        high_val_type = "star"
+    elif resolved_theme == "gym":
+        primary_item_name = "Electrolyte Energy Gel"
+        primary_type = "gem"
+        high_val_name = "Championship Gold Trophy"
+        high_val_type = "star"
     else:
         primary_item_name = "Energy Shard"
         primary_type = "gem"
@@ -1126,6 +1271,9 @@ def generate_procedural_level(
         "hospital": "Triage Nurse Sarah",
         "kitchen": "Sous Chef Marco",
         "airport": "Flight Attendant Chloe",
+        "castle": "Royal Herald Raymond",
+        "living_room": "Family Butler Alfred",
+        "gym": "Head Coach Marcus",
     }
     guide_name = theme_cfg.get("guide_name") or guide_names.get(resolved_theme, "Recon Operative")
 
