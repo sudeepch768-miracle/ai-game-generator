@@ -933,79 +933,82 @@ class SoundManager {
     const now = this.ctx.currentTime;
     const dest = this.sfxGain || this.ctx.destination;
 
-    // 1. Gravitational vortex bass drop (280Hz -> 32Hz)
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    const filter = this.ctx.createBiquadFilter();
-
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(260, now);
-    osc.frequency.exponentialRampToValueAtTime(32, now + 1.25);
-
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(1400, now);
-    filter.frequency.exponentialRampToValueAtTime(100, now + 1.25);
-    filter.Q.setValueAtTime(6, now);
-
-    gain.gain.setValueAtTime(0.01, now);
-    gain.gain.linearRampToValueAtTime(0.28, now + 0.35);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.3);
-
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(dest);
-
-    osc.start(now);
-    osc.stop(now + 1.35);
-
-    // 2. Swirling vortex white noise rush
+    // 1. Swirling toilet-flush / whirlpool rushing water & vortex noise
     try {
-      const bufferSize = Math.floor(this.ctx.sampleRate * 1.3);
+      const bufferSize = Math.floor(this.ctx.sampleRate * 1.5);
       const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * 0.4;
+        // Modulate noise to mimic cyclical swirling whirlpool pulses
+        const t = i / this.ctx.sampleRate;
+        const swirlLfo = 0.5 + 0.5 * Math.sin(2 * Math.PI * 6.5 * t * (1 + t));
+        data[i] = (Math.random() * 2 - 1) * (0.3 + 0.4 * swirlLfo);
       }
       const noise = this.ctx.createBufferSource();
       noise.buffer = buffer;
 
       const noiseFilter = this.ctx.createBiquadFilter();
       noiseFilter.type = 'bandpass';
-      noiseFilter.frequency.setValueAtTime(800, now);
-      noiseFilter.frequency.exponentialRampToValueAtTime(120, now + 1.2);
-      noiseFilter.Q.setValueAtTime(4, now);
+      noiseFilter.frequency.setValueAtTime(1200, now);
+      noiseFilter.frequency.exponentialRampToValueAtTime(140, now + 1.35);
+      noiseFilter.Q.setValueAtTime(5.5, now);
 
       const noiseGain = this.ctx.createGain();
       noiseGain.gain.setValueAtTime(0.02, now);
-      noiseGain.gain.linearRampToValueAtTime(0.18, now + 0.4);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 1.25);
+      noiseGain.gain.linearRampToValueAtTime(0.32, now + 0.4);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
 
       noise.connect(noiseFilter);
       noiseFilter.connect(noiseGain);
       noiseGain.connect(dest);
 
       noise.start(now);
-      noise.stop(now + 1.3);
+      noise.stop(now + 1.45);
     } catch {
-      // Audio buffer creation safety
+      // Audio buffer safety
     }
 
-    // 3. Singularity collapse implosion thud at t=1.1s
-    const thud = this.ctx.createOscillator();
-    const thudGain = this.ctx.createGain();
-    thud.type = 'sine';
-    thud.frequency.setValueAtTime(90, now + 1.05);
-    thud.frequency.exponentialRampToValueAtTime(25, now + 1.35);
+    // 2. Gravitational vortex descending drain rumble
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
 
-    thudGain.gain.setValueAtTime(0.0, now + 1.05);
-    thudGain.gain.linearRampToValueAtTime(0.35, now + 1.1);
-    thudGain.gain.exponentialRampToValueAtTime(0.001, now + 1.35);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(280, now);
+    osc.frequency.exponentialRampToValueAtTime(28, now + 1.35);
 
-    thud.connect(thudGain);
-    thudGain.connect(dest);
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(1600, now);
+    filter.frequency.exponentialRampToValueAtTime(80, now + 1.35);
+    filter.Q.setValueAtTime(7, now);
 
-    thud.start(now + 1.05);
-    thud.stop(now + 1.36);
+    gain.gain.setValueAtTime(0.01, now);
+    gain.gain.linearRampToValueAtTime(0.3, now + 0.35);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(dest);
+
+    osc.start(now);
+    osc.stop(now + 1.45);
+
+    // 3. Suction drain slurp & collapse gulp at total flush point
+    const slurp = this.ctx.createOscillator();
+    const slurpGain = this.ctx.createGain();
+    slurp.type = 'sine';
+    slurp.frequency.setValueAtTime(320, now + 1.1);
+    slurp.frequency.exponentialRampToValueAtTime(30, now + 1.4);
+
+    slurpGain.gain.setValueAtTime(0.0, now + 1.1);
+    slurpGain.gain.linearRampToValueAtTime(0.4, now + 1.22);
+    slurpGain.gain.exponentialRampToValueAtTime(0.001, now + 1.42);
+
+    slurp.connect(slurpGain);
+    slurpGain.connect(dest);
+
+    slurp.start(now + 1.1);
+    slurp.stop(now + 1.43);
   }
 
   playHackerMatrix() {

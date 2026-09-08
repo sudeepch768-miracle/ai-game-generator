@@ -58,31 +58,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
   const handleSingularityTrigger = () => {
     if (warpPhase !== 'idle') return;
 
-    // Phase 1: Begin singularity gravitational suction
+    // Phase 1: Begin liquid toilet flush spiral vortex suction
     setWarpPhase('suction');
     sound.playBlackHoleSuction();
 
-    // Trigger radiant singularity flash just before total collapse
+    // Trigger radiant singularity flash just as the whirlpool collapses into the drain
     const flashTimer = setTimeout(() => {
       setShowFlash(true);
-    }, 1100);
+    }, 1250);
 
-    // Phase 2: At total collapse point, toggle theme and unfold
+    // Phase 2: At total drain collapse point, swap theme and emerge from vortex
     const unfoldTimer = setTimeout(() => {
       setIsHackerMode((prev) => !prev);
       setWarpPhase('unfolding');
       sound.playHackerMatrix();
-    }, 1300);
+    }, 1450);
 
-    // Hide flash overlay shortly after unfold begins
+    // Hide flash overlay
     const hideFlashTimer = setTimeout(() => {
       setShowFlash(false);
-    }, 1600);
+    }, 1750);
 
-    // Phase 3: Settle back into normal idle state
+    // Phase 3: Complete emerge transition
     const idleTimer = setTimeout(() => {
       setWarpPhase('idle');
-    }, 2200);
+    }, 2450);
 
     return () => {
       clearTimeout(flashTimer);
@@ -220,88 +220,133 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
       }}
     >
       <style>{`
-        /* Dramatic Gravitational Singularity Suction Animation */
-        @keyframes uiSingularitySuction {
+        /* Realistic Toilet Flush / Whirlpool Spiral Vortex Suction Animation */
+        @keyframes toiletFlushVortex {
           0% {
-            transform: scale(1) rotate(0deg);
-            filter: blur(0px) brightness(1);
+            transform: perspective(1200px) rotateX(0deg) rotate(0deg) scale(1) skewX(0deg) skewY(0deg);
+            filter: blur(0px) contrast(100%);
             opacity: 1;
+            border-radius: 0%;
           }
-          20% {
-            transform: scale(0.88) rotate(70deg) skewX(2deg);
-            filter: blur(2px) brightness(1.2) contrast(110%);
-            opacity: 0.95;
+          18% {
+            transform: perspective(1200px) rotateX(15deg) rotate(140deg) scale(0.85) skewX(6deg) skewY(3deg);
+            filter: blur(1.5px) contrast(115%);
+            opacity: 0.98;
+            border-radius: 10%;
           }
-          45% {
-            transform: scale(0.6) rotate(320deg) skewX(6deg);
-            filter: blur(5px) brightness(1.7) contrast(140%);
-            opacity: 0.85;
+          40% {
+            transform: perspective(1200px) rotateX(32deg) rotate(480deg) scale(0.58) skewX(16deg) skewY(10deg);
+            filter: blur(4px) contrast(135%) brightness(1.25);
+            opacity: 0.88;
+            border-radius: 25%;
           }
-          75% {
-            transform: scale(0.22) rotate(720deg) skewX(12deg);
-            filter: blur(9px) brightness(2.4) contrast(180%);
-            opacity: 0.5;
+          68% {
+            transform: perspective(1200px) rotateX(46deg) rotate(1150deg) scale(0.28) skewX(30deg) skewY(20deg);
+            filter: blur(8px) contrast(170%) brightness(1.7);
+            opacity: 0.7;
+            border-radius: 42%;
+          }
+          86% {
+            transform: perspective(1200px) rotateX(56deg) rotate(1850deg) scale(0.08) skewX(45deg) skewY(32deg);
+            filter: blur(14px) contrast(210%) brightness(2.4);
+            opacity: 0.35;
+            border-radius: 50%;
           }
           100% {
-            transform: scale(0.001) rotate(1080deg);
-            filter: blur(16px) brightness(3);
+            transform: perspective(1200px) rotateX(62deg) rotate(2520deg) scale(0.0001) skewX(60deg) skewY(45deg);
+            filter: blur(24px) brightness(3.5);
             opacity: 0;
+            border-radius: 50%;
           }
         }
 
-        /* Dark Hacker Matrix Emergence / Unfold Animation */
-        @keyframes hackerMatrixUnfold {
+        /* Spiral Vortex Emerge Animation (Reverse whirlpool emergence into dark hacker theme) */
+        @keyframes toiletVortexEmerge {
           0% {
-            transform: scale(0.01) rotate(-360deg);
-            filter: blur(14px) brightness(2.6);
+            transform: perspective(1200px) rotateX(58deg) rotate(-1800deg) scale(0.0001) skewX(-45deg) skewY(-30deg);
+            filter: blur(22px) brightness(3);
             opacity: 0;
+            border-radius: 50%;
           }
-          40% {
-            transform: scale(0.7) rotate(-40deg);
-            filter: blur(5px) brightness(1.5);
-            opacity: 0.7;
+          38% {
+            transform: perspective(1200px) rotateX(28deg) rotate(-450deg) scale(0.68) skewX(-16deg) skewY(-10deg);
+            filter: blur(6px) brightness(1.6);
+            opacity: 0.78;
+            border-radius: 26%;
           }
-          75% {
-            transform: scale(1.04) rotate(4deg);
-            filter: blur(1px) brightness(1.15);
-            opacity: 0.95;
+          72% {
+            transform: perspective(1200px) rotateX(10deg) rotate(-60deg) scale(1.04) skewX(-3deg) skewY(-2deg);
+            filter: blur(1.5px) brightness(1.2);
+            opacity: 0.96;
+            border-radius: 8%;
           }
           100% {
-            transform: scale(1) rotate(0deg);
+            transform: perspective(1200px) rotateX(0deg) rotate(0deg) scale(1) skewX(0deg) skewY(0deg);
             filter: blur(0px) brightness(1);
             opacity: 1;
+            border-radius: 0%;
+          }
+        }
+
+        /* Swirling Liquid Funnel Ring */
+        @keyframes liquidFunnelSpin {
+          0% {
+            transform: translate(-50%, -50%) rotate(0deg) scale(1.3);
+            opacity: 0.85;
+          }
+          50% {
+            transform: translate(-50%, -50%) rotate(360deg) scale(0.7);
+            opacity: 1;
+          }
+          100% {
+            transform: translate(-50%, -50%) rotate(720deg) scale(0.05);
+            opacity: 0;
           }
         }
 
         /* Singularity Event Horizon Flash */
         @keyframes singularityFlash {
           0% { opacity: 0; }
-          25% { opacity: 0.96; }
+          25% { opacity: 0.98; }
           100% { opacity: 0; }
         }
 
-        /* CRT Scanline Overlay for Hacker Mode */
-        @keyframes crtFlicker {
-          0% { opacity: 0.97; }
-          50% { opacity: 1; }
-          100% { opacity: 0.98; }
-        }
-
         .singularity-suction-active {
-          transform-origin: 50% 190px !important;
-          animation: uiSingularitySuction 1.3s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards !important;
+          transform-origin: 50% 160px !important;
+          animation: toiletFlushVortex 1.45s cubic-bezier(0.5, 0.05, 0.75, 0.25) forwards !important;
           pointer-events: none !important;
         }
 
         .hacker-unfold-active {
-          transform-origin: 50% 190px !important;
-          animation: hackerMatrixUnfold 0.9s cubic-bezier(0.215, 0.61, 0.355, 1) forwards !important;
+          transform-origin: 50% 160px !important;
+          animation: toiletVortexEmerge 0.95s cubic-bezier(0.2, 0.7, 0.35, 1) forwards !important;
           pointer-events: none !important;
         }
       `}</style>
 
       {/* Live Falling Matrix Digital Rain Background (Active in Hacker Mode) */}
       {isHackerMode && <MatrixRainCanvas opacity={0.7} color="#00ff66" fontSize={14} />}
+
+      {/* Swirling Liquid Toilet Flush Vortex Whirlpool Overlay */}
+      {warpPhase === 'suction' && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '200px',
+            left: '50%',
+            width: '800px',
+            height: '800px',
+            borderRadius: '50%',
+            background: isHackerMode
+              ? 'conic-gradient(from 0deg, transparent 0deg, rgba(0, 255, 102, 0.35) 60deg, transparent 120deg, rgba(0, 242, 254, 0.45) 200deg, transparent 280deg, rgba(255, 255, 255, 0.6) 360deg)'
+              : 'conic-gradient(from 0deg, transparent 0deg, rgba(255, 180, 100, 0.4) 60deg, transparent 120deg, rgba(168, 85, 247, 0.5) 200deg, transparent 280deg, rgba(255, 255, 255, 0.7) 360deg)',
+            filter: 'blur(10px)',
+            animation: 'liquidFunnelSpin 1.4s cubic-bezier(0.4, 0, 0.8, 0.3) forwards',
+            pointerEvents: 'none',
+            zIndex: 32,
+          }}
+        />
+      )}
 
       {/* Singularity Implosion White/Cyan/Green Flash Overlay */}
       {showFlash && (
@@ -433,14 +478,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
         </div>
       </div>
 
-      {/* Central Black Hole Core: Prominently Centered in the Middle of the Hero Section */}
+      {/* Central Realistic Relativistic Black Hole: Fixed 3D Accretion Stream (No Click Indication) */}
       <div
         style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: '14px',
+          marginBottom: '8px',
           zIndex: 35,
           position: 'relative',
         }}
@@ -449,16 +494,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           isHackerMode={isHackerMode}
           isSucking={warpPhase === 'suction'}
           onClick={handleSingularityTrigger}
-          width={310}
-          height={215}
+          width={460}
         />
       </div>
 
       {/* Main Collapsible Site UI Container: Sucked into the Singularity Core on Click */}
       <div
-        className={`landing-collapsible-ui ${warpPhase === 'suction' ? 'singularity-suction-active' : ''} ${
-          warpPhase === 'unfolding' ? 'hacker-unfold-active' : ''
-        }`}
+        className={`landing-collapsible-ui ${warpPhase === 'suction' ? 'singularity-suction-active' : ''} ${warpPhase === 'unfolding' ? 'hacker-unfold-active' : ''
+          }`}
         style={{
           width: '100%',
           display: 'flex',
@@ -475,9 +518,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
             style={
               isHackerMode
                 ? {
-                    background:
-                      'radial-gradient(ellipse at center, rgba(0, 255, 102, 0.28) 0%, rgba(0, 242, 254, 0.16) 40%, rgba(0, 255, 102, 0.08) 70%, transparent 80%)',
-                  }
+                  background:
+                    'radial-gradient(ellipse at center, rgba(0, 255, 102, 0.28) 0%, rgba(0, 242, 254, 0.16) 40%, rgba(0, 255, 102, 0.08) 70%, transparent 80%)',
+                }
                 : undefined
             }
           />
@@ -488,10 +531,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
             style={
               isHackerMode
                 ? {
-                    borderColor: 'rgba(0, 255, 102, 0.5)',
-                    color: '#00ff66',
-                    boxShadow: '0 0 15px rgba(0, 255, 102, 0.3)',
-                  }
+                  borderColor: 'rgba(0, 255, 102, 0.5)',
+                  color: '#00ff66',
+                  boxShadow: '0 0 15px rgba(0, 255, 102, 0.3)',
+                }
                 : undefined
             }
           >
@@ -518,10 +561,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
               style={
                 isHackerMode
                   ? {
-                      background:
-                        'linear-gradient(90deg, transparent 0%, rgba(0, 255, 102, 0.9) 30%, rgba(255, 255, 255, 1) 50%, rgba(0, 242, 254, 0.9) 70%, transparent 100%)',
-                      boxShadow: '0 0 12px #00ff66, 0 0 24px #00f2fe',
-                    }
+                    background:
+                      'linear-gradient(90deg, transparent 0%, rgba(0, 255, 102, 0.9) 30%, rgba(255, 255, 255, 1) 50%, rgba(0, 242, 254, 0.9) 70%, transparent 100%)',
+                    boxShadow: '0 0 12px #00ff66, 0 0 24px #00f2fe',
+                  }
                   : undefined
               }
             />
@@ -531,12 +574,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                 style={
                   isHackerMode
                     ? {
-                        background:
-                          'linear-gradient(115deg, #ffffff 0%, #00ff66 25%, #00f2fe 50%, #00ff66 75%, #ffffff 100%)',
-                        backgroundSize: '250% 100%',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                      }
+                      background:
+                        'linear-gradient(115deg, #ffffff 0%, #00ff66 25%, #00f2fe 50%, #00ff66 75%, #ffffff 100%)',
+                      backgroundSize: '250% 100%',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }
                     : undefined
                 }
               >
@@ -825,8 +868,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                             rec.suggestedDifficulty === 'nightmare'
                               ? '#ff0844'
                               : rec.suggestedDifficulty === 'hard'
-                              ? '#f59e0b'
-                              : '#43e97b',
+                                ? '#f59e0b'
+                                : '#43e97b',
                           background: 'rgba(0, 0, 0, 0.5)',
                           padding: '3px 7px',
                           borderRadius: '8px',
