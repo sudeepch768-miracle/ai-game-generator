@@ -13,7 +13,7 @@ export const SpiralBlackHole: React.FC<SpiralBlackHoleProps> = ({
   isSucking = false,
   onClick,
   className = '',
-  width = 460,
+  width = 200,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isHoveredRef = useRef<boolean>(false);
@@ -46,7 +46,7 @@ export const SpiralBlackHole: React.FC<SpiralBlackHoleProps> = ({
     };
 
     // Plasma streamline particles for differential Keplerian accretion flow
-    const numParticles = 260;
+    const numParticles = 240;
     const particles: Array<{
       r: number;
       baseTheta: number;
@@ -61,7 +61,7 @@ export const SpiralBlackHole: React.FC<SpiralBlackHoleProps> = ({
         r: 34 + Math.pow(Math.random(), 1.35) * 145, // radial distance from event horizon
         baseTheta: Math.random() * Math.PI * 2,
         speedFactor: 0.85 + Math.random() * 0.35,
-        size: 1.4 + Math.random() * 3.2,
+        size: 1.4 + Math.random() * 3.0,
         alpha: 0.35 + Math.random() * 0.65,
         colorIdx: Math.floor(Math.random() * 4),
       });
@@ -81,11 +81,11 @@ export const SpiralBlackHole: React.FC<SpiralBlackHoleProps> = ({
 
       const dpr = window.devicePixelRatio || 1;
       const displayWidth = canvas.clientWidth || width;
-      const displayHeight = canvas.clientHeight || (width * 0.62);
+      const displayHeight = canvas.clientHeight || Math.round(width * 0.625);
 
-      if (canvas.width !== displayWidth * dpr || canvas.height !== displayHeight * dpr) {
-        canvas.width = displayWidth * dpr;
-        canvas.height = displayHeight * dpr;
+      if (canvas.width !== Math.round(displayWidth * dpr) || canvas.height !== Math.round(displayHeight * dpr)) {
+        canvas.width = Math.round(displayWidth * dpr);
+        canvas.height = Math.round(displayHeight * dpr);
       }
 
       ctx.save();
@@ -94,6 +94,7 @@ export const SpiralBlackHole: React.FC<SpiralBlackHoleProps> = ({
 
       const cx = displayWidth / 2;
       const cy = displayHeight / 2;
+      const s = displayWidth / 460; // Proportional scale factor
       const hacker = isHackerModeRef.current;
 
       // Colors matching user reference image vs Hacker Mode
@@ -115,8 +116,7 @@ export const SpiralBlackHole: React.FC<SpiralBlackHoleProps> = ({
       if (imgLoaded) {
         ctx.save();
         ctx.translate(cx, cy);
-        const imgScale = (displayWidth / 489) * 1.02;
-        ctx.scale(imgScale, imgScale);
+        ctx.scale(s, s);
         ctx.globalAlpha = 0.68 + Math.sin(t * 1.2) * 0.08;
 
         if (hacker) {
@@ -130,6 +130,7 @@ export const SpiralBlackHole: React.FC<SpiralBlackHoleProps> = ({
       // 2. Tilted Accretion Disk Space: -11.3 deg inclination, scaleY: 0.62
       ctx.save();
       ctx.translate(cx, cy);
+      ctx.scale(s, s);
       ctx.rotate((-11.3 * Math.PI) / 180);
       ctx.scale(1.0, 0.62);
 
@@ -225,6 +226,7 @@ export const SpiralBlackHole: React.FC<SpiralBlackHoleProps> = ({
       // 3. Central Event Horizon Void (Pure Circular Pitch-Black Shadow with Glowing Einstein Photon Ring)
       ctx.save();
       ctx.translate(cx, cy);
+      ctx.scale(s, s);
 
       // Einstein Photon Ring (thin brilliant circular boundary)
       const photonGlow = 0.85 + Math.sin(t * 3.5) * 0.15;
@@ -268,7 +270,8 @@ export const SpiralBlackHole: React.FC<SpiralBlackHoleProps> = ({
       }}
       style={{
         position: 'relative',
-        width: `min(94vw, ${width}px)`,
+        width: `${width}px`,
+        maxWidth: '92vw',
         aspectRatio: '16 / 10',
         display: 'flex',
         alignItems: 'center',

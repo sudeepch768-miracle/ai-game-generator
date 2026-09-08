@@ -312,13 +312,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
         }
 
         .singularity-suction-active {
-          transform-origin: 50% 160px !important;
+          transform-origin: 50% 0px !important;
           animation: toiletFlushVortex 1.45s cubic-bezier(0.5, 0.05, 0.75, 0.25) forwards !important;
           pointer-events: none !important;
         }
 
         .hacker-unfold-active {
-          transform-origin: 50% 160px !important;
+          transform-origin: 50% 0px !important;
           animation: toiletVortexEmerge 0.95s cubic-bezier(0.2, 0.7, 0.35, 1) forwards !important;
           pointer-events: none !important;
         }
@@ -332,10 +332,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
         <div
           style={{
             position: 'absolute',
-            top: '200px',
+            top: '110px',
             left: '50%',
-            width: '800px',
-            height: '800px',
+            width: '500px',
+            height: '500px',
             borderRadius: '50%',
             background: isHackerMode
               ? 'conic-gradient(from 0deg, transparent 0deg, rgba(0, 255, 102, 0.35) 60deg, transparent 120deg, rgba(0, 242, 254, 0.45) 200deg, transparent 280deg, rgba(255, 255, 255, 0.6) 360deg)'
@@ -494,7 +494,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           isHackerMode={isHackerMode}
           isSucking={warpPhase === 'suction'}
           onClick={handleSingularityTrigger}
-          width={460}
+          width={190}
         />
       </div>
 
