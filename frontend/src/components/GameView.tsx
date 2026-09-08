@@ -256,6 +256,7 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
           }}
           nearbyInteractable={engineState?.nearbyInteractable}
           stealthActive={engineState?.isStealth}
+          dashCooldownProgress={engineState?.player ? Math.max(0, Math.min(1, 1 - (engineState.player.dashCooldown || 0) / 1.15)) : 1}
         />
       )}
 

@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { EngineState, GameWorld } from '../types/game';
 import { getGemBalance } from '../types/avatar';
-import { Heart, Target, Star, Clock, Volume2, VolumeX, Pause, Play, Key, LogOut, Zap, Flame, ShieldAlert, Cpu, EyeOff, Radio, ShoppingBag } from 'lucide-react';
+import { Heart, Target, Star, Clock, Volume2, VolumeX, Pause, Play, Key, LogOut, Zap, Flame, ShieldAlert, Cpu, EyeOff, Radio, ShoppingBag, Maximize2, Minimize2 } from 'lucide-react';
 
 interface HUDProps {
   world: GameWorld;
@@ -22,6 +22,63 @@ export const HUD: React.FC<HUDProps> = ({
   onExit,
   onOpenShop,
 }) => {
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        window.innerWidth <= 900
+      );
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      const isFs = Boolean(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).mozFullScreenElement ||
+        (document as any).msFullscreenElement
+      );
+      setIsFullscreen(isFs);
+    };
+
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener('webkitfullscreenchange', handleFsChange);
+    };
+  }, []);
+
+  const toggleFullscreen = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const doc = document as any;
+      const docEl = document.documentElement as any;
+
+      if (!doc.fullscreenElement && !doc.webkitFullscreenElement && !doc.mozFullScreenElement && !doc.msFullscreenElement) {
+        if (docEl.requestFullscreen) docEl.requestFullscreen().catch(() => {});
+        else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+        else if (docEl.mozRequestFullScreen) docEl.mozRequestFullScreen();
+        else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
+      } else {
+        if (doc.exitFullscreen) doc.exitFullscreen().catch(() => {});
+        else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
+        else if (doc.mozCancelFullScreen) doc.mozCancelFullScreen();
+        else if (doc.msExitFullscreen) doc.msExitFullscreen();
+      }
+    } catch (err) {
+      console.warn('Fullscreen toggle failed:', err);
+    }
+  };
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -278,6 +335,25 @@ export const HUD: React.FC<HUDProps> = ({
             <span>{soundEnabled ? '🎵 MUSIC ON' : 'MUTED'}</span>
           </button>
 
+          {/* Fullscreen Toggle Button */}
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#00f2fe',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              padding: '4px',
+              borderRadius: '6px',
+              transition: 'transform 0.15s ease',
+            }}
+          >
+            {isFullscreen ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
+          </button>
+
           {/* Pause Button */}
           <button
             onClick={onTogglePause}
@@ -323,7 +399,7 @@ export const HUD: React.FC<HUDProps> = ({
       {/* FLOATING ACTION & COMBAT STATUS WIDGET (BOTTOM-LEFT) */}
       <div style={{
         position: 'absolute',
-        bottom: '16px',
+        bottom: isMobile ? '160px' : '16px',
         left: '16px',
         display: 'flex',
         flexDirection: 'column',
@@ -333,44 +409,47 @@ export const HUD: React.FC<HUDProps> = ({
         userSelect: 'none',
         pointerEvents: 'none',
       }}>
-        {/* DASH METER */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          background: 'rgba(11, 15, 25, 0.88)',
-          backdropFilter: 'blur(8px)',
-          border: isDashReady ? '1px solid #00f2fe' : '1px solid rgba(255, 255, 255, 0.15)',
-          padding: '5px 12px',
-          borderRadius: '10px',
-          boxShadow: isDashReady ? '0 0 10px rgba(0, 242, 254, 0.25)' : 'none',
-          minWidth: '190px',
-        }}>
-          <Zap size={15} color={isDashReady ? '#00f2fe' : '#64748b'} fill={isDashReady ? '#00f2fe' : 'transparent'} />
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontWeight: 800, marginBottom: '2px' }}>
-              <span style={{ color: isDashReady ? '#00f2fe' : '#94a3b8' }}>DASH [SPACE / SHIFT]</span>
-              <span style={{ color: isDashReady ? '#00f2fe' : '#64748b' }}>{isDashReady ? 'READY' : `${dashPercent}%`}</span>
-            </div>
-            <div style={{ width: '100%', height: '3px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
-              <div style={{
-                width: `${dashPercent}%`,
-                height: '100%',
-                background: isDashReady ? 'linear-gradient(90deg, #00f2fe, #4facfe)' : '#ffaa00',
-                transition: 'width 0.1s linear',
-              }} />
+        {/* DASH METER (Desktop Keyboard Only) */}
+        {!isMobile && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'rgba(11, 15, 25, 0.88)',
+            backdropFilter: 'blur(8px)',
+            border: isDashReady ? '1px solid #00f2fe' : '1px solid rgba(255, 255, 255, 0.15)',
+            padding: '5px 12px',
+            borderRadius: '10px',
+            boxShadow: isDashReady ? '0 0 10px rgba(0, 242, 254, 0.25)' : 'none',
+            minWidth: '190px',
+          }}>
+            <Zap size={15} color={isDashReady ? '#00f2fe' : '#64748b'} fill={isDashReady ? '#00f2fe' : 'transparent'} />
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontWeight: 800, marginBottom: '2px' }}>
+                <span style={{ color: isDashReady ? '#00f2fe' : '#94a3b8' }}>DASH [SPACE / SHIFT]</span>
+                <span style={{ color: isDashReady ? '#00f2fe' : '#64748b' }}>{isDashReady ? 'READY' : `${dashPercent}%`}</span>
+              </div>
+              <div style={{ width: '100%', height: '3px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{
+                  width: `${dashPercent}%`,
+                  height: '100%',
+                  background: isDashReady ? 'linear-gradient(90deg, #00f2fe, #4facfe)' : '#ffaa00',
+                  transition: 'width 0.1s linear',
+                }} />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* STUN WEAPON METER */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          background: 'rgba(11, 15, 25, 0.88)',
-          backdropFilter: 'blur(8px)',
-          border: isStunReady ? '1px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.15)',
+        {/* STUN WEAPON METER (Desktop Keyboard Only) */}
+        {!isMobile && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'rgba(11, 15, 25, 0.88)',
+            backdropFilter: 'blur(8px)',
+            border: isStunReady ? '1px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.15)',
           padding: '5px 12px',
           borderRadius: '10px',
           boxShadow: isStunReady ? '0 0 10px rgba(245, 158, 11, 0.3)' : 'none',
@@ -397,6 +476,7 @@ export const HUD: React.FC<HUDProps> = ({
             </div>
           </div>
         </div>
+        )}
 
         {/* STEALTH SNEAK BADGE */}
         {state.isStealth && (

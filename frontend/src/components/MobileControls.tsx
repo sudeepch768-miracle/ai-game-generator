@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Zap, Eye, Footprints, Terminal, MessageSquare, ShieldAlert } from 'lucide-react';
+import { Zap, Eye, Footprints, Terminal, MessageSquare, ShieldAlert, Maximize2, Minimize2 } from 'lucide-react';
 import { EngineState } from '../types/game';
 
 interface MobileControlsProps {
@@ -17,6 +17,47 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   dashCooldownProgress = 1,
   stealthActive = false,
 }) => {
+  // Fullscreen State
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      const isFs = Boolean(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).mozFullScreenElement ||
+        (document as any).msFullscreenElement
+      );
+      setIsFullscreen(isFs);
+    };
+
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener('webkitfullscreenchange', handleFsChange);
+    };
+  }, []);
+
+  const toggleFullscreen = (e: React.TouchEvent | React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      if (!document.fullscreenElement && !(document as any).webkitFullscreenElement) {
+        const docEl = document.documentElement as any;
+        if (docEl.requestFullscreen) docEl.requestFullscreen();
+        else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+        else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if ((document as any).webkitExitFullscreen) (document as any).webkitExitFullscreen();
+        else if ((document as any).msExitFullscreen) (document as any).msExitFullscreen();
+      }
+    } catch (err) {
+      console.warn('Fullscreen toggle failed:', err);
+    }
+  };
+
   // Joystick State
   const [knobPos, setKnobPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -189,6 +230,42 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
         </div>
       </div>
 
+      {/* TOP-RIGHT: Fullscreen Floating Button */}
+      <button
+        onTouchStart={toggleFullscreen}
+        onClick={toggleFullscreen}
+        aria-label="Toggle Fullscreen"
+        style={{
+          position: 'absolute',
+          top: '68px',
+          right: '16px',
+          pointerEvents: 'auto',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          background: isFullscreen ? 'rgba(0, 242, 254, 0.25)' : 'rgba(15, 23, 42, 0.85)',
+          backdropFilter: 'blur(10px)',
+          border: `1.5px solid ${isFullscreen ? '#00f2fe' : 'rgba(0, 242, 254, 0.45)'}`,
+          color: isFullscreen ? '#00f2fe' : '#e2e8f0',
+          padding: '7px 13px',
+          borderRadius: '20px',
+          fontSize: '11px',
+          fontWeight: 800,
+          letterSpacing: '0.5px',
+          boxShadow: isFullscreen
+            ? '0 0 16px rgba(0, 242, 254, 0.45), 0 4px 12px rgba(0,0,0,0.5)'
+            : '0 4px 14px rgba(0, 0, 0, 0.5)',
+          cursor: 'pointer',
+          outline: 'none',
+          zIndex: 30,
+          touchAction: 'manipulation',
+          transition: 'all 0.15s ease',
+        }}
+      >
+        {isFullscreen ? <Minimize2 size={16} color="#00f2fe" /> : <Maximize2 size={16} color="#00f2fe" />}
+        <span>{isFullscreen ? 'EXIT FULL' : 'FULLSCREEN'}</span>
+      </button>
+
       {/* RIGHT: Action Cluster */}
       <div
         style={{
@@ -203,18 +280,19 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
           touchAction: 'none',
         }}
       >
-        {/* Top Mini Actions: Stealth & Stun EMP */}
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        {/* Top Mini Tactical Actions: Sneak & Stun EMP */}
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginRight: '4px' }}>
           {/* SNEAK / STEALTH BUTTON */}
           <button
             onTouchStart={(e) => triggerAction('stealth', e)}
             onClick={(e) => triggerAction('stealth', e)}
+            aria-label="Sneak Stealth"
             style={{
               width: '46px',
               height: '46px',
               borderRadius: '50%',
-              background: stealthActive ? 'rgba(168, 85, 247, 0.35)' : 'rgba(15, 23, 42, 0.8)',
-              border: `2px solid ${stealthActive ? '#c084fc' : 'rgba(168, 85, 247, 0.4)'}`,
+              background: stealthActive ? 'rgba(168, 85, 247, 0.35)' : 'rgba(15, 23, 42, 0.82)',
+              border: `2px solid ${stealthActive ? '#c084fc' : 'rgba(168, 85, 247, 0.45)'}`,
               color: stealthActive ? '#f3e8ff' : '#c084fc',
               display: 'flex',
               flexDirection: 'column',
@@ -224,6 +302,7 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
               cursor: 'pointer',
               outline: 'none',
               backdropFilter: 'blur(8px)',
+              touchAction: 'manipulation',
             }}
           >
             <Eye size={16} />
@@ -234,11 +313,12 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
           <button
             onTouchStart={(e) => triggerAction('stun', e)}
             onClick={(e) => triggerAction('stun', e)}
+            aria-label="Stun EMP"
             style={{
-              width: '48px',
-              height: '48px',
+              width: '46px',
+              height: '46px',
               borderRadius: '50%',
-              background: 'rgba(15, 23, 42, 0.8)',
+              background: 'rgba(15, 23, 42, 0.82)',
               border: '2px solid rgba(0, 242, 254, 0.5)',
               color: '#00f2fe',
               display: 'flex',
@@ -249,6 +329,7 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
               cursor: 'pointer',
               outline: 'none',
               backdropFilter: 'blur(8px)',
+              touchAction: 'manipulation',
             }}
           >
             <Zap size={16} />
@@ -256,88 +337,102 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
           </button>
         </div>
 
-        {/* Bottom Primary Actions: Dash & Big Interact/Hack */}
+        {/* Bottom Actions: Small Interaction Button + BIG Dash Button */}
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-          {/* DASH BUTTON */}
-          <button
-            onTouchStart={(e) => triggerAction('dash', e)}
-            onClick={(e) => triggerAction('dash', e)}
-            style={{
-              width: '54px',
-              height: '54px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(239, 68, 68, 0.25) 100%)',
-              border: '2px solid #f59e0b',
-              color: '#fbbf24',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 16px rgba(245, 158, 11, 0.4)',
-              cursor: 'pointer',
-              outline: 'none',
-              backdropFilter: 'blur(8px)',
-              position: 'relative',
-            }}
-          >
-            <Footprints size={20} />
-            <span style={{ fontSize: '8px', fontWeight: 900, letterSpacing: '0.5px' }}>DASH</span>
-          </button>
-
-          {/* PRIMARY INTERACT / HACK TERMINAL BUTTON */}
+          {/* SMALL INTERACT / HACK / TAKEDOWN BUTTON */}
           <button
             onTouchStart={(e) => triggerAction('interact', e)}
             onClick={(e) => triggerAction('interact', e)}
+            aria-label="Interact or Hack"
             style={{
-              width: '72px',
-              height: '72px',
+              width: '50px',
+              height: '50px',
               borderRadius: '50%',
               background: isNearTerminal
-                ? 'linear-gradient(135deg, #00f2fe 0%, #3b82f6 100%)'
+                ? 'linear-gradient(135deg, #00f2fe 0%, #0284c7 100%)'
                 : isTakedown
-                  ? 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)'
+                  ? 'linear-gradient(135deg, #a855f7 0%, #6d28d9 100%)'
                   : isNearNPC
-                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                    : 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(2, 6, 23, 0.95) 100%)',
-              border: `3px solid ${isNearTerminal ? '#ffffff' : nearbyInteractable ? '#00f2fe' : 'rgba(255, 255, 255, 0.3)'}`,
-              color: isNearTerminal || isTakedown || isNearNPC ? '#ffffff' : '#cbd5e1',
+                    ? 'linear-gradient(135deg, #10b981 0%, #047857 100%)'
+                    : 'rgba(15, 23, 42, 0.85)',
+              border: isNearTerminal
+                ? '2.5px solid #ffffff'
+                : nearbyInteractable
+                  ? '2px solid #00f2fe'
+                  : '1.5px solid rgba(255, 255, 255, 0.25)',
+              color: isNearTerminal || isTakedown || isNearNPC ? '#ffffff' : '#94a3b8',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: isNearTerminal
-                ? '0 0 30px rgba(0, 242, 254, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.5)'
+                ? '0 0 20px rgba(0, 242, 254, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.4)'
                 : nearbyInteractable
-                  ? '0 0 20px rgba(0, 242, 254, 0.5)'
-                  : '0 6px 20px rgba(0, 0, 0, 0.6)',
+                  ? '0 0 15px rgba(0, 242, 254, 0.5)'
+                  : '0 4px 12px rgba(0, 0, 0, 0.5)',
               cursor: 'pointer',
               outline: 'none',
-              transform: isNearTerminal ? 'scale(1.06)' : 'none',
+              transform: isNearTerminal || nearbyInteractable ? 'scale(1.05)' : 'none',
               transition: 'transform 0.15s, background 0.15s, box-shadow 0.15s',
               backdropFilter: 'blur(8px)',
+              touchAction: 'manipulation',
             }}
           >
             {isNearTerminal ? (
               <>
-                <Terminal size={24} />
-                <span style={{ fontSize: '10px', fontWeight: 900, marginTop: '2px', letterSpacing: '0.5px' }}>HACK [E]</span>
+                <Terminal size={18} />
+                <span style={{ fontSize: '8px', fontWeight: 900, marginTop: '1px' }}>HACK</span>
               </>
             ) : isTakedown ? (
               <>
-                <ShieldAlert size={22} />
-                <span style={{ fontSize: '9px', fontWeight: 900, marginTop: '2px' }}>TAKEDOWN</span>
+                <ShieldAlert size={18} />
+                <span style={{ fontSize: '7.5px', fontWeight: 900, marginTop: '1px' }}>EXEC</span>
               </>
             ) : isNearNPC ? (
               <>
-                <MessageSquare size={22} />
-                <span style={{ fontSize: '9px', fontWeight: 900, marginTop: '2px' }}>TALK [E]</span>
+                <MessageSquare size={18} />
+                <span style={{ fontSize: '8px', fontWeight: 900, marginTop: '1px' }}>TALK</span>
               </>
             ) : (
               <>
-                <Terminal size={20} color="#94a3b8" />
-                <span style={{ fontSize: '9px', fontWeight: 800, marginTop: '2px' }}>ACTION [E]</span>
+                <Terminal size={16} color="#94a3b8" />
+                <span style={{ fontSize: '7.5px', fontWeight: 800, marginTop: '1px' }}>USE</span>
               </>
             )}
+          </button>
+
+          {/* BIG PRIMARY DASH BUTTON */}
+          <button
+            onTouchStart={(e) => triggerAction('dash', e)}
+            onClick={(e) => triggerAction('dash', e)}
+            aria-label="Dash Ability"
+            style={{
+              width: '78px',
+              height: '78px',
+              borderRadius: '50%',
+              background: dashCooldownProgress >= 1
+                ? 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)'
+                : 'linear-gradient(135deg, rgba(245, 158, 11, 0.4) 0%, rgba(239, 68, 68, 0.4) 100%)',
+              border: dashCooldownProgress >= 1 ? '3px solid #ffffff' : '2px solid rgba(245, 158, 11, 0.5)',
+              color: '#ffffff',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: dashCooldownProgress >= 1
+                ? '0 0 24px rgba(245, 158, 11, 0.65), 0 4px 16px rgba(0, 0, 0, 0.6)'
+                : '0 0 10px rgba(245, 158, 11, 0.2)',
+              opacity: dashCooldownProgress >= 1 ? 1 : 0.75,
+              cursor: 'pointer',
+              outline: 'none',
+              backdropFilter: 'blur(8px)',
+              position: 'relative',
+              touchAction: 'manipulation',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <Footprints size={28} />
+            <span style={{ fontSize: '10px', fontWeight: 900, letterSpacing: '0.6px', marginTop: '2px' }}>DASH</span>
           </button>
         </div>
       </div>
