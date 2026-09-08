@@ -17,44 +17,44 @@ export interface DifficultyPersistence {
 
 export const DIFFICULTY_PROFILES: Record<string, DifficultyPersistence> = {
   easy: {
-    aggroDuration: 2.5,
-    detectRangeMult: 0.78,
-    speedMultiplier: 1.60,
-    packAlertRadius: 3.0,
-    stealthEvadeRate: 4.0,
-    burstInterval: 4.5,
-    burstSpeedMult: 1.22,
-    leashDistance: 6.0,
+    aggroDuration: 2.2,
+    detectRangeMult: 0.72,
+    speedMultiplier: 0.95,
+    packAlertRadius: 2.8,
+    stealthEvadeRate: 4.5,
+    burstInterval: 6.0,
+    burstSpeedMult: 1.08,
+    leashDistance: 5.5,
   },
   medium: {
-    aggroDuration: 4.0,
-    detectRangeMult: 0.95,
-    speedMultiplier: 2.15,
-    packAlertRadius: 4.8,
-    stealthEvadeRate: 2.8,
-    burstInterval: 3.0,
-    burstSpeedMult: 1.30,
-    leashDistance: 9.0,
+    aggroDuration: 3.5,
+    detectRangeMult: 0.88,
+    speedMultiplier: 1.18,
+    packAlertRadius: 4.2,
+    stealthEvadeRate: 3.2,
+    burstInterval: 4.8,
+    burstSpeedMult: 1.14,
+    leashDistance: 8.0,
   },
   hard: {
-    aggroDuration: 6.0,
-    detectRangeMult: 1.15,
-    speedMultiplier: 2.55,
-    packAlertRadius: 6.8,
-    stealthEvadeRate: 1.8,
-    burstInterval: 2.4,
-    burstSpeedMult: 1.38,
-    leashDistance: 12.0,
+    aggroDuration: 5.0,
+    detectRangeMult: 1.05,
+    speedMultiplier: 1.45,
+    packAlertRadius: 5.8,
+    stealthEvadeRate: 2.2,
+    burstInterval: 3.8,
+    burstSpeedMult: 1.20,
+    leashDistance: 10.5,
   },
   nightmare: {
-    aggroDuration: 8.5,
-    detectRangeMult: 1.35,
-    speedMultiplier: 2.95,
-    packAlertRadius: 10.0,
-    stealthEvadeRate: 1.2,
-    burstInterval: 1.8,
-    burstSpeedMult: 1.45,
-    leashDistance: 18.0,
+    aggroDuration: 7.0,
+    detectRangeMult: 1.20,
+    speedMultiplier: 1.75,
+    packAlertRadius: 8.0,
+    stealthEvadeRate: 1.5,
+    burstInterval: 2.8,
+    burstSpeedMult: 1.26,
+    leashDistance: 14.0,
   },
 };
 
@@ -64,19 +64,19 @@ export function filterEnemiesForDifficulty(enemies: Enemy[], difficulty: string,
 
   // Balanced limits on enemy count per level and chosen difficulty
   let maxCount = 3;
-  let speedCap = 3.40;
+  let speedCap = 1.80;
   if (diff === 'easy') {
     maxCount = levelNum === 1 ? 2 : (levelNum === 2 ? 3 : 4);
-    speedCap = 2.60;
+    speedCap = 1.40;
   } else if (diff === 'medium') {
     maxCount = levelNum === 1 ? 3 : (levelNum === 2 ? 4 : 5);
-    speedCap = 3.40;
+    speedCap = 1.80;
   } else if (diff === 'hard') {
     maxCount = levelNum === 1 ? 4 : (levelNum === 2 ? 5 : 6);
-    speedCap = 4.10;
+    speedCap = 2.25;
   } else {
     maxCount = levelNum === 1 ? 5 : (levelNum === 2 ? 6 : 8);
-    speedCap = 4.80;
+    speedCap = 2.70;
   }
 
   // Preserve exit guardian / boss first, then chasers, then patrols
@@ -102,7 +102,7 @@ export function filterEnemiesForDifficulty(enemies: Enemy[], difficulty: string,
   // Ensure individual enemy speed is tuned to the difficulty cap
   return selected.map(e => ({
     ...e,
-    speed: Math.min(e.speed || 1.60, speedCap),
+    speed: Math.min(e.speed || 1.15, speedCap),
   }));
 }
 
@@ -199,7 +199,7 @@ export class GameEngine {
         y: world.player.y * tileSize + (tileSize - playerHeight) / 2,
         width: playerWidth,
         height: playerHeight,
-        speed: tileSize * (world.difficulty === 'nightmare' ? 4.8 : 4.2),
+        speed: tileSize * (world.difficulty === 'nightmare' ? 5.6 : (world.difficulty === 'easy' ? 5.4 : 5.2)),
         facing: 'down',
         isMoving: false,
         walkFrame: 0,
@@ -732,15 +732,15 @@ export class GameEngine {
         const distToTarget = Math.hypot(dirX, dirY);
 
         if (distToTarget > 6) {
-          // Hostile Speed Calculation with bursts & difficulty scaling (sprinting pursuit)
-          const baseSpeed = enemy.speed || (enemy.type === 'exit_guardian' ? 1.50 : (enemy.type === 'chaser' ? 1.45 : 1.30));
-          let hostileMult = (enemy.type === 'exit_guardian' ? 1.15 : (enemy.type === 'chaser' ? 1.10 : 1.00)) * diff.speedMultiplier;
+          // Hostile Speed Calculation: scaled to be slower, fairer, and out-runnable
+          const baseSpeed = enemy.speed || (enemy.type === 'exit_guardian' ? 1.10 : (enemy.type === 'chaser' ? 1.05 : 0.95));
+          let hostileMult = (enemy.type === 'exit_guardian' ? 1.05 : (enemy.type === 'chaser' ? 1.00 : 0.95)) * diff.speedMultiplier;
 
-          // Periodic burst sprint
+          // Periodic burst sprint (moderate boost)
           enemy.burstTimer = (enemy.burstTimer || 0) + dt;
-          if (enemy.burstTimer > diff.burstInterval && distToPlayer < tileSize * 5.0) {
+          if (enemy.burstTimer > diff.burstInterval && distToPlayer < tileSize * 4.5) {
             hostileMult *= diff.burstSpeedMult;
-            if (enemy.burstTimer > diff.burstInterval + 0.6) {
+            if (enemy.burstTimer > diff.burstInterval + 0.5) {
               enemy.burstTimer = 0;
             }
           }
@@ -771,11 +771,11 @@ export class GameEngine {
           }
         }
       } else {
-        // 3. Calm Patrol State with Full Wall & Boundary Collision Detection
+        // 3. Calm Patrol State with Full Wall & Boundary Collision Detection (Slower, relaxed pace)
         enemy.isAlert = false;
         if (enemy.type === 'exit_guardian') {
           // Sweep around exit portal
-          const moveStep = (enemy.speed || 1.40) * 0.60 * diff.speedMultiplier * enemy.direction * dt;
+          const moveStep = (enemy.speed || 1.00) * 0.45 * diff.speedMultiplier * enemy.direction * dt;
           const nextX = enemy.x + moveStep;
           if (canEnemyMove(nextX, enemy.y) && Math.abs(nextX - (enemy.startX ?? enemy.x)) <= (enemy.patrolRange || 3)) {
             enemy.x = nextX;
@@ -784,7 +784,7 @@ export class GameEngine {
           }
         } else if (enemy.type === 'chaser') {
           // Prowl territory
-          const moveStep = (enemy.speed || 1.35) * 0.65 * diff.speedMultiplier * enemy.direction * dt;
+          const moveStep = (enemy.speed || 0.95) * 0.45 * diff.speedMultiplier * enemy.direction * dt;
           const nextX = enemy.x + moveStep;
           if (canEnemyMove(nextX, enemy.y) && Math.abs(nextX - (enemy.startX ?? enemy.x)) <= (enemy.patrolRange || 5)) {
             enemy.x = nextX;
@@ -793,7 +793,7 @@ export class GameEngine {
           }
         } else {
           // Corridor / Sentry Patrol along assigned axis
-          const moveStep = (enemy.speed || 1.25) * 0.70 * diff.speedMultiplier * enemy.direction * dt;
+          const moveStep = (enemy.speed || 0.90) * 0.45 * diff.speedMultiplier * enemy.direction * dt;
           if (enemy.patrolAxis === 'y') {
             const nextY = enemy.y + moveStep;
             if (canEnemyMove(enemy.x, nextY) && Math.abs(nextY - (enemy.startY ?? enemy.y)) <= (enemy.patrolRange || 4)) {

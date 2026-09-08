@@ -868,17 +868,17 @@ def generate_procedural_level(
     enemies: List[Enemy] = []
 
     if difficulty == "easy":
-        diff_mult = 1.05
-        detect_mult = 0.75
+        diff_mult = 0.85
+        detect_mult = 0.70
     elif difficulty == "medium":
-        diff_mult = 1.30
-        detect_mult = 0.95
+        diff_mult = 1.00
+        detect_mult = 0.88
     elif difficulty == "hard":
-        diff_mult = 1.55
-        detect_mult = 1.10
+        diff_mult = 1.20
+        detect_mult = 1.00
     else:  # nightmare
-        diff_mult = 1.80
-        detect_mult = 1.25
+        diff_mult = 1.45
+        detect_mult = 1.15
 
     # 🚨 EXIT GUARDIAN (Stationed directly guarding the exit portal)
     guardian_x = max(2, min(mw - 3, ex - 2 if ex > 4 else ex + 2))
