@@ -481,6 +481,8 @@ export async function buildDynamicGameFromPhoto(
     };
   });
 
+  const level1Objects = customizedObjects.filter((o) => !o.id.includes('terminal') && o.type !== 'terminal_barrier' && !o.id.includes('barrier'));
+
   const level1: GameWorld = {
     ...base,
     title: envDef.title + ' - Sector 1',
@@ -491,16 +493,18 @@ export async function buildDynamicGameFromPhoto(
     levelNumber: 1,
     maxLevels: 3,
     palette: customPalette,
-    objects: customizedObjects,
+    objects: level1Objects,
     enemies: customizedEnemies,
     objective: {
       ...base.objective,
-      description: 'Level 1: Hack terminals, score ' + (base.objective?.requiredScore || 130) + '+ pts, evade ' + envDef.guardianName + ', and escape!',
+      requiredTerminals: [],
+      description: 'Level 1: Collect keys, score ' + (base.objective?.requiredScore || 130) + '+ pts, evade ' + envDef.guardianName + ', and escape!',
     },
   };
 
   const campaignLevels: GameWorld[] = [1, 2, 3].map((lvlNum) => {
-    const lvlObjects = customizedObjects.map((o) => ({
+    const rawObjs = lvlNum === 1 ? level1Objects : customizedObjects;
+    const lvlObjects = rawObjs.map((o) => ({
       ...o,
       id: o.id + '_lvl' + lvlNum,
     }));
@@ -520,7 +524,10 @@ export async function buildDynamicGameFromPhoto(
       timeLimit: Math.max(45, (timeLimits[diff] || 100) - (lvlNum - 1) * 15),
       objective: {
         ...level1.objective,
-        description: 'Sector ' + lvlNum + ': Score ' + ((base.objective?.requiredScore || 130) + (lvlNum - 1) * 50) + '+ pts and override sector lock!',
+        requiredTerminals: lvlNum === 1 ? [] : ['terminal_' + lvlNum],
+        description: lvlNum === 1
+          ? 'Level 1: Collect keys, score ' + (base.objective?.requiredScore || 130) + '+ pts, evade ' + envDef.guardianName + ', and escape!'
+          : 'Sector ' + lvlNum + ': Score ' + ((base.objective?.requiredScore || 130) + (lvlNum - 1) * 50) + '+ pts, open sanctum, and override ' + terminalName + '!',
       },
     };
   });

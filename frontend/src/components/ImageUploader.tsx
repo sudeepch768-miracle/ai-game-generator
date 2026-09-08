@@ -259,25 +259,38 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
           <label style={{ fontSize: '12px', fontWeight: 700, color: '#00f2fe', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Sparkles size={14} /> THEME & WORLD VIBE PROMPT (OPTIONAL):
+            <Sparkles size={14} /> DESCRIBE WHAT'S IN THE PICTURE (AI SCENE ANALYSIS):
           </label>
-          <span style={{ fontSize: '11px', color: '#94a3b8' }}>Overrides or guides AI classification</span>
+          <span style={{ fontSize: '11px', color: '#94a3b8' }}>AI analyzes your picture + description to match the exact theme</span>
         </div>
         <input
           type="text"
-          placeholder='e.g. "haunted house with ghosts and phantoms", "bank vault with security guards and lasers"'
+          placeholder='e.g. "medieval castle throne room", "hospital ICU trauma ward", "cozy living room couch", "gym fitness weights", "bank vault with lasers"'
           value={customPrompt}
           onChange={(e) => {
             const val = e.target.value;
             setCustomPrompt(val);
             const lower = val.toLowerCase();
-            if (lower.includes('railway') || lower.includes('train') || lower.includes('station') || lower.includes('metro') || lower.includes('subway') || lower.includes('transit')) setSelectedTheme('railway');
-            else if (lower.includes('haunt') || lower.includes('ghost') || lower.includes('mansion') || lower.includes('spook') || lower.includes('phantom') || lower.includes('horror')) setSelectedTheme('haunted');
-            else if (lower.includes('bank') || lower.includes('guard') || lower.includes('vault') || lower.includes('laser') || lower.includes('safe') || lower.includes('heist') || lower.includes('security')) setSelectedTheme('bank');
-            else if (lower.includes('cyber') || lower.includes('server') || lower.includes('tech') || lower.includes('robot') || lower.includes('mech')) setSelectedTheme('cyberpunk');
-            else if (lower.includes('dungeon') || lower.includes('castle') || lower.includes('catacomb') || lower.includes('cave') || lower.includes('stone') || lower.includes('ruin')) setSelectedTheme('dungeon');
-            else if (lower.includes('nature') || lower.includes('forest') || lower.includes('garden') || lower.includes('plant') || lower.includes('living')) setSelectedTheme('nature');
-            else if (lower.includes('class') || lower.includes('school')) setSelectedTheme('classroom');
+            if (lower.includes('castle') || lower.includes('fortress') || lower.includes('palace') || lower.includes('citadel') || lower.includes('throne') || lower.includes('medieval')) setSelectedTheme('castle');
+            else if (lower.includes('hospital') || lower.includes('clinic') || lower.includes('medical') || lower.includes('doctor') || lower.includes('nurse') || lower.includes('surgery') || lower.includes('patient') || lower.includes('ward') || lower.includes('trauma') || lower.includes('icu') || lower.includes('triage')) setSelectedTheme('hospital');
+            else if (lower.includes('living') || lower.includes('couch') || lower.includes('sofa') || lower.includes('bedroom') || lower.includes('home') || lower.includes('house') || lower.includes('lounge') || lower.includes('apartment')) setSelectedTheme('living_room');
+            else if (lower.includes('gym') || lower.includes('fitness') || lower.includes('workout') || lower.includes('weight') || lower.includes('crossfit') || lower.includes('bench') || lower.includes('barbell') || lower.includes('dumbbell') || lower.includes('treadmill')) setSelectedTheme('gym');
+            else if (lower.includes('railway') || lower.includes('train') || lower.includes('station') || lower.includes('metro') || lower.includes('subway') || lower.includes('transit') || lower.includes('locomotive')) setSelectedTheme('railway');
+            else if (lower.includes('airport') || lower.includes('plane') || lower.includes('airplane') || lower.includes('flight') || lower.includes('hangar') || lower.includes('tarmac')) setSelectedTheme('airport');
+            else if (lower.includes('kitchen') || lower.includes('restaurant') || lower.includes('chef') || lower.includes('cook') || lower.includes('cafe') || lower.includes('dining') || lower.includes('bakery')) setSelectedTheme('kitchen');
+            else if (lower.includes('haunt') || lower.includes('ghost') || lower.includes('mansion') || lower.includes('spook') || lower.includes('phantom') || lower.includes('horror') || lower.includes('crypt')) setSelectedTheme('haunted');
+            else if (lower.includes('bank') || lower.includes('guard') || lower.includes('vault') || lower.includes('laser') || lower.includes('safe') || lower.includes('heist') || lower.includes('security') || lower.includes('cash')) setSelectedTheme('bank');
+            else if (lower.includes('police') || lower.includes('cop') || lower.includes('precinct') || lower.includes('sheriff') || lower.includes('jail') || lower.includes('prison')) setSelectedTheme('police');
+            else if (lower.includes('snow') || lower.includes('ice') || lower.includes('frost') || lower.includes('arctic') || lower.includes('glacier') || lower.includes('winter') || lower.includes('blizzard') || lower.includes('penguin')) setSelectedTheme('snow');
+            else if (lower.includes('volcano') || lower.includes('lava') || lower.includes('fire') || lower.includes('magma') || lower.includes('inferno')) setSelectedTheme('volcano');
+            else if (lower.includes('desert') || lower.includes('sand') || lower.includes('pyramid') || lower.includes('dune') || lower.includes('egypt')) setSelectedTheme('desert');
+            else if (lower.includes('ocean') || lower.includes('underwater') || lower.includes('sea') || lower.includes('aquatic') || lower.includes('coral') || lower.includes('reef')) setSelectedTheme('ocean');
+            else if (lower.includes('space') || lower.includes('alien') || lower.includes('cosmic') || lower.includes('galaxy') || lower.includes('starship') || lower.includes('orbit')) setSelectedTheme('space');
+            else if (lower.includes('cyber') || lower.includes('server') || lower.includes('tech') || lower.includes('robot') || lower.includes('mech') || lower.includes('matrix')) setSelectedTheme('cyberpunk');
+            else if (lower.includes('nature') || lower.includes('forest') || lower.includes('garden') || lower.includes('plant') || lower.includes('tree') || lower.includes('jungle')) setSelectedTheme('nature');
+            else if (lower.includes('class') || lower.includes('school') || lower.includes('lecture') || lower.includes('study')) setSelectedTheme('classroom');
+            else if (lower.includes('office') || lower.includes('desk') || lower.includes('work') || lower.includes('corporate') || lower.includes('cubicle')) setSelectedTheme('office');
+            else if (lower.includes('dungeon') || lower.includes('catacomb') || lower.includes('cave') || lower.includes('stone') || lower.includes('ruin')) setSelectedTheme('dungeon');
           }}
           style={{
             width: '100%',
@@ -296,10 +309,21 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           <div style={{ marginTop: '6px', fontSize: '11px', color: '#43e97b', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span>Active Thematic Profile:</span>
             <span style={{ fontWeight: 700, textTransform: 'uppercase', background: 'rgba(67, 233, 123, 0.15)', padding: '2px 8px', borderRadius: '6px' }}>
-              {selectedTheme === 'haunted' ? '👻 Haunted House (Phantoms & Wraiths)' :
-                selectedTheme === 'bank' ? '🏦 Bank Vault (Flashlight Guards & Lasers)' :
-                  selectedTheme === 'cyberpunk' ? '💻 Cyberpunk (Security Mechs)' :
-                    selectedTheme === 'dungeon' ? '🏰 Dungeon (Gargoyles & Stone Guardians)' : selectedTheme}
+              {selectedTheme === 'castle' ? '🏰 Medieval Castle (Citadel & Royal Altar)' :
+                selectedTheme === 'hospital' ? '🏥 Hospital Ward (Trauma Center & Laser Gate)' :
+                  selectedTheme === 'living_room' ? '🛋️ Living Room (Modern Lounge & Smart Hub)' :
+                    selectedTheme === 'gym' ? '🏋️ Athletic Gym (Titan Iron Bay & Biometric Hub)' :
+                      selectedTheme === 'haunted' ? '👻 Haunted House (Phantoms & Wraiths)' :
+                        selectedTheme === 'bank' ? '🏦 Bank Vault (Flashlight Guards & Lasers)' :
+                          selectedTheme === 'cyberpunk' ? '💻 Cyberpunk (Security Mechs)' :
+                            selectedTheme === 'dungeon' ? '🏰 Dungeon (Gargoyles & Stone Guardians)' :
+                              selectedTheme === 'snow' ? '❄️ Arctic Snow (Glacial Ridge & Cryo Blast Gate)' :
+                                selectedTheme === 'volcano' ? '🌋 Volcanic Magma Chamber (Thermal Shield)' :
+                                  selectedTheme === 'airport' ? '✈️ International Airport (Boarding Gates)' :
+                                    selectedTheme === 'railway' ? '🚆 Grand Railway (Tracks & Electrified Gate)' :
+                                      selectedTheme === 'police' ? '👮 Police Precinct (Holding Cells & Dispatch)' :
+                                        selectedTheme === 'kitchen' ? '🍳 Culinary Kitchen (Pantry Vault)' :
+                                          selectedTheme}
             </span>
           </div>
         )}

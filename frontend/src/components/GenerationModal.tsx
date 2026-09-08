@@ -20,7 +20,6 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
   onFinish,
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [showSkipButton, setShowSkipButton] = useState(false);
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
 
@@ -28,13 +27,10 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
     // Progress through visual steps
     const timer1 = setTimeout(() => setCurrentStep(1), 1200);
     const timer2 = setTimeout(() => setCurrentStep(2), 2400);
-    // After 5 seconds, reveal skip button in case of network latency
-    const timerSkip = setTimeout(() => setShowSkipButton(true), 5000);
 
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
-      clearTimeout(timerSkip);
     };
   }, []);
 
@@ -206,30 +202,6 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
             boxShadow: '0 0 10px #00f2fe',
           }} />
         </div>
-
-        {/* Fallback skip / enter world button */}
-        {showSkipButton && (
-          <button
-            onClick={() => onFinishRef.current()}
-            style={{
-              marginTop: '20px',
-              padding: '10px 24px',
-              background: 'linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)',
-              border: 'none',
-              borderRadius: '12px',
-              color: '#070912',
-              fontWeight: 800,
-              fontSize: '13px',
-              letterSpacing: '0.05em',
-              cursor: 'pointer',
-              boxShadow: '0 0 16px rgba(0, 242, 254, 0.4)',
-              transition: 'all 0.2s ease',
-              fontFamily: '"Chakra Petch", sans-serif',
-            }}
-          >
-            ENTER GAME WORLD →
-          </button>
-        )}
       </div>
     </div>
   );

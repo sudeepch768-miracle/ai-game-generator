@@ -127,7 +127,8 @@ def validate_and_repair_game_world(world: GameWorld) -> GameWorld:
     if not key_ids:
         key_ids = [world.collectibles[0].id]
 
-    world.objective.requiredItems = [key_ids[0]]
+    if not world.objective.requiredItems:
+        world.objective.requiredItems = [key_ids[0]]
     if not world.objective.description:
         world.objective.description = "Find the key and reach the exit."
 

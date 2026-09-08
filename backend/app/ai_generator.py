@@ -158,9 +158,9 @@ def analyze_and_generate_world(
             gemini_prompt = """You are a master video game world director and technical artist. Analyze this uploaded image and guidance carefully:
 Guidance: """ + guidance + """
 
-Look deeply at what real-world environment, setting, and objects are shown in the image or described in the prompt.
-Whether the photo depicts a living room, a gym, a street, a cat/pet, a bedroom, a supermarket, a railway station, a bank vault, a restaurant kitchen, an airport, a construction site, an ancient temple, a playground, or ANY custom scene:
-Extract the AUTHENTIC, SPECIFIC real-world features, exact furniture/props, and landmark elements that make this location unmistakably feel like what it is.
+CRITICAL INSTRUCTION: Analyze the uploaded photo in DIRECT SYNERGY with the user's prompt. The user's prompt describes what is in the photo or the specific world vibe they want (e.g. 'medieval stone castle', 'hospital ICU trauma ward', 'cozy living room with sofa', 'gym fitness center', 'bank vault with lasers', etc.).
+Deeply synthesize BOTH the visual evidence from the photo AND the user's description to understand the authentic real-world environment.
+Extract the AUTHENTIC, SPECIFIC real-world features, exact furniture/props, and landmark elements that make this location unmistakably feel like what it is so the player feels like they are ACTUALLY THERE.
 
 Return a custom top-down game world JSON matching this exact structure:
 {
@@ -225,8 +225,7 @@ Return a custom top-down game world JSON matching this exact structure:
         theme_to_use = ai_metadata.get("theme") or resolved_theme or "bank"
         custom_desc = ai_metadata.get("description")
 
-        import hashlib
-        base_seed = int(hashlib.md5(image_bytes if image_bytes else game_title.encode()).hexdigest()[:8], 16)
+        base_seed = random.randint(1, 99999999)
 
         campaign_levels = []
         for lvl_num in (1, 2, 3):
@@ -273,7 +272,7 @@ Return a custom top-down game world JSON matching this exact structure:
             difficulty=difficulty,
             map_size=map_size,
             hazard_level=hazard_level,
-            seed=lvl_num * 54321 + random.randint(100, 999)
+            seed=lvl_num * 54321 + random.randint(100, 99999999)
         )
         campaign_levels.append(lvl)
     lvl1 = campaign_levels[0].model_copy(deep=True)

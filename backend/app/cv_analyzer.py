@@ -111,8 +111,9 @@ def classify_image_theme(
         return "bank", "Grand Bazaar Supermarket", extracted_palette, ["Gondola Grocery Shelves", "Barcode Checkout Terminal", "Cold Beverage Chiller", "Produce Display Stand", "Rolling Shopping Cart"], "#10b981"
     if any(k in words for k in ("art", "museum", "gallery", "painting", "sculpture", "studio")):
         return "office", "Metropolitan Fine Art Pavilion", extracted_palette, ["Sculpture Pedestal", "Framed Masterpiece Canvas", "Velvet Stanchion Rope", "Art Restoration Easel", "Glass Artifact Vitrine"], "#c084fc"
-    if any(k in words for k in ("hospital", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance", "stretcher", "ward")):
-        return "hospital", "St. Jude Trauma Center", extracted_palette, ["Patient Hospital Bed", "Vitals Heart Monitor", "Surgical Operating Lamp", "Medicine Cabinet", "Mobile MRI Scanner"], "#38bdf8"
+    if any(k in words for k in ("hospital", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance", "stretcher", "ward", "trauma", "triage", "icu", "er", "emergency")):
+        env_title = custom_prompt.title() if custom_prompt else "St. Jude Trauma Center"
+        return "hospital", env_title, extracted_palette, ["Patient Hospital Bed", "Vitals Heart Monitor", "Surgical Operating Lamp", "Medicine Cabinet", "Mobile MRI Scanner"], "#38bdf8"
     if any(k in words for k in ("police", "cop", "precinct", "constable", "sheriff", "jail", "prison", "interrogation", "detective")):
         return "police", "Metropolitan Police Precinct", extracted_palette, ["Holding Cell Bars", "Precinct Booking Desk", "Interrogation Table", "Police Siren Beacon", "Evidence Locker"], "#3b82f6"
     if any(k in words for k in ("railway", "train", "subway", "metro", "transit", "locomotive", "track", "platform", "depot")) or ("station" in words and not any(x in words for x in ("police", "nurse", "space"))):
@@ -285,8 +286,8 @@ def analyze_image_and_generate_campaign(
 
     print(f"[CV Synthesizer] Assigned Theme: {theme.upper()} | Env: {env_name} | Rim: {palette_dict.get('wall_rim')}")
 
-    import hashlib
-    base_seed = int(hashlib.md5(image_bytes).hexdigest()[:8], 16)
+    import random
+    base_seed = random.randint(1, 99999999)
     campaign_levels: List[GameWorld] = []
 
     display_env_name = custom_prompt.title() if custom_prompt else env_name

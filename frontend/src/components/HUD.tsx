@@ -202,11 +202,10 @@ export const HUD: React.FC<HUDProps> = ({
               background: hasTerminals
                 ? 'rgba(67, 233, 123, 0.2)'
                 : (!hasKey || !hasScore ? 'rgba(239, 68, 68, 0.2)' : 'rgba(0, 242, 254, 0.2)'),
-              border: `1px solid ${
-                hasTerminals
+              border: `1px solid ${hasTerminals
                   ? '#43e97b'
                   : (!hasKey || !hasScore ? '#ef4444' : '#00f2fe')
-              }`,
+                }`,
               padding: '3px 8px',
               borderRadius: '12px',
               fontSize: '11px',
