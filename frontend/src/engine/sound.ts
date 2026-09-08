@@ -924,6 +924,135 @@ class SoundManager {
     osc.start(now);
     osc.stop(now + 0.06);
   }
+
+  playBlackHoleSuction() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const dest = this.sfxGain || this.ctx.destination;
+
+    // 1. Gravitational vortex bass drop (280Hz -> 32Hz)
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(260, now);
+    osc.frequency.exponentialRampToValueAtTime(32, now + 1.25);
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(1400, now);
+    filter.frequency.exponentialRampToValueAtTime(100, now + 1.25);
+    filter.Q.setValueAtTime(6, now);
+
+    gain.gain.setValueAtTime(0.01, now);
+    gain.gain.linearRampToValueAtTime(0.28, now + 0.35);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.3);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(dest);
+
+    osc.start(now);
+    osc.stop(now + 1.35);
+
+    // 2. Swirling vortex white noise rush
+    try {
+      const bufferSize = Math.floor(this.ctx.sampleRate * 1.3);
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.4;
+      }
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const noiseFilter = this.ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.setValueAtTime(800, now);
+      noiseFilter.frequency.exponentialRampToValueAtTime(120, now + 1.2);
+      noiseFilter.Q.setValueAtTime(4, now);
+
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.02, now);
+      noiseGain.gain.linearRampToValueAtTime(0.18, now + 0.4);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 1.25);
+
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(dest);
+
+      noise.start(now);
+      noise.stop(now + 1.3);
+    } catch {
+      // Audio buffer creation safety
+    }
+
+    // 3. Singularity collapse implosion thud at t=1.1s
+    const thud = this.ctx.createOscillator();
+    const thudGain = this.ctx.createGain();
+    thud.type = 'sine';
+    thud.frequency.setValueAtTime(90, now + 1.05);
+    thud.frequency.exponentialRampToValueAtTime(25, now + 1.35);
+
+    thudGain.gain.setValueAtTime(0.0, now + 1.05);
+    thudGain.gain.linearRampToValueAtTime(0.35, now + 1.1);
+    thudGain.gain.exponentialRampToValueAtTime(0.001, now + 1.35);
+
+    thud.connect(thudGain);
+    thudGain.connect(dest);
+
+    thud.start(now + 1.05);
+    thud.stop(now + 1.36);
+  }
+
+  playHackerMatrix() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const dest = this.sfxGain || this.ctx.destination;
+
+    // Fast arpeggiated terminal cyber burst
+    const notes = [587.33, 880.00, 1174.66, 1760.00, 1318.51, 1046.50, 1567.98, 2093.00];
+    notes.forEach((freq, idx) => {
+      const noteTime = now + idx * 0.045;
+      const osc = this.ctx!.createOscillator();
+      const gain = this.ctx!.createGain();
+
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, noteTime);
+
+      gain.gain.setValueAtTime(0.08, noteTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.04);
+
+      osc.connect(gain);
+      gain.connect(dest);
+
+      osc.start(noteTime);
+      osc.stop(noteTime + 0.045);
+    });
+
+    // Cyber boot hum sweep
+    const hum = this.ctx.createOscillator();
+    const humGain = this.ctx.createGain();
+    hum.type = 'sawtooth';
+    hum.frequency.setValueAtTime(110, now + 0.3);
+    hum.frequency.exponentialRampToValueAtTime(440, now + 0.7);
+
+    humGain.gain.setValueAtTime(0.01, now + 0.3);
+    humGain.gain.linearRampToValueAtTime(0.12, now + 0.45);
+    humGain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+
+    hum.connect(humGain);
+    humGain.connect(dest);
+
+    hum.start(now + 0.3);
+    hum.stop(now + 0.76);
+  }
 }
 
 export const sound = new SoundManager();
