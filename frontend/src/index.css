@@ -200,10 +200,12 @@ button {
 }
 
 @keyframes retroArrowPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0px) scale(1);
     filter: drop-shadow(0 0 16px rgba(0, 242, 254, 0.85));
   }
+
   50% {
     transform: translateX(5px) scale(1.06);
     filter: drop-shadow(0 0 26px rgba(255, 0, 127, 0.95));
@@ -218,9 +220,11 @@ button {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -231,12 +235,15 @@ button {
     top: -10%;
     opacity: 0;
   }
+
   15% {
     opacity: 0.85;
   }
+
   85% {
     opacity: 0.85;
   }
+
   100% {
     top: 110%;
     opacity: 0;
@@ -244,26 +251,33 @@ button {
 }
 
 @keyframes holoGlitchSlice {
-  0%, 88%, 100% {
+
+  0%,
+  88%,
+  100% {
     transform: translate(0, 0) skew(0deg);
     clip-path: inset(0 0 0 0);
     opacity: 0.85;
   }
+
   89% {
     transform: translate(-3px, 1px) skew(-2deg);
     clip-path: inset(18% 0 55% 0);
     opacity: 1;
   }
+
   91% {
     transform: translate(3px, -2px) skew(2deg);
     clip-path: inset(48% 0 22% 0);
     opacity: 1;
   }
+
   93% {
     transform: translate(-2px, 2px) skew(-1deg);
     clip-path: inset(72% 0 8% 0);
     opacity: 1;
   }
+
   95% {
     transform: translate(0, 0) skew(0deg);
     clip-path: inset(0 0 0 0);
@@ -272,22 +286,25 @@ button {
 }
 
 @keyframes holoAuraPulse {
-  0%, 100% {
-    filter: drop-shadow(0 0 25px rgba(0, 242, 254, 0.6))
-            drop-shadow(0 0 50px rgba(168, 85, 247, 0.35));
+
+  0%,
+  100% {
+    filter: drop-shadow(0 0 25px rgba(0, 242, 254, 0.6)) drop-shadow(0 0 50px rgba(168, 85, 247, 0.35));
   }
+
   50% {
-    filter: drop-shadow(0 0 45px rgba(0, 242, 254, 0.95))
-            drop-shadow(0 0 80px rgba(255, 0, 127, 0.7))
-            drop-shadow(0 0 110px rgba(0, 242, 254, 0.4));
+    filter: drop-shadow(0 0 45px rgba(0, 242, 254, 0.95)) drop-shadow(0 0 80px rgba(255, 0, 127, 0.7)) drop-shadow(0 0 110px rgba(0, 242, 254, 0.4));
   }
 }
 
 @keyframes holoProjectorBeam {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.3;
     transform: translate(-50%, -50%) scale(0.95);
   }
+
   50% {
     opacity: 0.7;
     transform: translate(-50%, -50%) scale(1.08);
@@ -295,10 +312,13 @@ button {
 }
 
 @keyframes holoTagGlow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 15px rgba(0, 242, 254, 0.25), inset 0 0 10px rgba(0, 242, 254, 0.1);
     border-color: rgba(0, 242, 254, 0.4);
   }
+
   50% {
     box-shadow: 0 0 25px rgba(168, 85, 247, 0.45), inset 0 0 15px rgba(168, 85, 247, 0.2);
     border-color: rgba(168, 85, 247, 0.65);
@@ -306,10 +326,13 @@ button {
 }
 
 @keyframes holoDotPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.7;
   }
+
   50% {
     transform: scale(1.4);
     opacity: 1;

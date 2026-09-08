@@ -62,7 +62,7 @@ def analyze_and_generate_world(
     3. Guarantees 100% BFS reachability validation and multi-level campaigns.
     """
     env_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    active_key = env_key or api_key
+    active_key = api_key or env_key
 
     time_limits = {"easy": 140, "medium": 110, "hard": 85, "nightmare": 60}
     target_time = time_limits.get(difficulty, 110)
@@ -72,47 +72,67 @@ def analyze_and_generate_world(
     prompt_str = f"{custom_prompt or ''} {image_filename or ''}".lower()
     sample_str = (sample_id or "").lower()
     
+    import re
+    tokens = set(re.findall(r'[a-z0-9]+', prompt_str + " " + sample_str))
+
     if not resolved_theme:
-        if any(w in prompt_str for w in ["hospital", "haspital", "hopital", "hosp", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance", "stretcher", "ward", "health", "trauma", "triage", "icu", "er", "emergency"]) or any(w in sample_str for w in ["hospital", "clinic", "medical"]):
-            resolved_theme = "hospital"
-        elif any(w in prompt_str for w in ["police", "cop", "precinct", "constable", "sheriff", "jail", "prison", "interrogation", "lockup", "detective"]):
-            resolved_theme = "police"
-        elif (any(w in prompt_str for w in ["railway", "train", "subway", "metro", "transit", "locomotive", "track", "platform", "depot"]) or ("station" in prompt_str and not any(x in prompt_str for x in ["police", "nurse", "aid", "space", "fire"]))) or any(w in sample_str for w in ["railway", "train", "station", "subway", "metro"]):
-            resolved_theme = "railway"
-        elif any(w in prompt_str for w in ["kitchen", "restaurant", "chef", "cook", "dining", "bakery", "cafe", "bistro", "stove", "pantry"]):
+        if any(w in tokens for w in ["gym", "fitness", "workout", "weights", "crossfit", "bench", "barbell", "dumbbell", "treadmill"]):
+            resolved_theme = "gym"
+        elif any(w in tokens for w in ["cafe", "coffee", "tea", "espresso", "latte", "barista", "bakery"]):
             resolved_theme = "kitchen"
-        elif any(w in prompt_str for w in ["airport", "airplane", "plane", "aircraft", "hangar", "runway", "tarmac", "terminal", "flight"]):
-            resolved_theme = "airport"
-        elif any(w in prompt_str for w in ["snow", "ice", "frost", "mountain", "arctic", "winter", "glacier", "tundra", "cold", "blizzard", "penguin"]) or any(w in sample_str for w in ["snow", "ice", "frost", "mountain", "arctic"]):
-            resolved_theme = "snow"
-        elif any(w in prompt_str for w in ["volcano", "lava", "fire", "magma", "inferno", "molten"]) or any(w in sample_str for w in ["volcano", "lava"]):
-            resolved_theme = "volcano"
-        elif any(w in prompt_str for w in ["desert", "sand", "pyramid", "tomb", "dune", "egypt"]) or any(w in sample_str for w in ["desert", "pyramid"]):
-            resolved_theme = "desert"
-        elif any(w in prompt_str for w in ["ocean", "underwater", "sea", "aquatic", "water", "coral", "reef", "abyss"]) or any(w in sample_str for w in ["ocean", "water"]):
-            resolved_theme = "ocean"
-        elif any(w in prompt_str for w in ["space", "alien", "cosmic", "void", "galaxy", "starship", "orbit", "space_station"]) or any(w in sample_str for w in ["space", "alien"]):
-            resolved_theme = "space"
-        elif any(w in prompt_str for w in ["haunt", "ghost", "phantom", "spooky", "wraith", "mansion", "horror", "crypt", "specter", "undead"]) or any(w in sample_str for w in ["haunt", "ghost", "mansion"]):
-            resolved_theme = "haunted"
-        elif any(w in prompt_str for w in ["bank", "vault", "guard", "security", "laser", "heist", "money", "gold", "cash", "teller", "bullion"]) or any(w in sample_str for w in ["bank", "vault"]):
+        elif any(w in tokens for w in ["car", "garage", "vehicle", "auto", "mechanic", "workshop", "motor", "engine"]):
+            resolved_theme = "cyberpunk_street"
+        elif any(w in tokens for w in ["pet", "dog", "cat", "puppy", "kitten", "animal", "canine", "feline"]):
+            resolved_theme = "living_room"
+        elif any(w in tokens for w in ["supermarket", "store", "shop", "grocery", "mall", "market"]):
             resolved_theme = "bank"
-        elif any(w in prompt_str for w in ["cyber", "tech", "server", "matrix", "drone", "lab", "robot"]) or any(w in sample_str for w in ["cyber"]):
-            resolved_theme = "cyberpunk"
-        elif any(w in prompt_str for w in ["dungeon", "tomb", "catacomb", "castle", "relic", "stone", "cave"]) or any(w in sample_str for w in ["dungeon"]):
-            resolved_theme = "dungeon"
-        elif any(w in prompt_str for w in ["class", "school", "auditorium", "lecture", "study"]) or any(w in sample_str for w in ["classroom"]):
-            resolved_theme = "classroom"
-        elif any(w in prompt_str for w in ["office", "desk", "work", "cubicle", "corporate"]) or any(w in sample_str for w in ["desk", "office"]):
+        elif any(w in tokens for w in ["art", "museum", "gallery", "painting", "sculpture", "studio"]):
             resolved_theme = "office"
-        elif any(w in prompt_str for w in ["living", "room", "nature", "forest", "park", "garden", "plant", "jungle"]) or any(w in sample_str for w in ["living_room", "nature"]):
+        elif any(w in tokens for w in ["hospital", "haspital", "hopital", "hosp", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance", "stretcher", "ward", "health", "trauma", "triage", "icu", "er", "emergency"]):
+            resolved_theme = "hospital"
+        elif any(w in tokens for w in ["police", "cop", "precinct", "constable", "sheriff", "jail", "prison", "interrogation", "lockup", "detective"]):
+            resolved_theme = "police"
+        elif any(w in tokens for w in ["railway", "train", "subway", "metro", "transit", "locomotive", "track", "platform", "depot"]):
+            resolved_theme = "railway"
+        elif "station" in tokens and not any(x in tokens for x in ["police", "nurse", "aid", "space", "fire"]):
+            resolved_theme = "railway"
+        elif any(w in tokens for w in ["kitchen", "restaurant", "chef", "cook", "dining", "bakery", "cafe", "bistro", "stove", "pantry", "culinary"]):
+            resolved_theme = "kitchen"
+        elif any(w in tokens for w in ["airport", "airplane", "plane", "aircraft", "hangar", "runway", "tarmac", "terminal", "flight"]):
+            resolved_theme = "airport"
+        elif any(w in tokens for w in ["snow", "ice", "frost", "mountain", "arctic", "winter", "glacier", "tundra", "cold", "blizzard", "penguin"]):
+            resolved_theme = "snow"
+        elif any(w in tokens for w in ["volcano", "lava", "fire", "magma", "inferno", "molten", "burn"]):
+            resolved_theme = "volcano"
+        elif any(w in tokens for w in ["desert", "sand", "pyramid", "tomb", "dune", "egypt"]):
+            resolved_theme = "desert"
+        elif any(w in tokens for w in ["ocean", "underwater", "sea", "aquatic", "water", "coral", "reef", "abyss"]):
+            resolved_theme = "ocean"
+        elif any(w in tokens for w in ["space", "alien", "cosmic", "void", "galaxy", "starship", "orbit", "space_station"]):
+            resolved_theme = "space"
+        elif any(w in tokens for w in ["haunt", "ghost", "phantom", "spooky", "wraith", "mansion", "horror", "crypt", "specter", "undead"]):
+            resolved_theme = "haunted"
+        elif any(w in tokens for w in ["bank", "vault", "guard", "security", "laser", "heist", "money", "gold", "cash", "teller", "bullion"]):
+            resolved_theme = "bank"
+        elif any(w in tokens for w in ["cyber", "cyberpunk", "tech", "server", "matrix", "drone", "lab", "robot"]):
+            resolved_theme = "cyberpunk"
+        elif any(w in tokens for w in ["dungeon", "tomb", "catacomb", "castle", "relic", "stone", "cave"]):
+            resolved_theme = "dungeon"
+        elif any(w in tokens for w in ["class", "classroom", "school", "auditorium", "lecture", "study"]):
+            resolved_theme = "classroom"
+        elif any(w in tokens for w in ["office", "desk", "work", "cubicle", "corporate"]):
+            resolved_theme = "office"
+        elif any(w in tokens for w in ["living", "couch", "sofa", "bedroom", "home", "house", "lounge", "apartment"]):
+            resolved_theme = "living_room"
+        elif any(w in tokens for w in ["forest", "park", "garden", "plant", "jungle", "nature", "tree", "yard"]):
             resolved_theme = "nature"
         elif not image_bytes:
             resolved_theme = "bank"
 
-    # 1. Attempt Multimodal Gemini AI Generation with User Key
+    # 1. Attempt Multimodal Gemini AI Generation with Active Key
     ai_metadata = None
-    if active_key:
+    is_usable_gemini_key = bool(active_key and len(active_key) > 20 and not active_key.startswith("AQ."))
+    if is_usable_gemini_key:
         try:
             client = genai.Client(api_key=active_key)
             contents = []
@@ -137,46 +157,47 @@ def analyze_and_generate_world(
 Guidance: """ + guidance + """
 
 Look deeply at what real-world environment, setting, and objects are shown in the image or described in the prompt.
-Whatever the photo depicts (a railway station, a bank, a police station, a snowy mountain, a hospital, a restaurant kitchen, an airport, a construction site, an ancient temple, etc.), extract the AUTHENTIC, SPECIFIC real-world features and landmark elements that make this location unmistakably feel like what it is.
+Whether the photo depicts a living room, a gym, a street, a cat/pet, a bedroom, a supermarket, a railway station, a bank vault, a restaurant kitchen, an airport, a construction site, an ancient temple, a playground, or ANY custom scene:
+Extract the AUTHENTIC, SPECIFIC real-world features, exact furniture/props, and landmark elements that make this location unmistakably feel like what it is.
 
 Return a custom top-down game world JSON matching this exact structure:
 {
-  "title": "Creative, evocative game title specifically for this environment (e.g. 'St. Pancras Rail Terminus: Red Signal', 'Metropolitan Police Precinct 09', 'First Federal Bullion Vault', 'Glacial Ridge Summit')",
-  "theme": "railway, police, bank, snow, hospital, kitchen, airport, cyberpunk, volcano, desert, ocean, space, dungeon, nature, office, or classroom",
+  "title": "Creative, evocative game title specifically for this exact environment (e.g. 'Cozy Hearth Living Room: Data Retrieval', 'Goldsmith Gym: Heavy Iron Sector', 'Metro Rail Terminus: Red Signal', 'Apex Corporate Suite', 'Sunset Rooftop Infiltration')",
+  "theme": "A concise 1-2 word identifier for this exact environment (e.g. 'living_room', 'coffee_shop', 'gym', 'garage', 'art_studio', 'garden', 'subway', 'bedroom', 'library', 'supermarket', 'rooftop', 'bakery', 'playground', 'street', 'office', 'bank', 'cyberpunk', etc.)",
   "description": "Two exciting sentences describing the player's infiltration mission in this exact real-world setting.",
-  "primary_landmark": "The defining centerpiece or large structure of this environment (e.g. 'High-Speed Metro Train Carriage', 'Circular Steel Bank Vault Door', 'Police Holding Cell Block', 'Commercial Jet Airliner', 'Surgical Operating Theater', 'Commercial Stove Range', 'Glacial Penguin Nesting Colony')",
+  "primary_landmark": "The defining centerpiece or large structure of this environment (e.g. 'Plush Velvet Sectional Sofa', 'High-Speed Metro Train Carriage', 'Heavy Power Squat Rack', 'Circular Steel Bank Vault Door', 'Commercial Stove Range', 'Grand Piano Platform')",
   "palette": {
-    "floor_color": "Hex color matching the terrain/floor (e.g. '#141720' for railway platform, '#0d1322' for police precinct, '#0f172a' for bank marble, '#0c1a2e' for snow/ice, '#0a1711' for jungle)",
-    "floor_texture": "railway, police, hospital, kitchen, snow, sand, cracks, cobblestone, circuit, water, or grid",
+    "floor_color": "Hex color matching the terrain/floor extracted from the photo",
+    "floor_texture": "cobblestone, sand, cracks, circuit, grid, or wood",
     "wall_top": "Hex color for top surface of walls",
     "wall_front": "Hex color for front-facing 3D wall face",
-    "wall_rim": "Glowing neon or highlight rim color (e.g. '#f59e0b' for railway amber, '#3b82f6' for police blue, '#ffd700' for bank gold, '#7dd3fc' for ice, '#00f2fe' for cyber)",
-    "weather": "snow, dust, embers, bubbles, fog, sand, or sparks"
+    "wall_rim": "Glowing neon or highlight rim color that accents the environment",
+    "weather": "dust, embers, bubbles, fog, sparks, or snow"
   },
-  "guardian_name": "Boss enemy guarding the sector exit portal matching this theme (e.g. 'TRANSIT COMMANDER MARSHALL', 'POLICE COMMISSIONER VANCE', 'CHIEF SECURITY WARDEN', 'ANCIENT FROST TITAN YETI', 'CHIEF MEDICAL INSPECTOR', 'HEAD EXECUTIVE CHEF')",
-  "guardian_sprite": "guard, yeti, monster, ghost, laser, or drone",
+  "guardian_name": "Boss enemy guarding the sector exit portal matching this theme (e.g. 'DOMESTIC SECURITY WARDEN', 'CHIEF GYM ENFORCER', 'TRANSIT COMMANDER', 'SECURITY OVERSEER', 'CHIEF INSPECTOR')",
+  "guardian_sprite": "guard, monster, yeti, ghost, laser, or drone",
   "guardian_shape": "humanoid_guard, golem_titan, quadruped_beast, floating_spirit, mechanical_turret, or winged_drone",
   "guardian_color": "Hex color for guardian body/armor",
   "guardian_eyes": "Hex color for glowing eyes/sensor",
   "guardian_accessory": "peaked_cap, police_cap, ice_crown, horns, flame_aura, or frost_aura",
-  "chaser_name": "Roaming hostile enemy patrolling corridors matching this theme (e.g. 'RAILWAY SECURITY OFFICER', 'POLICE CONSTABLE', 'ARMED VAULT GUARD', 'BLIZZARD WOLF STALKER', 'ORDERLY PATROL', 'LINE COOK ENFORCER')",
+  "chaser_name": "Roaming hostile enemy patrolling corridors matching this theme (e.g. 'ROOM PATROL BOT', 'FITNESS ENFORCER', 'SECURITY AGENT', 'CORRIDOR STALKER')",
   "chaser_sprite": "guard, beast, monster, ghost, or drone",
   "chaser_shape": "humanoid_guard, quadruped_beast, floating_spirit, golem_titan, or winged_drone",
   "chaser_color": "Hex color for chaser body",
   "chaser_eyes": "Hex color for chaser eyes",
-  "patrol_name": "Corridor sentry turret or surveillance scout name (e.g. 'TRACK SURVEILLANCE SENTRY', 'PRECINCT CCTV SENTRY', 'LASER TRIPWIRE SENTRY', 'GLACIAL SHARD SENTRY')",
+  "patrol_name": "Corridor sentry turret or surveillance scout name (e.g. 'MOTION DETECTOR SENTRY', 'CCTV CAMERA TURRET', 'LASER SCANNER TURRET')",
   "patrol_sprite": "laser, drone, ghost, or guard",
   "patrol_shape": "mechanical_turret, winged_drone, floating_spirit, or quadruped_beast",
   "patrol_color": "Hex color for sentry body",
   "patrol_eyes": "Hex color for sentry beam",
-  "objects": ["5 to 6 unique, highly specific obstacle and prop names authentic to this exact photo (e.g. if railway: ['High-Speed Metro Train', 'Ticket Vending Kiosk', 'Turnstile Gate Barrier', 'Departure Schedule Board', 'Platform Waiting Bench']; if bank: ['Massive Bank Vault Door', 'Gold Bullion Pallet', 'Cash Reserve Pallet', 'Titanium Security Safe', 'Deposit Box Rack']; if police: ['Holding Cell Bars', 'Precinct Booking Desk', 'Interrogation Table', 'Police Siren Beacon', 'Evidence Locker']; if snow: ['Penguin Nesting Colony', 'Glacial Ice Spire', 'Frozen Stalagmite', 'Snowdrift Cache', 'Glacial Cryo-Pod']; if hospital: ['Patient Hospital Bed', 'Vitals Heart Monitor', 'Surgical Operating Lamp', 'Medicine Cabinet', 'Mobile MRI Scanner'])"],
+  "objects": ["5 to 6 unique, highly specific obstacle and prop names authentic to this exact photo (e.g. if living room: ['Velvet Sectional Sofa', 'Mahogany Coffee Table', 'Ornamental Bookshelf', 'Floor Standing Lamp', 'Decorative Area Rug']; if gym: ['Heavy Dumbbell Rack', 'Olympic Bench Press', 'Treadmill Station', 'Kettlebell Tower', 'Cable Pulley Unit']; if office: ['Executive Mahogany Desk', 'Ergonomic Mesh Chair', 'Filing Archive Cabinet', 'Water Cooler Dispenser', 'Server Tower Array'])"],
   "object_colors": ["#3b82f6", "#f59e0b", "#10b981", "#64748b", "#cbd5e1", "#ffd700"],
-  "collectibles": ["Primary collectible name matching theme (e.g. 'Stack of Cash', 'Commuter Transit Pass', 'Police Badge', 'Frost Crystal', 'Medical Kit')", "Secondary high-value collectible (e.g. 'Gold Bullion Bar', 'Platform Keycard', 'Evidence Dossier', 'Frozen Star Relic', 'Golden Scalpel')"],
-  "guide_name": "Friendly NPC specialist or native creature name (e.g. 'Station Conductor', 'Desk Sergeant Miller', 'Inside Informant', 'Waddling Adélie Penguin', 'Triage Nurse Sarah')"
+  "collectibles": ["Primary collectible name matching theme (e.g. 'Hidden Memory Chip', 'Keycard Pass', 'Gold Bar', 'Energy Cell', 'Golden Trophy')", "Secondary high-value collectible (e.g. 'Encrypted Dossier', 'Master Key', 'Diamond Relic', 'Platinum Coin')"],
+  "guide_name": "Friendly NPC specialist or native character name (e.g. 'Inside Informant', 'Recon Specialist Alex', 'Desk Agent', 'Helpful Assistant')"
 }"""
             contents.append(gemini_prompt)
 
-            for model_name in ("gemini-flash-latest", "gemini-3.1-flash-lite-preview"):
+            for model_name in ("gemini-3.6-flash", "gemini-3.1-flash-lite-preview", "gemini-2.0-flash", "gemini-flash-latest"):
                 try:
                     print(f"[AI Generator] Calling Multimodal Gemini ({model_name})...")
                     res = client.models.generate_content(

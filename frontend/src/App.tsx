@@ -25,6 +25,7 @@ import {
 } from './demoGames';
 import { GameWorld, CustomGameSettings, Difficulty } from './types/game';
 import { RecommendationItem } from './data/recommendations';
+import { buildDynamicGameFromPhoto } from './utils/dynamicFallbackGenerator';
 
 type AppView = 'landing' | 'upload' | 'game';
 
@@ -151,9 +152,9 @@ export const App: React.FC = () => {
         headers['x-gemini-api-key'] = activeKey;
       }
 
-      // 8-second timeout for serverless function
+      // 45-second timeout for serverless function
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const timeoutId = setTimeout(() => controller.abort(), 45000);
 
       // Send to FastAPI backend
       const res = await fetch('/api/generate-game', {
@@ -180,290 +181,21 @@ export const App: React.FC = () => {
         setGenerationComplete(true);
       }, 1200);
     } catch (err) {
-      console.warn('Backend unavailable or encountered issue. Using intelligent procedural fallback:', err);
-      const promptLower = (settings?.customPrompt || '').toLowerCase();
-      const themeLower = (settings?.theme || '').toLowerCase();
-      const sampleId = (activeSampleId || '').toLowerCase();
-      const fileLower = (activeFile?.name || '').toLowerCase();
+      console.warn('Backend unavailable or encountered issue. Using intelligent procedural dynamic synthesizer:', err);
+      const fallbackGame = await buildDynamicGameFromPhoto(
+        activeFile,
+        settings?.customPrompt || '',
+        settings,
+        activeSampleId
+      );
 
-      let fallbackGame = DEMO_HOSPITAL;
-      if (
-        themeLower === 'hospital' ||
-        promptLower.includes('hospital') ||
-        promptLower.includes('clinic') ||
-        promptLower.includes('medical') ||
-        promptLower.includes('doctor') ||
-        promptLower.includes('nurse') ||
-        promptLower.includes('patient') ||
-        promptLower.includes('surgery') ||
-        promptLower.includes('infirmary') ||
-        promptLower.includes('ward') ||
-        promptLower.includes('stretcher') ||
-        promptLower.includes('trauma') ||
-        promptLower.includes('health') ||
-        promptLower.includes('ambulance') ||
-        fileLower.includes('hospital') ||
-        fileLower.includes('clinic') ||
-        fileLower.includes('medical') ||
-        fileLower.includes('doctor') ||
-        fileLower.includes('nurse') ||
-        fileLower.includes('ward') ||
-        fileLower.includes('patient') ||
-        fileLower.includes('trauma') ||
-        sampleId === 'hospital'
-      ) {
-        fallbackGame = DEMO_HOSPITAL;
-      } else if (
-        themeLower === 'kitchen' ||
-        promptLower.includes('kitchen') ||
-        promptLower.includes('chef') ||
-        promptLower.includes('cook') ||
-        promptLower.includes('restaurant') ||
-        promptLower.includes('bistro') ||
-        promptLower.includes('cafe') ||
-        promptLower.includes('culinary') ||
-        promptLower.includes('stove') ||
-        fileLower.includes('kitchen') ||
-        fileLower.includes('chef') ||
-        fileLower.includes('cook') ||
-        fileLower.includes('restaurant') ||
-        sampleId === 'kitchen'
-      ) {
-        fallbackGame = DEMO_KITCHEN;
-      } else if (
-        themeLower === 'airport' ||
-        promptLower.includes('airport') ||
-        promptLower.includes('plane') ||
-        promptLower.includes('airplane') ||
-        promptLower.includes('flight') ||
-        promptLower.includes('jet') ||
-        promptLower.includes('tarmac') ||
-        promptLower.includes('runway') ||
-        promptLower.includes('hangar') ||
-        fileLower.includes('airport') ||
-        fileLower.includes('flight') ||
-        fileLower.includes('plane') ||
-        fileLower.includes('jet') ||
-        sampleId === 'airport'
-      ) {
-        fallbackGame = DEMO_AIRPORT;
-      } else if (
-        themeLower === 'police' ||
-        promptLower.includes('police') ||
-        promptLower.includes('cop') ||
-        promptLower.includes('precinct') ||
-        promptLower.includes('constable') ||
-        promptLower.includes('jail') ||
-        promptLower.includes('sheriff') ||
-        promptLower.includes('prison') ||
-        fileLower.includes('police') ||
-        fileLower.includes('cop') ||
-        fileLower.includes('jail') ||
-        fileLower.includes('precinct') ||
-        sampleId === 'police'
-      ) {
-        fallbackGame = DEMO_POLICE;
-      } else if (
-        themeLower === 'snow' ||
-        promptLower.includes('snow') ||
-        promptLower.includes('mountain') ||
-        promptLower.includes('ice') ||
-        promptLower.includes('frost') ||
-        promptLower.includes('penguin') ||
-        promptLower.includes('arctic') ||
-        promptLower.includes('glacier') ||
-        fileLower.includes('snow') ||
-        fileLower.includes('mountain') ||
-        fileLower.includes('ice') ||
-        fileLower.includes('frost') ||
-        fileLower.includes('penguin') ||
-        sampleId === 'snow'
-      ) {
-        fallbackGame = DEMO_SNOW;
-      } else if (
-        themeLower === 'railway' ||
-        promptLower.includes('railway') ||
-        promptLower.includes('station') ||
-        promptLower.includes('train') ||
-        promptLower.includes('metro') ||
-        promptLower.includes('subway') ||
-        promptLower.includes('transit') ||
-        promptLower.includes('track') ||
-        promptLower.includes('locomotive') ||
-        fileLower.includes('rail') ||
-        fileLower.includes('train') ||
-        fileLower.includes('station') ||
-        fileLower.includes('metro') ||
-        sampleId === 'railway'
-      ) {
-        fallbackGame = DEMO_RAILWAY;
-      } else if (
-        themeLower === 'volcano' ||
-        promptLower.includes('volcano') ||
-        promptLower.includes('lava') ||
-        promptLower.includes('magma') ||
-        promptLower.includes('fire') ||
-        promptLower.includes('inferno') ||
-        fileLower.includes('volcano') ||
-        fileLower.includes('lava') ||
-        sampleId === 'volcano'
-      ) {
-        fallbackGame = DEMO_VOLCANO;
-      } else if (
-        themeLower === 'desert' ||
-        promptLower.includes('desert') ||
-        promptLower.includes('sand') ||
-        promptLower.includes('pyramid') ||
-        promptLower.includes('dune') ||
-        promptLower.includes('egypt') ||
-        fileLower.includes('desert') ||
-        fileLower.includes('sand') ||
-        fileLower.includes('pyramid') ||
-        sampleId === 'desert'
-      ) {
-        fallbackGame = DEMO_DESERT;
-      } else if (
-        themeLower === 'ocean' ||
-        promptLower.includes('ocean') ||
-        promptLower.includes('sea') ||
-        promptLower.includes('water') ||
-        promptLower.includes('underwater') ||
-        promptLower.includes('aquatic') ||
-        fileLower.includes('ocean') ||
-        fileLower.includes('sea') ||
-        fileLower.includes('water') ||
-        sampleId === 'ocean'
-      ) {
-        fallbackGame = DEMO_OCEAN;
-      } else if (
-        themeLower === 'space' ||
-        promptLower.includes('space') ||
-        promptLower.includes('alien') ||
-        promptLower.includes('cosmic') ||
-        promptLower.includes('star') ||
-        promptLower.includes('galaxy') ||
-        fileLower.includes('space') ||
-        fileLower.includes('alien') ||
-        sampleId === 'space'
-      ) {
-        fallbackGame = DEMO_SPACE;
-      } else if (
-        themeLower === 'haunted' ||
-        promptLower.includes('haunt') ||
-        promptLower.includes('ghost') ||
-        promptLower.includes('spooky') ||
-        promptLower.includes('mansion') ||
-        fileLower.includes('haunt') ||
-        fileLower.includes('ghost') ||
-        sampleId === 'haunted'
-      ) {
-        fallbackGame = DEMO_HAUNTED;
-      } else if (
-        themeLower === 'cyberpunk' ||
-        promptLower.includes('cyber') ||
-        promptLower.includes('tech') ||
-        promptLower.includes('matrix') ||
-        promptLower.includes('drone') ||
-        fileLower.includes('cyber') ||
-        fileLower.includes('tech') ||
-        sampleId === 'cyber'
-      ) {
-        fallbackGame = DEMO_CYBER;
-      } else if (
-        themeLower === 'dungeon' ||
-        promptLower.includes('dungeon') ||
-        promptLower.includes('tomb') ||
-        promptLower.includes('catacomb') ||
-        promptLower.includes('cave') ||
-        fileLower.includes('dungeon') ||
-        sampleId === 'dungeon'
-      ) {
-        fallbackGame = DEMO_DUNGEON;
-      } else if (
-        themeLower === 'classroom' ||
-        promptLower.includes('class') ||
-        promptLower.includes('school') ||
-        promptLower.includes('lecture') ||
-        fileLower.includes('class') ||
-        fileLower.includes('school') ||
-        sampleId === 'classroom'
-      ) {
-        fallbackGame = DEMO_CLASSROOM;
-      } else if (
-        themeLower === 'office' ||
-        promptLower.includes('office') ||
-        promptLower.includes('desk') ||
-        promptLower.includes('cubicle') ||
-        fileLower.includes('office') ||
-        fileLower.includes('desk') ||
-        sampleId === 'desk' ||
-        sampleId === 'office'
-      ) {
-        fallbackGame = DEMO_OFFICE;
-      } else if (
-        themeLower === 'nature' ||
-        promptLower.includes('nature') ||
-        promptLower.includes('forest') ||
-        promptLower.includes('jungle') ||
-        promptLower.includes('garden') ||
-        fileLower.includes('nature') ||
-        fileLower.includes('forest') ||
-        sampleId === 'living_room' ||
-        sampleId === 'nature'
-      ) {
-        fallbackGame = DEMO_NATURE;
-      } else if (
-        themeLower === 'bank' ||
-        promptLower.includes('bank') ||
-        promptLower.includes('vault') ||
-        promptLower.includes('gold') ||
-        promptLower.includes('cash') ||
-        promptLower.includes('bullion') ||
-        fileLower.includes('bank') ||
-        fileLower.includes('vault') ||
-        sampleId === 'bank'
-      ) {
-        fallbackGame = DEMO_BANK;
-      } else {
-        fallbackGame = DEMO_HOSPITAL;
-      }
-
-      const diff = settings?.difficulty || 'medium';
-      const timeLimits: Record<string, number> = { easy: 100, medium: 80, hard: 60, nightmare: 45 };
-
-      const rawFileName = activeFile ? activeFile.name.replace(/\.[^/.]+$/, "") : "";
-      const formattedFileName = rawFileName ? rawFileName.charAt(0).toUpperCase() + rawFileName.slice(1) : "";
-
-      const gameTitle = settings?.customPrompt
-        ? settings.customPrompt.charAt(0).toUpperCase() + settings.customPrompt.slice(1)
-        : (formattedFileName ? `Adventure in ${formattedFileName}` : fallbackGame.title);
-
-      const bossName = fallbackGame.enemies?.[0]?.name || 'Sector Boss';
-
-      const customDescription = settings?.customPrompt
-        ? `Infiltrate ${gameTitle}. Evade ${bossName}, collect points, and reach the extraction portal.`
-        : (formattedFileName
-          ? `Infiltrate ${formattedFileName}. Collect ${fallbackGame.objective?.requiredScore || 130}+ points, evade ${bossName}, and escape through the exit portal.`
-          : fallbackGame.description);
-
-      const customObjective = {
-        ...fallbackGame.objective,
-        description: `Level 1: Score ${fallbackGame.objective?.requiredScore || 130}+ pts + 1 Sector Key -> Evade ${bossName}!`,
-      };
-
-      setCurrentGameWorld({
-        ...fallbackGame,
-        title: gameTitle,
-        description: customDescription,
-        objective: customObjective,
-        difficulty: diff,
-        timeLimit: timeLimits[diff] || 80,
-      });
+      console.log('[App] Client-side dynamic world synthesized:', fallbackGame.title, '| Palette:', fallbackGame.palette);
+      setCurrentGameWorld(fallbackGame);
       setGameSessionId(Date.now());
 
       setTimeout(() => {
         setGenerationComplete(true);
-      }, 2500);
+      }, 1500);
     }
   };
 

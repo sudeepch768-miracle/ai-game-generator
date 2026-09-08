@@ -504,47 +504,144 @@ ENEMY_THEMES = {
             "weather": "dust",
             "ambientLight": "#00f2fe"
         }
+    },
+    "living_room": {
+        "guardian_name": "DOMESTIC SECURITY WARDEN",
+        "guardian_sprite": "guard",
+        "guardian_shape": "humanoid_guard",
+        "guardian_color": "#451a03",
+        "guardian_eyes": "#f59e0b",
+        "guardian_accessory": "peaked_cap",
+        "chaser_name": "ROOM PATROL ENFORCER",
+        "chaser_sprite": "guard",
+        "chaser_shape": "humanoid_guard",
+        "chaser_color": "#78350f",
+        "chaser_eyes": "#fbbf24",
+        "patrol_name": "SURVEILLANCE SENTRY BOT",
+        "patrol_sprite": "laser",
+        "patrol_shape": "mechanical_turret",
+        "patrol_color": "#270e02",
+        "patrol_eyes": "#f59e0b",
+        "objects": ["Velvet Sectional Sofa", "Mahogany Coffee Table", "Hardwood Bookshelf", "Decorative Area Rug", "Floor Standing Lamp"],
+        "object_colors": ["#c2410c", "#92400e", "#b45309", "#78350f", "#f59e0b"],
+        "palette": {
+            "floorColor": "#1c140e",
+            "floorTexture": "wood",
+            "wallTop": "#451a03",
+            "wallFront": "#270e02",
+            "wallRim": "#f59e0b",
+            "weather": "dust",
+            "ambientLight": "#f59e0b"
+        }
+    },
+    "cyberpunk_street": {
+        "guardian_name": "METRO ENFORCER TITAN",
+        "guardian_sprite": "monster",
+        "guardian_shape": "golem_titan",
+        "guardian_color": "#18181b",
+        "guardian_eyes": "#00f2fe",
+        "guardian_accessory": "horns",
+        "chaser_name": "CYBERNETIC STALKER",
+        "chaser_sprite": "guard",
+        "chaser_shape": "humanoid_guard",
+        "chaser_color": "#27272a",
+        "chaser_eyes": "#ff007f",
+        "patrol_name": "LASER SCANNER BEACON",
+        "patrol_sprite": "laser",
+        "patrol_shape": "mechanical_turret",
+        "patrol_color": "#09090b",
+        "patrol_eyes": "#00f2fe",
+        "objects": ["Neon Billboard Frame", "Cyber Dumpster Unit", "Steel Barrier Gate", "Pneumatic Tube Terminal", "Street Hydrant Core"],
+        "object_colors": ["#00f2fe", "#ff007f", "#3b82f6", "#71717a", "#e4e4e7"],
+        "palette": {
+            "floorColor": "#09090b",
+            "floorTexture": "circuit",
+            "wallTop": "#27272a",
+            "wallFront": "#18181b",
+            "wallRim": "#00f2fe",
+            "weather": "sparks",
+            "ambientLight": "#00f2fe"
+        }
+    },
+    "gym": {
+        "guardian_name": "TITAN IRON ENFORCER",
+        "guardian_sprite": "monster",
+        "guardian_shape": "golem_titan",
+        "guardian_color": "#be123c",
+        "guardian_eyes": "#f43f5e",
+        "guardian_accessory": "flame_aura",
+        "chaser_name": "CARDIO PATROL BOT",
+        "chaser_sprite": "guard",
+        "chaser_shape": "humanoid_guard",
+        "chaser_color": "#e11d48",
+        "chaser_eyes": "#fda4af",
+        "patrol_name": "HEAVY SQUAT SENTRY",
+        "patrol_sprite": "laser",
+        "patrol_shape": "mechanical_turret",
+        "patrol_color": "#881337",
+        "patrol_eyes": "#f43f5e",
+        "objects": ["Heavy Olympic Barbell Rack", "Incline Dumbbell Bench", "Power Squat Cage", "Cardio Treadmill Station", "Kettlebell Pyramids"],
+        "object_colors": ["#e11d48", "#f43f5e", "#fda4af", "#be123c", "#4c0519"],
+        "palette": {
+            "floorColor": "#140c10",
+            "floorTexture": "cracks",
+            "wallTop": "#4c0519",
+            "wallFront": "#280510",
+            "wallRim": "#f43f5e",
+            "weather": "sparks",
+            "ambientLight": "#f43f5e"
+        }
     }
 }
 
+import re
+
 def resolve_theme_key(theme_str: str) -> str:
-    t = (theme_str or "").lower()
-    if any(w in t for w in ["hospital", "haspital", "hopital", "hosp", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance", "stretcher", "ward", "health", "trauma", "triage", "icu", "er", "emergency"]):
+    t = (theme_str or "").lower().strip()
+    words = set(re.findall(r'[a-z0-9]+', t))
+
+    if any(w in words for w in ["gym", "fitness", "workout", "weights", "crossfit", "bench", "barbell", "dumbbell", "treadmill"]):
+        return "gym"
+    if any(w in words for w in ["hospital", "haspital", "hopital", "hosp", "clinic", "medical", "doctor", "nurse", "surgery", "patient", "infirmary", "ambulance", "stretcher", "ward", "health", "trauma", "triage", "icu", "er", "emergency"]):
         return "hospital"
-    if any(w in t for w in ["police", "cop", "precinct", "constable", "sheriff", "jail", "prison", "interrogation", "lockup", "detective"]):
+    if any(w in words for w in ["police", "cop", "precinct", "constable", "sheriff", "jail", "prison", "interrogation", "lockup", "detective"]):
         return "police"
-    if (any(w in t for w in ["railway", "train", "subway", "metro", "transit", "locomotive", "track", "platform", "depot"]) or
-        ("station" in t and not any(x in t for x in ["police", "nurse", "aid", "space", "fire"]))):
+    if any(w in words for w in ["railway", "train", "subway", "metro", "transit", "locomotive", "track", "platform", "depot"]):
         return "railway"
-    if any(w in t for w in ["kitchen", "restaurant", "chef", "cook", "dining", "bakery", "cafe", "bistro", "stove", "pantry"]):
+    if "station" in words and not any(x in words for x in ["police", "nurse", "aid", "space", "fire"]):
+        return "railway"
+    if any(w in words for w in ["kitchen", "restaurant", "chef", "cook", "dining", "bakery", "cafe", "bistro", "stove", "pantry", "culinary"]):
         return "kitchen"
-    if any(w in t for w in ["airport", "airplane", "plane", "aircraft", "hangar", "runway", "tarmac", "terminal", "flight"]):
+    if any(w in words for w in ["airport", "airplane", "plane", "aircraft", "hangar", "runway", "tarmac", "terminal", "flight"]):
         return "airport"
-    if any(w in t for w in ["snow", "ice", "frost", "mountain", "arctic", "winter", "glacier", "tundra", "cold", "blizzard", "penguin"]):
+    if any(w in words for w in ["snow", "ice", "frost", "mountain", "arctic", "winter", "glacier", "tundra", "cold", "blizzard", "penguin"]):
         return "snow"
-    if any(w in t for w in ["volcano", "lava", "fire", "inferno", "magma", "molten", "burn"]):
+    if any(w in words for w in ["volcano", "lava", "fire", "inferno", "magma", "molten", "burn"]):
         return "volcano"
-    if any(w in t for w in ["desert", "sand", "pyramid", "tomb", "dune", "egypt"]):
+    if any(w in words for w in ["desert", "sand", "pyramid", "tomb", "dune", "egypt"]):
         return "desert"
-    if any(w in t for w in ["ocean", "underwater", "sea", "aquatic", "abyss", "reef", "water"]):
+    if any(w in words for w in ["ocean", "underwater", "sea", "aquatic", "abyss", "reef", "water"]):
         return "ocean"
-    if any(w in t for w in ["space", "alien", "cosmic", "void", "galaxy", "starship", "orbit", "space_station"]):
+    if any(w in words for w in ["space", "alien", "cosmic", "void", "galaxy", "starship", "orbit", "space_station"]):
         return "space"
-    if any(w in t for w in ["haunt", "ghost", "phantom", "spooky", "wraith", "mansion", "horror", "crypt", "specter", "undead"]):
+    if any(w in words for w in ["haunt", "ghost", "phantom", "spooky", "wraith", "mansion", "horror", "crypt", "specter", "undead"]):
         return "haunted"
-    if any(w in t for w in ["bank", "vault", "guard", "security", "laser", "heist", "money", "gold", "cash", "teller", "bullion"]):
+    if any(w in words for w in ["bank", "vault", "guard", "security", "laser", "heist", "money", "gold", "cash", "teller", "bullion"]):
         return "bank"
-    if any(w in t for w in ["cyber", "tech", "server", "matrix", "drone", "lab", "robot"]):
+    if any(w in words for w in ["cyber", "cyberpunk", "tech", "server", "matrix", "drone", "lab", "robot"]):
         return "cyberpunk"
-    if any(w in t for w in ["dungeon", "catacomb", "castle", "relic", "stone", "cave"]):
+    if any(w in words for w in ["dungeon", "catacomb", "castle", "relic", "stone", "cave"]):
         return "dungeon"
-    if any(w in t for w in ["class", "school", "auditorium", "lecture", "study"]):
+    if any(w in words for w in ["class", "classroom", "school", "auditorium", "lecture", "study"]):
         return "classroom"
-    if any(w in t for w in ["office", "desk", "work", "cubicle", "corporate"]):
+    if any(w in words for w in ["office", "desk", "work", "cubicle", "corporate"]):
         return "office"
-    if any(w in t for w in ["nature", "forest", "park", "garden", "plant", "jungle", "swamp", "tree", "yard"]):
+    if any(w in words for w in ["living", "couch", "sofa", "bedroom", "home", "house", "lounge", "apartment", "dorm", "room"]):
+        return "living_room"
+    if any(w in words for w in ["nature", "forest", "park", "garden", "plant", "jungle", "swamp", "tree", "yard"]):
         return "nature"
-    # Never default to ghosts/haunted for general environments! Default to high-security facility:
+    if any(w in words for w in ["street", "city", "urban", "road", "alley", "plaza"]):
+        return "cyberpunk_street"
     return "bank"
 
 def generate_procedural_level(
