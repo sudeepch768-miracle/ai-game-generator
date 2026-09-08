@@ -92,7 +92,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
     };
   };
 
-  // Animated miniature canvas preview
+  // Animated miniature canvas preview (Enlarged 560x280 live engine showcase)
   useEffect(() => {
     const canvas = miniCanvasRef.current;
     if (!canvas) return;
@@ -101,93 +101,297 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
 
     let animId: number;
     let t = 0;
-    let charX = 60;
-    let charY = 80;
-    let targetX = 220;
-    let targetY = 80;
+
+    // Waypoints for smooth character traversal across the 560x280 level
+    const waypoints = [
+      { x: 65, y: 215 },
+      { x: 140, y: 90 },
+      { x: 230, y: 155 },
+      { x: 310, y: 220 },
+      { x: 440, y: 195 },
+      { x: 505, y: 135 },
+      { x: 390, y: 80 },
+    ];
+    let wpIndex = 0;
+    let charX = waypoints[0].x;
+    let charY = waypoints[0].y;
+    let facingLeft = false;
+
+    // Sentry drone patrol
+    let droneX = 350;
+    let droneDir = 1;
+
+    // Dust particles for footsteps
+    const particles: { x: number; y: number; alpha: number; radius: number }[] = [];
 
     const renderMini = () => {
-      t += 0.03;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      t += 0.035;
+      const w = canvas.width;  // 560
+      const h = canvas.height; // 280
+      ctx.clearRect(0, 0, w, h);
 
-      // Floor
-      const tileSize = 20;
-      for (let r = 0; r < 7; r++) {
-        for (let c = 0; c < 14; c++) {
+      // 1. Grid Floor Tiles (20 cols x 10 rows, 28px each)
+      const tileSize = 28;
+      const cols = 20;
+      const rows = 10;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
           if (isHackerMode) {
-            ctx.fillStyle = (r + c) % 2 === 0 ? '#05180e' : '#020b06';
+            ctx.fillStyle = (r + c) % 2 === 0 ? '#04180e' : '#020e07';
           } else {
-            ctx.fillStyle = (r + c) % 2 === 0 ? '#111728' : '#0d1220';
+            ctx.fillStyle = (r + c) % 2 === 0 ? '#111728' : '#0b101e';
           }
           ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+
+          // Subtle tech grid dots at intersections
+          if (r > 0 && c > 0 && (r + c) % 3 === 0) {
+            ctx.fillStyle = isHackerMode ? 'rgba(0, 255, 102, 0.08)' : 'rgba(0, 242, 254, 0.06)';
+            ctx.fillRect(c * tileSize - 1, r * tileSize - 1, 2, 2);
+          }
         }
       }
 
-      // Walls
-      ctx.fillStyle = isHackerMode ? '#003b1a' : '#1e293b';
-      ctx.fillRect(0, 0, canvas.width, 6);
-      ctx.fillRect(0, canvas.height - 6, canvas.width, 6);
-      ctx.fillRect(0, 0, 6, canvas.height);
-      ctx.fillRect(canvas.width - 6, 0, 6, canvas.height);
+      // 2. High-Tech Perimeter Walls
+      const wallThickness = 8;
+      ctx.fillStyle = isHackerMode ? '#003318' : '#1e293b';
+      ctx.fillRect(0, 0, w, wallThickness);
+      ctx.fillRect(0, h - wallThickness, w, wallThickness);
+      ctx.fillRect(0, 0, wallThickness, h);
+      ctx.fillRect(w - wallThickness, 0, wallThickness, h);
 
-      // Terminal / Desk Obstacle
-      ctx.fillStyle = isHackerMode ? '#00552b' : '#8b5a2b';
-      ctx.fillRect(110, 40, 50, 24);
+      // Neon Wall Inset Accent Lines
+      ctx.strokeStyle = isHackerMode ? 'rgba(0, 255, 102, 0.35)' : 'rgba(0, 242, 254, 0.25)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(wallThickness + 0.5, wallThickness + 0.5, w - wallThickness * 2 - 1, h - wallThickness * 2 - 1);
+
+      // 3. Central Mainframe / Terminal Server Racks (x: 180, y: 55, w: 90, h: 48)
+      ctx.fillStyle = isHackerMode ? '#002613' : '#1e1b4b';
+      ctx.fillRect(180, 55, 88, 46);
+      ctx.strokeStyle = isHackerMode ? '#00ff66' : '#6366f1';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(180, 55, 88, 46);
+
+      // Server rack screens & blinking LED status diodes
+      ctx.fillStyle = isHackerMode ? '#001a0d' : '#0f172a';
+      ctx.fillRect(186, 62, 40, 32);
       ctx.fillStyle = isHackerMode ? '#00ff66' : '#00f2fe';
-      ctx.fillRect(125, 46, 20, 10);
+      ctx.font = '7px monospace';
+      ctx.fillText('>SYS_OK', 189, 74);
+      ctx.fillText(' 99.8%', 189, 85);
 
-      // Exit Doorway / Node
-      const exitPulse = Math.sin(t * 4) * 2;
-      ctx.fillStyle = isHackerMode ? '#00ff66' : '#43e97b';
-      ctx.fillRect(canvas.width - 24, 50, 14, 28);
-      ctx.strokeStyle = isHackerMode ? 'rgba(0, 255, 102, 0.8)' : 'rgba(67, 233, 123, 0.6)';
-      ctx.lineWidth = 2 + exitPulse;
-      ctx.strokeRect(canvas.width - 24, 50, 14, 28);
+      // Blinking LEDs
+      const ledColors = [
+        Math.sin(t * 8) > 0 ? '#00ff66' : '#00441a',
+        Math.sin(t * 12 + 1) > 0 ? '#00f2fe' : '#003344',
+        Math.sin(t * 6 + 2) > 0 ? '#ffd700' : '#443300',
+        Math.sin(t * 10 + 3) > 0 ? '#ff0055' : '#330011',
+      ];
+      ledColors.forEach((col, idx) => {
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.arc(238 + (idx % 2) * 14, 68 + Math.floor(idx / 2) * 16, 3, 0, Math.PI * 2);
+        ctx.fill();
+      });
 
-      // Golden / Cyber Key
-      const keyBob = Math.sin(t * 5) * 3;
+      // 4. Laser Security Gate Barrier (x: 310, y: 50, w: 10, h: 70)
+      ctx.fillStyle = isHackerMode ? '#00381b' : '#334155';
+      ctx.fillRect(310, 50, 10, 12);
+      ctx.fillRect(310, 108, 10, 12);
+      const laserAlpha = 0.4 + Math.sin(t * 10) * 0.3;
+      ctx.strokeStyle = isHackerMode ? `rgba(0, 255, 102, ${laserAlpha})` : `rgba(255, 0, 127, ${laserAlpha})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(315, 62);
+      ctx.lineTo(315, 108);
+      ctx.stroke();
+
+      // 5. Exit Teleporter Gate (Right side: x: w - 38, y: 110, w: 24, h: 54)
+      const exitX = w - 38;
+      const exitY = 110;
+      const exitPulse = Math.sin(t * 4) * 3;
+      ctx.fillStyle = isHackerMode ? '#002a15' : '#0f172a';
+      ctx.fillRect(exitX, exitY, 24, 54);
+      ctx.strokeStyle = isHackerMode ? '#00ff66' : '#43e97b';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(exitX, exitY, 24, 54);
+
+      // Swirling portal interior
+      const portalGrad = ctx.createRadialGradient(exitX + 12, exitY + 27, 2, exitX + 12, exitY + 27, 20 + exitPulse);
+      portalGrad.addColorStop(0, '#ffffff');
+      portalGrad.addColorStop(0.4, isHackerMode ? '#00ff66' : '#00f2fe');
+      portalGrad.addColorStop(1, isHackerMode ? 'rgba(0, 255, 102, 0.1)' : 'rgba(67, 233, 123, 0.1)');
+      ctx.fillStyle = portalGrad;
+      ctx.fillRect(exitX + 2, exitY + 2, 20, 50);
+
+      // Portal swirl vortex ring
+      ctx.strokeStyle = isHackerMode ? 'rgba(0, 255, 102, 0.8)' : 'rgba(67, 233, 123, 0.8)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(exitX + 12, exitY + 27, 6 + Math.sin(t * 6) * 3, 16 + Math.cos(t * 6) * 3, t * 2, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // 6. Collectible Items
+      // Item A: Floating Cyan/Gold Gem at (110, 85)
+      const gemBob = Math.sin(t * 5) * 4;
       ctx.fillStyle = isHackerMode ? '#00f2fe' : '#ffd700';
       ctx.beginPath();
-      ctx.arc(80, 50 + keyBob, 5, 0, Math.PI * 2);
+      ctx.moveTo(110, 80 + gemBob);
+      ctx.lineTo(116, 88 + gemBob);
+      ctx.lineTo(110, 96 + gemBob);
+      ctx.lineTo(104, 88 + gemBob);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.strokeStyle = isHackerMode ? 'rgba(0, 242, 254, 0.5)' : 'rgba(255, 215, 0, 0.5)';
+      ctx.beginPath();
+      ctx.arc(110, 88 + gemBob, 10 + Math.sin(t * 7) * 3, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Item B: Cyber Token at (290, 215)
+      const tokenBob = Math.sin(t * 4 + 1.5) * 3;
+      ctx.fillStyle = isHackerMode ? '#00ff66' : '#a855f7';
+      ctx.beginPath();
+      ctx.arc(290, 215 + tokenBob, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '8px monospace';
+      ctx.fillText('◈', 286.5, 218 + tokenBob);
+
+      // Item C: Health Medkit at (460, 65)
+      const heartBob = Math.sin(t * 4 + 3) * 3;
+      ctx.fillStyle = isHackerMode ? '#00ff66' : '#ff0844';
+      ctx.fillRect(454, 60 + heartBob, 12, 10);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(458, 62 + heartBob, 4, 6);
+      ctx.fillRect(456, 64 + heartBob, 8, 2);
+
+      // 7. Patrolling Sentry Drone (moves horizontally between 340 and 460 at y: 85)
+      droneX += droneDir * 0.8;
+      if (droneX > 450) {
+        droneDir = -1;
+      } else if (droneX < 340) {
+        droneDir = 1;
+      }
+      const droneY = 85 + Math.sin(t * 3) * 3;
+
+      // Sentry Detection Cone
+      const coneAngle = droneDir > 0 ? 0 : Math.PI;
+      ctx.save();
+      ctx.translate(droneX, droneY);
+      ctx.rotate(coneAngle);
+      const coneGrad = ctx.createRadialGradient(0, 0, 5, 65, 0, 70);
+      coneGrad.addColorStop(0, isHackerMode ? 'rgba(0, 255, 102, 0.35)' : 'rgba(255, 8, 68, 0.35)');
+      coneGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = coneGrad;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, 70, -0.4, 0.4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // Sentry Drone Chassis
+      ctx.fillStyle = isHackerMode ? '#003318' : '#334155';
+      ctx.beginPath();
+      ctx.arc(droneX, droneY, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = isHackerMode ? '#00ff66' : '#ff0844';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Sentry Red Eye
+      ctx.fillStyle = isHackerMode ? '#00ff66' : '#ff0844';
+      ctx.beginPath();
+      ctx.arc(droneX + droneDir * 3, droneY, 3, 0, Math.PI * 2);
       ctx.fill();
 
-      // Moving mini character
-      charX += (targetX - charX) * 0.02;
-      charY += (targetY - charY) * 0.02;
+      // 8. Player Character Waypoint Navigation
+      const currentTarget = waypoints[wpIndex];
+      const dx = currentTarget.x - charX;
+      const dy = currentTarget.y - charY;
+      const dist = Math.hypot(dx, dy);
 
-      if (Math.hypot(charX - targetX, charY - targetY) < 5) {
-        if (targetX === 220) {
-          targetX = 40;
-          targetY = 100;
-        } else {
-          targetX = 220;
-          targetY = 60;
+      if (dist < 8) {
+        wpIndex = (wpIndex + 1) % waypoints.length;
+      } else {
+        const moveSpeed = 1.35;
+        charX += (dx / dist) * moveSpeed;
+        charY += (dy / dist) * moveSpeed;
+        if (dx !== 0) {
+          facingLeft = dx < 0;
+        }
+
+        // Emit footstep dust particles
+        if (Math.random() < 0.25) {
+          particles.push({
+            x: charX + (Math.random() - 0.5) * 6,
+            y: charY + 11,
+            alpha: 0.7,
+            radius: 2 + Math.random() * 2,
+          });
         }
       }
 
-      const walkBob = Math.sin(t * 12) * 2;
-      // Shadow
-      ctx.fillStyle = 'rgba(0,0,0,0.4)';
-      ctx.beginPath();
-      ctx.ellipse(charX, charY + 9, 7, 3, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Body
-      ctx.fillStyle = isHackerMode ? '#00ff66' : '#ff007f';
-      ctx.fillRect(charX - 5, charY - 3 + walkBob, 10, 10);
-
-      // Head
-      ctx.fillStyle = isHackerMode ? '#a7f3d0' : '#ffdfba';
-      ctx.beginPath();
-      ctx.arc(charX, charY - 8 + walkBob, 5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Hacker CRT Scanline on canvas
-      if (isHackerMode) {
-        ctx.fillStyle = 'rgba(0, 255, 102, 0.06)';
-        for (let y = 0; y < canvas.height; y += 4) {
-          ctx.fillRect(0, y, canvas.width, 1.5);
+      // Draw footstep dust particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.alpha -= 0.025;
+        p.radius += 0.08;
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+        } else {
+          ctx.fillStyle = isHackerMode ? `rgba(0, 255, 102, ${p.alpha * 0.4})` : `rgba(255, 255, 255, ${p.alpha * 0.3})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
         }
+      }
+
+      const walkBob = Math.sin(t * 11) * 2.5;
+
+      // Character Shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+      ctx.beginPath();
+      ctx.ellipse(charX, charY + 12, 9, 3.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Character Body / Suit
+      ctx.fillStyle = isHackerMode ? '#00ff66' : '#ff007f';
+      ctx.fillRect(charX - 7, charY - 4 + walkBob, 14, 13);
+      ctx.strokeStyle = isHackerMode ? '#021e10' : '#5b002d';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(charX - 7, charY - 4 + walkBob, 14, 13);
+
+      // Character Head / Cyber Helmet
+      ctx.fillStyle = isHackerMode ? '#a7f3d0' : '#ffd5b8';
+      ctx.beginPath();
+      ctx.arc(charX, charY - 10 + walkBob, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Character Visor
+      ctx.fillStyle = isHackerMode ? '#00331a' : '#00f2fe';
+      const visorX = facingLeft ? charX - 6 : charX + 1;
+      ctx.fillRect(visorX, charY - 12 + walkBob, 5, 4);
+
+      // 9. Interactive HUD Corner Overlays in Canvas
+      ctx.fillStyle = isHackerMode ? 'rgba(0, 255, 102, 0.85)' : 'rgba(0, 242, 254, 0.85)';
+      ctx.font = '8px monospace';
+      ctx.fillText(`PLAYER POS: [${Math.round(charX)}, ${Math.round(charY)}]`, 16, 22);
+      ctx.fillText(`WAYPOINT: ${wpIndex + 1}/${waypoints.length}`, 16, 32);
+
+      ctx.fillStyle = isHackerMode ? 'rgba(0, 255, 102, 0.85)' : 'rgba(255, 215, 0, 0.85)';
+      ctx.textAlign = 'right';
+      ctx.fillText(`GEMS: 2/2 ◈ KEY: COLLECTED`, w - 16, 22);
+      ctx.textAlign = 'left';
+
+      // 10. Scanlines across canvas
+      ctx.fillStyle = isHackerMode ? 'rgba(0, 255, 102, 0.05)' : 'rgba(255, 255, 255, 0.03)';
+      for (let y = 0; y < h; y += 3) {
+        ctx.fillRect(0, y, w, 1);
       }
 
       animId = requestAnimationFrame(renderMini);
@@ -372,7 +576,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: '16px',
+          marginBottom: '28px',
           flexWrap: 'wrap',
           gap: '12px',
           zIndex: 20,
@@ -485,7 +689,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: '8px',
+          margin: '0 auto 26px auto',
           zIndex: 35,
           position: 'relative',
         }}
@@ -494,7 +698,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           isHackerMode={isHackerMode}
           isSucking={warpPhase === 'suction'}
           onClick={handleSingularityTrigger}
-          width={175}
+          width={150}
         />
       </div>
 
@@ -594,7 +798,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
             fontSize: 'clamp(16px, 2.5vw, 22px)',
             color: isHackerMode ? '#00ff66' : '#f8fafc',
             fontWeight: 600,
-            margin: '0 0 8px 0',
+            margin: '0 0 14px 0',
             textAlign: 'center',
             letterSpacing: isHackerMode ? '1px' : 'normal',
           }}
@@ -608,7 +812,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
             color: isHackerMode ? '#86efac' : '#94a3b8',
             maxWidth: '620px',
             textAlign: 'center',
-            margin: '0 0 32px 0',
+            margin: '0 0 36px 0',
             lineHeight: '1.6',
             fontFamily: isHackerMode ? '"Share Tech Mono", monospace' : 'inherit',
           }}
@@ -618,21 +822,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
             : 'Upload any photo — from haunted mansions to bank vaults — and watch Multimodal AI comprehend the architecture, create custom hazards & thematic enemies, and generate a 100% playable 2D adventure.'}
         </p>
 
-        {/* Interactive Mini Preview Frame */}
+        {/* Interactive Mini Preview Frame (Enlarged 560x280 Showcase) */}
         <div
           style={{
-            background: isHackerMode ? 'rgba(3, 16, 10, 0.92)' : 'rgba(11, 15, 25, 0.85)',
-            border: isHackerMode ? '2px solid rgba(0, 255, 102, 0.45)' : '2px solid rgba(0, 242, 254, 0.3)',
-            borderRadius: '20px',
-            padding: '12px 16px',
+            background: isHackerMode ? 'rgba(3, 16, 10, 0.94)' : 'rgba(11, 15, 25, 0.9)',
+            border: isHackerMode ? '2px solid rgba(0, 255, 102, 0.5)' : '2px solid rgba(0, 242, 254, 0.35)',
+            borderRadius: '22px',
+            padding: '16px 20px',
             boxShadow: isHackerMode
-              ? '0 15px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 255, 102, 0.2)'
-              : '0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 242, 254, 0.15)',
-            marginBottom: '32px',
+              ? '0 20px 50px rgba(0, 0, 0, 0.75), 0 0 35px rgba(0, 255, 102, 0.22)'
+              : '0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(0, 242, 254, 0.18)',
+            marginBottom: '40px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '8px',
+            gap: '12px',
+            width: '100%',
+            maxWidth: '640px',
+            boxSizing: 'border-box',
           }}
         >
           <div
@@ -644,27 +851,27 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
               padding: '0 4px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div
                 style={{
-                  width: '8px',
-                  height: '8px',
+                  width: '9px',
+                  height: '9px',
                   borderRadius: '50%',
                   background: isHackerMode ? '#00ff66' : '#ff0844',
                 }}
               />
               <div
                 style={{
-                  width: '8px',
-                  height: '8px',
+                  width: '9px',
+                  height: '9px',
                   borderRadius: '50%',
                   background: isHackerMode ? '#00f2fe' : '#ffd700',
                 }}
               />
               <div
                 style={{
-                  width: '8px',
-                  height: '8px',
+                  width: '9px',
+                  height: '9px',
                   borderRadius: '50%',
                   background: isHackerMode ? '#ffffff' : '#43e97b',
                 }}
@@ -672,19 +879,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
               <span
                 style={{
                   fontSize: '11px',
-                  color: isHackerMode ? '#00ff66' : '#64748b',
+                  color: isHackerMode ? '#00ff66' : '#94a3b8',
                   marginLeft: '6px',
                   fontFamily: 'monospace',
+                  fontWeight: 700,
+                  letterSpacing: '0.5px',
                 }}
               >
-                {isHackerMode ? 'KERNEL_0x7F // LIVE VIRTUAL SANDBOX' : 'LIVE ENGINE PREVIEW'}
+                {isHackerMode ? 'KERNEL_0x7F // LIVE VIRTUAL SANDBOX' : 'LIVE ENGINE PREVIEW // PROCEDURAL 2D ADVENTURE'}
               </span>
             </div>
             <span
               style={{
                 fontSize: '11px',
-                color: isHackerMode ? '#00f2fe' : '#00f2fe',
+                color: '#00f2fe',
                 fontFamily: 'monospace',
+                fontWeight: 700,
               }}
             >
               {isHackerMode ? 'LATENCY: 0.2ms // SECURE' : '60 FPS DETERMINISTIC'}
@@ -693,12 +903,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
 
           <canvas
             ref={miniCanvasRef}
-            width={280}
-            height={140}
+            width={560}
+            height={280}
             style={{
-              borderRadius: '12px',
+              width: '100%',
+              maxWidth: '560px',
+              aspectRatio: '2 / 1',
+              borderRadius: '14px',
               border: isHackerMode ? '1px solid #00552b' : '1px solid #1e293b',
               display: 'block',
+              boxShadow: isHackerMode ? '0 0 25px rgba(0, 255, 102, 0.15)' : '0 0 25px rgba(0, 242, 254, 0.1)',
             }}
           />
         </div>
@@ -817,8 +1031,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '14px',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+              gap: '10px',
             }}
           >
             {RECOMMENDATIONS.map((rec) => (
@@ -827,19 +1041,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                 style={{
                   background: isHackerMode ? 'rgba(4, 18, 12, 0.88)' : 'rgba(15, 23, 42, 0.85)',
                   border: isHackerMode ? '1px solid rgba(0, 255, 102, 0.35)' : '1px solid rgba(0, 242, 254, 0.25)',
-                  borderRadius: '16px',
-                  padding: '16px',
+                  borderRadius: '14px',
+                  padding: '11px 13px',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   transition: 'all 0.2s ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.borderColor = isHackerMode ? '#00ff66' : '#00f2fe';
                   e.currentTarget.style.boxShadow = isHackerMode
-                    ? '0 10px 25px rgba(0, 255, 102, 0.3)'
-                    : '0 10px 25px rgba(0, 242, 254, 0.25)';
+                    ? '0 6px 18px rgba(0, 255, 102, 0.25)'
+                    : '0 6px 18px rgba(0, 242, 254, 0.2)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
@@ -855,14 +1069,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      marginBottom: '8px',
+                      marginBottom: '6px',
                     }}
                   >
-                    <span style={{ fontSize: '24px' }}>{rec.icon}</span>
-                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <span style={{ fontSize: '20px' }}>{rec.icon}</span>
+                    <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
                       <span
                         style={{
-                          fontSize: '9px',
+                          fontSize: '8px',
                           fontWeight: 800,
                           color:
                             rec.suggestedDifficulty === 'nightmare'
@@ -871,8 +1085,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                                 ? '#f59e0b'
                                 : '#43e97b',
                           background: 'rgba(0, 0, 0, 0.5)',
-                          padding: '3px 7px',
-                          borderRadius: '8px',
+                          padding: '2px 5px',
+                          borderRadius: '6px',
                           border: '1px solid rgba(255, 255, 255, 0.1)',
                         }}
                       >
@@ -880,12 +1094,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                       </span>
                       <span
                         style={{
-                          fontSize: '9px',
+                          fontSize: '8px',
                           fontWeight: 700,
                           color: isHackerMode ? '#00ff66' : '#00f2fe',
                           background: isHackerMode ? 'rgba(0, 255, 102, 0.12)' : 'rgba(0, 242, 254, 0.1)',
-                          padding: '3px 7px',
-                          borderRadius: '8px',
+                          padding: '2px 5px',
+                          borderRadius: '6px',
                         }}
                       >
                         {isHackerMode ? `[NODE_${rec.tag}]` : rec.tag}
@@ -893,38 +1107,42 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                     </div>
                   </div>
 
-                  <div style={{ fontSize: '15px', fontWeight: 800, color: '#ffffff', marginBottom: '6px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#ffffff', marginBottom: '4px' }}>
                     {rec.title}
                   </div>
 
                   <div
                     style={{
-                      fontSize: '12px',
+                      fontSize: '11px',
                       color: isHackerMode ? '#a7f3d0' : '#94a3b8',
-                      lineHeight: '1.4',
-                      marginBottom: '10px',
+                      lineHeight: '1.35',
+                      marginBottom: '6px',
                     }}
                   >
                     {rec.desc}
                   </div>
 
                   <div
+                    title={rec.promptIdea}
                     style={{
-                      fontSize: '11px',
+                      fontSize: '10px',
                       color: isHackerMode ? '#6ee7b7' : '#e2e8f0',
                       background: isHackerMode ? 'rgba(0, 255, 102, 0.08)' : 'rgba(255, 255, 255, 0.05)',
-                      padding: '6px 10px',
-                      borderRadius: '8px',
+                      padding: '4px 8px',
+                      borderRadius: '6px',
                       fontStyle: 'italic',
-                      marginBottom: '12px',
+                      marginBottom: '10px',
                       border: isHackerMode ? '1px solid rgba(0, 255, 102, 0.2)' : 'none',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
                     }}
                   >
                     💡 {rec.promptIdea}
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '6px' }}>
                   <button
                     onClick={() => onCreateWithPreset && onCreateWithPreset(rec)}
                     style={{
@@ -934,21 +1152,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                         : 'linear-gradient(90deg, #ff007f, #7928ca)',
                       color: isHackerMode ? '#030805' : '#ffffff',
                       border: 'none',
-                      borderRadius: '10px',
-                      padding: '9px 12px',
-                      fontSize: '11px',
+                      borderRadius: '8px',
+                      padding: '7px 10px',
+                      fontSize: '10px',
                       fontWeight: 800,
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '5px',
+                      gap: '4px',
                       boxShadow: isHackerMode
-                        ? '0 4px 12px rgba(0, 255, 102, 0.3)'
-                        : '0 4px 12px rgba(255, 0, 127, 0.3)',
+                        ? '0 3px 10px rgba(0, 255, 102, 0.25)'
+                        : '0 3px 10px rgba(255, 0, 127, 0.25)',
                     }}
                   >
-                    {isHackerMode ? <Zap size={13} fill="#030805" /> : <Sparkles size={13} />}
+                    {isHackerMode ? <Zap size={12} fill="#030805" /> : <Sparkles size={12} />}
                     <span>{isHackerMode ? 'Inject Vector' : 'Create with Idea'}</span>
                   </button>
 
@@ -959,19 +1177,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                         background: isHackerMode ? 'rgba(0, 255, 102, 0.15)' : 'rgba(67, 233, 123, 0.15)',
                         color: isHackerMode ? '#00ff66' : '#43e97b',
                         border: isHackerMode ? '1px solid #00ff66' : '1px solid #43e97b',
-                        borderRadius: '10px',
-                        padding: '9px 12px',
-                        fontSize: '11px',
+                        borderRadius: '8px',
+                        padding: '7px 10px',
+                        fontSize: '10px',
                         fontWeight: 700,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '5px',
+                        gap: '4px',
                       }}
                     >
-                      <Play size={12} fill={isHackerMode ? '#00ff66' : '#43e97b'} />
-                      <span>Quick Play</span>
+                      <Play size={11} fill={isHackerMode ? '#00ff66' : '#43e97b'} />
+                      <span>Play</span>
                     </button>
                   )}
                 </div>
@@ -1000,8 +1218,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: '14px',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))',
+              gap: '10px',
             }}
           >
             {ALL_DEMO_GAMES.map((game) => (
@@ -1011,8 +1229,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                 style={{
                   background: isHackerMode ? 'rgba(4, 18, 12, 0.82)' : 'rgba(15, 23, 42, 0.75)',
                   border: isHackerMode ? '1px solid rgba(0, 255, 102, 0.28)' : '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: '16px',
-                  padding: '16px',
+                  borderRadius: '14px',
+                  padding: '10px 12px',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   display: 'flex',
@@ -1020,11 +1238,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                   justifyContent: 'space-between',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.borderColor = isHackerMode ? '#00ff66' : '#00f2fe';
                   e.currentTarget.style.boxShadow = isHackerMode
-                    ? '0 10px 25px rgba(0, 255, 102, 0.25)'
-                    : '0 10px 25px rgba(0, 242, 254, 0.2)';
+                    ? '0 6px 18px rgba(0, 255, 102, 0.22)'
+                    : '0 6px 18px rgba(0, 242, 254, 0.18)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
@@ -1040,12 +1258,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      marginBottom: '8px',
+                      marginBottom: '6px',
                     }}
                   >
                     <span
                       style={{
-                        fontSize: '10px',
+                        fontSize: '9px',
                         fontWeight: 700,
                         color: isHackerMode ? '#00ff66' : '#ff007f',
                         textTransform: 'uppercase',
@@ -1056,24 +1274,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
                     </span>
                     <span
                       style={{
-                        fontSize: '11px',
+                        fontSize: '10px',
                         color: isHackerMode ? '#00f2fe' : '#f6d365',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px',
+                        gap: '3px',
                       }}
                     >
                       ⏱️ {game.timeLimit}s
                     </span>
                   </div>
-                  <div style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff', marginBottom: '6px', lineHeight: '1.3' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff', marginBottom: '4px', lineHeight: '1.25' }}>
                     {game.title}
                   </div>
                   <div
                     style={{
-                      fontSize: '11px',
+                      fontSize: '10.5px',
                       color: isHackerMode ? '#a7f3d0' : '#94a3b8',
-                      lineHeight: '1.4',
+                      lineHeight: '1.3',
                     }}
                   >
                     {game.description}
@@ -1082,16 +1300,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
 
                 <div
                   style={{
-                    marginTop: '14px',
+                    marginTop: '8px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    fontSize: '12px',
+                    gap: '5px',
+                    fontSize: '11px',
                     fontWeight: 700,
                     color: isHackerMode ? '#00ff66' : '#00f2fe',
                   }}
                 >
-                  <Play size={13} fill={isHackerMode ? '#00ff66' : '#00f2fe'} />
+                  <Play size={11} fill={isHackerMode ? '#00ff66' : '#00f2fe'} />
                   <span>{isHackerMode ? 'Execute Module' : 'Launch Level'}</span>
                 </div>
               </div>
