@@ -228,15 +228,61 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
       <h1 style={{
         fontFamily: '"Press Start 2P", monospace',
         fontSize: 'clamp(26px, 5vw, 44px)',
-        margin: '0 0 12px 0',
+        margin: '0 0 14px 0',
         textAlign: 'center',
-        background: 'linear-gradient(135deg, #ffffff 0%, #00f2fe 50%, #ff007f 100%)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        filter: 'drop-shadow(0 0 25px rgba(0, 242, 254, 0.4))',
         lineHeight: '1.3',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 'clamp(8px, 1.8vw, 16px)',
+        flexWrap: 'wrap',
       }}>
-        REALITY → PLAY
+        <span style={{
+          background: 'linear-gradient(135deg, #ffffff 0%, #00f2fe 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          filter: 'drop-shadow(0 0 25px rgba(0, 242, 254, 0.5))',
+        }}>
+          REALITY
+        </span>
+
+        {/* Scaled & Animated 8-Bit Retro Pixel Arrow */}
+        <svg
+          viewBox="0 0 16 14"
+          aria-hidden="true"
+          shapeRendering="crispEdges"
+          style={{
+            width: 'clamp(38px, 6vw, 62px)',
+            height: 'clamp(30px, 4.8vw, 48px)',
+            flexShrink: 0,
+            margin: '0 clamp(4px, 1vw, 12px)',
+            animation: 'retroArrowPulse 1.8s ease-in-out infinite',
+            verticalAlign: 'middle',
+          }}
+        >
+          <defs>
+            <linearGradient id="realityPlayArrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#00f2fe" />
+              <stop offset="50%" stopColor="#a855f7" />
+              <stop offset="100%" stopColor="#ff007f" />
+            </linearGradient>
+          </defs>
+          {/* Authentic 8-Bit Pixel Arrow matching Press Start 2P letter geometry */}
+          <rect x="0" y="5" width="8" height="4" fill="url(#realityPlayArrowGrad)" />
+          <rect x="8" y="1" width="2" height="12" fill="url(#realityPlayArrowGrad)" />
+          <rect x="10" y="3" width="2" height="8" fill="url(#realityPlayArrowGrad)" />
+          <rect x="12" y="5" width="2" height="4" fill="url(#realityPlayArrowGrad)" />
+          <rect x="14" y="6" width="2" height="2" fill="url(#realityPlayArrowGrad)" />
+        </svg>
+
+        <span style={{
+          background: 'linear-gradient(135deg, #c084fc 0%, #ff007f 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          filter: 'drop-shadow(0 0 25px rgba(255, 0, 127, 0.5))',
+        }}>
+          PLAY
+        </span>
       </h1>
 
       <p style={{

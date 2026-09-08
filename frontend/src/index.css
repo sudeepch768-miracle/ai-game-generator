@@ -198,3 +198,14 @@ button {
     box-shadow: 0 0 40px rgba(0, 242, 254, 0.7), 0 0 75px rgba(255, 0, 85, 0.45);
   }
 }
+
+@keyframes retroArrowPulse {
+  0%, 100% {
+    transform: translateX(0px) scale(1);
+    filter: drop-shadow(0 0 16px rgba(0, 242, 254, 0.85));
+  }
+  50% {
+    transform: translateX(5px) scale(1.06);
+    filter: drop-shadow(0 0 26px rgba(255, 0, 127, 0.95));
+  }
+}
