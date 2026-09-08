@@ -144,8 +144,28 @@ export class GameEngine {
     onStateChange?: (state: EngineState) => void
   ) {
     this.canvas = canvas;
-    this.world = JSON.parse(JSON.stringify(world)); // Deep clone
+    this.world = JSON.parse(JSON.stringify(world || {})); // Deep clone
     this.onStateChange = onStateChange;
+
+    // Safety defaults for world properties
+    if (!this.world.map) {
+      this.world.map = { width: 25, height: 20, tileSize: 32, theme: 'classroom' };
+    }
+    if (!this.world.map.tileSize) {
+      this.world.map.tileSize = 32;
+    }
+    if (!this.world.player) {
+      this.world.player = { x: 3, y: 3 };
+    }
+    if (!this.world.walls) {
+      this.world.walls = [];
+    }
+    if (!this.world.collectibles) {
+      this.world.collectibles = [];
+    }
+    if (!this.world.enemies) {
+      this.world.enemies = [];
+    }
 
     // Filter and scale enemies for the initial level and difficulty
     this.world.enemies = filterEnemiesForDifficulty(
@@ -646,6 +666,24 @@ export class GameEngine {
         }
       }
 
+      // Collision and Boundary Validator for Enemies (Tiles)
+      const enemyW = tileSize * 0.62;
+      const enemyH = tileSize * 0.62;
+      const canEnemyMove = (testTileX: number, testTileY: number): boolean => {
+        // Strict boundary: Never allow enemy outside inner map boundary
+        if (
+          testTileX < 0.6 ||
+          testTileY < 0.6 ||
+          testTileX > this.world.map.width - 1.6 ||
+          testTileY > this.world.map.height - 1.6
+        ) {
+          return false;
+        }
+        const testPx = testTileX * tileSize + (tileSize - enemyW) / 2;
+        const testPy = testTileY * tileSize + (tileSize - enemyH) / 2;
+        return !this.checkCollision(testPx, testPy, enemyW, enemyH);
+      };
+
       // 2. Persistent Pursuit Movement State Machine
       const isAggro = (enemy.aggroTimer || 0) > 0;
 
@@ -658,6 +696,8 @@ export class GameEngine {
             if (enemy.aggroTimer <= 0) {
               enemy.isAlert = false;
               enemy.aggroTimer = 0;
+              enemy.startX = enemy.x;
+              enemy.startY = enemy.y;
               this.addFloatingText('💨 EVADED PURSUIT!', px, py - 20, '#a855f7');
             }
           } else {
@@ -665,6 +705,8 @@ export class GameEngine {
             if (enemy.aggroTimer <= 0) {
               enemy.isAlert = false;
               enemy.aggroTimer = 0;
+              enemy.startX = enemy.x;
+              enemy.startY = enemy.y;
               this.addFloatingText('❓ SEARCH ABANDONED', ex, ey - 18, '#94a3b8');
             }
           }
@@ -676,6 +718,8 @@ export class GameEngine {
           if (distFromSpawn > diff.leashDistance * tileSize) {
             enemy.aggroTimer = 0;
             enemy.isAlert = false;
+            enemy.startX = enemy.x;
+            enemy.startY = enemy.y;
             this.addFloatingText('↩ RETURNING TO POST', ex, ey - 18, '#94a3b8');
           }
         }
@@ -705,60 +749,103 @@ export class GameEngine {
           const stepX = (dirX / distToTarget) * moveDist;
           const stepY = (dirY / distToTarget) * moveDist;
 
-          // Wall-sliding navigation so enemies do not get stuck on corners
-          const enemyW = tileSize * 0.6;
-          const enemyH = tileSize * 0.6;
-          const canMove = (testTileX: number, testTileY: number) => {
-            const testPx = testTileX * tileSize + (tileSize - enemyW) / 2;
-            const testPy = testTileY * tileSize + (tileSize - enemyH) / 2;
-            return !this.checkCollision(testPx, testPy, enemyW, enemyH);
-          };
-
           const newTileX = enemy.x + stepX;
           const newTileY = enemy.y + stepY;
 
-          if (canMove(newTileX, newTileY)) {
+          if (canEnemyMove(newTileX, newTileY)) {
             enemy.x = newTileX;
             enemy.y = newTileY;
-          } else if (canMove(newTileX, enemy.y)) {
+          } else if (canEnemyMove(newTileX, enemy.y)) {
             enemy.x = newTileX;
-          } else if (canMove(enemy.x, newTileY)) {
+          } else if (canEnemyMove(enemy.x, newTileY)) {
             enemy.y = newTileY;
           } else {
-            // Fallback sliding
-            enemy.x += stepX * 0.5;
-            enemy.y += stepY * 0.5;
+            // Intelligent corner sliding (never moves into/through walls)
+            const altX = enemy.x + Math.sign(stepX) * moveDist * 0.4;
+            const altY = enemy.y + Math.sign(stepY) * moveDist * 0.4;
+            if (canEnemyMove(altX, enemy.y)) {
+              enemy.x = altX;
+            } else if (canEnemyMove(enemy.x, altY)) {
+              enemy.y = altY;
+            }
           }
         }
       } else {
-        // 3. Calm Patrol State (Unalerted - fast, rapid patrol pace)
+        // 3. Calm Patrol State with Full Wall & Boundary Collision Detection
         enemy.isAlert = false;
         if (enemy.type === 'exit_guardian') {
           // Sweep around exit portal
-          enemy.x += (enemy.speed || 1.40) * 0.60 * diff.speedMultiplier * enemy.direction * dt;
-          if (Math.abs(enemy.x - (enemy.startX ?? enemy.x)) >= (enemy.patrolRange || 3)) {
+          const moveStep = (enemy.speed || 1.40) * 0.60 * diff.speedMultiplier * enemy.direction * dt;
+          const nextX = enemy.x + moveStep;
+          if (canEnemyMove(nextX, enemy.y) && Math.abs(nextX - (enemy.startX ?? enemy.x)) <= (enemy.patrolRange || 3)) {
+            enemy.x = nextX;
+          } else {
             enemy.direction *= -1;
           }
         } else if (enemy.type === 'chaser') {
           // Prowl territory
-          enemy.x += (enemy.speed || 1.35) * 0.65 * diff.speedMultiplier * enemy.direction * dt;
-          if (Math.abs(enemy.x - (enemy.startX ?? enemy.x)) >= (enemy.patrolRange || 5)) {
+          const moveStep = (enemy.speed || 1.35) * 0.65 * diff.speedMultiplier * enemy.direction * dt;
+          const nextX = enemy.x + moveStep;
+          if (canEnemyMove(nextX, enemy.y) && Math.abs(nextX - (enemy.startX ?? enemy.x)) <= (enemy.patrolRange || 5)) {
+            enemy.x = nextX;
+          } else {
             enemy.direction *= -1;
           }
         } else {
           // Corridor / Sentry Patrol along assigned axis
-          const moveSpeed = (enemy.speed || 1.25) * 0.70 * diff.speedMultiplier * enemy.direction * dt;
+          const moveStep = (enemy.speed || 1.25) * 0.70 * diff.speedMultiplier * enemy.direction * dt;
           if (enemy.patrolAxis === 'y') {
-            enemy.y += moveSpeed;
-            if (Math.abs(enemy.y - (enemy.startY ?? enemy.y)) >= (enemy.patrolRange || 4)) {
+            const nextY = enemy.y + moveStep;
+            if (canEnemyMove(enemy.x, nextY) && Math.abs(nextY - (enemy.startY ?? enemy.y)) <= (enemy.patrolRange || 4)) {
+              enemy.y = nextY;
+            } else {
               enemy.direction *= -1;
             }
           } else {
-            enemy.x += moveSpeed;
-            if (Math.abs(enemy.x - (enemy.startX ?? enemy.x)) >= (enemy.patrolRange || 4)) {
+            const nextX = enemy.x + moveStep;
+            if (canEnemyMove(nextX, enemy.y) && Math.abs(nextX - (enemy.startX ?? enemy.x)) <= (enemy.patrolRange || 4)) {
+              enemy.x = nextX;
+            } else {
               enemy.direction *= -1;
             }
           }
+        }
+      }
+
+      // 4. Strict Map Boundary Clamp & Anti-Stuck Safeguards
+      const minBoundX = 0.8;
+      const maxBoundX = this.world.map.width - 1.8;
+      const minBoundY = 0.8;
+      const maxBoundY = this.world.map.height - 1.8;
+
+      if (enemy.x < minBoundX || enemy.x > maxBoundX || enemy.y < minBoundY || enemy.y > maxBoundY) {
+        enemy.x = Math.max(minBoundX, Math.min(maxBoundX, enemy.x));
+        enemy.y = Math.max(minBoundY, Math.min(maxBoundY, enemy.y));
+        enemy.direction *= -1;
+      }
+
+      // Anti-Stuck: Nudge out if overlapping an obstacle or wall
+      if (!canEnemyMove(enemy.x, enemy.y)) {
+        const nudgeOffsets = [
+          { dx: 0.25, dy: 0 }, { dx: -0.25, dy: 0 },
+          { dx: 0, dy: 0.25 }, { dx: 0, dy: -0.25 },
+          { dx: 0.5, dy: 0 }, { dx: -0.5, dy: 0 },
+          { dx: 0, dy: 0.5 }, { dx: 0, dy: -0.5 },
+          { dx: 0.5, dy: 0.5 }, { dx: -0.5, dy: -0.5 },
+          { dx: 0.5, dy: -0.5 }, { dx: -0.5, dy: 0.5 }
+        ];
+        let resolved = false;
+        for (const offset of nudgeOffsets) {
+          if (canEnemyMove(enemy.x + offset.dx, enemy.y + offset.dy)) {
+            enemy.x += offset.dx;
+            enemy.y += offset.dy;
+            resolved = true;
+            break;
+          }
+        }
+        if (!resolved && enemy.startX !== undefined && enemy.startY !== undefined) {
+          enemy.x = enemy.startX;
+          enemy.y = enemy.startY;
         }
       }
 

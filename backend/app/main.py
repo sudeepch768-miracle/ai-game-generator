@@ -28,22 +28,26 @@ app.add_middleware(
 @app.middleware("http")
 async def vercel_route_middleware(request: Request, call_next):
     # Support Vercel serverless function path preservation
-    matched = (
-        request.headers.get("x-matched-path")
-        or request.headers.get("x-vercel-matched-path")
-        or request.headers.get("x-forwarded-uri")
-    )
-    if matched:
-        clean_path = matched.split("?")[0]
-        if clean_path.startswith("/api"):
-            request.scope["path"] = clean_path
-    elif request.scope.get("path", "").endswith("/index.py"):
-        request.scope["path"] = request.scope["path"][:-9] or "/"
+    param_path = request.query_params.get("__path__")
+    if param_path:
+        request.scope["path"] = param_path.split("?")[0]
+    else:
+        matched = (
+            request.headers.get("x-vercel-matched-path")
+            or request.headers.get("x-matched-path")
+            or request.headers.get("x-forwarded-uri")
+        )
+        if matched:
+            clean_path = matched.split("?")[0]
+            if clean_path.startswith("/api") and clean_path not in ("/api", "/api/"):
+                request.scope["path"] = clean_path
+        elif request.scope.get("path", "").endswith("/index.py"):
+            request.scope["path"] = "/api"
 
     return await call_next(request)
 
-@app.api_route("/api", methods=["GET", "POST"])
-@app.api_route("/api/", methods=["GET", "POST"])
+@app.get("/api")
+@app.get("/api/")
 def api_root():
     return {
         "status": "ok",

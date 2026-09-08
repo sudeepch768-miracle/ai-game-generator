@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { LandingPage } from './components/LandingPage';
 import { ImageUploader } from './components/ImageUploader';
 import { GenerationModal } from './components/GenerationModal';
@@ -151,22 +151,34 @@ export const App: React.FC = () => {
         headers['x-gemini-api-key'] = activeKey;
       }
 
+      // 8-second timeout for serverless function
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
       // Send to FastAPI backend
       const res = await fetch('/api/generate-game', {
         method: 'POST',
         headers,
         body: formData,
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
       if (!res.ok) {
         throw new Error(`Server returned status ${res.status}`);
       }
 
       const generatedData: GameWorld = await res.json();
+      if (!generatedData || typeof generatedData !== 'object' || !generatedData.map || !generatedData.player) {
+        throw new Error('Server returned invalid or incomplete GameWorld structure');
+      }
+
       console.log('[App] Generated world received:', generatedData.title, '| Theme:', generatedData.map?.theme);
       setCurrentGameWorld(generatedData);
       setGameSessionId(Date.now());
-      setGenerationComplete(true);
+      setTimeout(() => {
+        setGenerationComplete(true);
+      }, 1200);
     } catch (err) {
       console.warn('Backend unavailable or encountered issue. Using intelligent procedural fallback:', err);
       const promptLower = (settings?.customPrompt || '').toLowerCase();
@@ -455,10 +467,10 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleFinishGeneration = () => {
+  const handleFinishGeneration = useCallback(() => {
     setIsGenerating(false);
     setView('game');
-  };
+  }, []);
 
   const handlePlayDemo = (demoGame: GameWorld) => {
     setCurrentGameWorld(demoGame);
