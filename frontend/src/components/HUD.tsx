@@ -65,12 +65,12 @@ export const HUD: React.FC<HUDProps> = ({
       const docEl = document.documentElement as any;
 
       if (!doc.fullscreenElement && !doc.webkitFullscreenElement && !doc.mozFullScreenElement && !doc.msFullscreenElement) {
-        if (docEl.requestFullscreen) docEl.requestFullscreen().catch(() => {});
+        if (docEl.requestFullscreen) docEl.requestFullscreen().catch(() => { });
         else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
         else if (docEl.mozRequestFullScreen) docEl.mozRequestFullScreen();
         else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
       } else {
-        if (doc.exitFullscreen) doc.exitFullscreen().catch(() => {});
+        if (doc.exitFullscreen) doc.exitFullscreen().catch(() => { });
         else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
         else if (doc.mozCancelFullScreen) doc.mozCancelFullScreen();
         else if (doc.msExitFullscreen) doc.msExitFullscreen();
@@ -450,32 +450,32 @@ export const HUD: React.FC<HUDProps> = ({
             background: 'rgba(11, 15, 25, 0.88)',
             backdropFilter: 'blur(8px)',
             border: isStunReady ? '1px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.15)',
-          padding: '5px 12px',
-          borderRadius: '10px',
-          boxShadow: isStunReady ? '0 0 10px rgba(245, 158, 11, 0.3)' : 'none',
-          minWidth: '190px',
-        }}>
-          <Radio size={15} color={isStunReady ? '#f59e0b' : '#64748b'} />
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontWeight: 800, marginBottom: '2px' }}>
-              <span style={{ color: isStunReady ? '#f59e0b' : '#94a3b8' }}>STUN DART [F / Q]</span>
-              <span style={{ color: isStunReady ? '#f59e0b' : '#64748b' }}>{stunAmmo}/{maxStunAmmo} CHARGES</span>
-            </div>
-            <div style={{ display: 'flex', gap: '3px' }}>
-              {Array.from({ length: maxStunAmmo }).map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    flex: 1,
-                    height: '4px',
-                    borderRadius: '2px',
-                    background: i < stunAmmo ? '#f59e0b' : 'rgba(255,255,255,0.1)',
-                  }}
-                />
-              ))}
+            padding: '5px 12px',
+            borderRadius: '10px',
+            boxShadow: isStunReady ? '0 0 10px rgba(245, 158, 11, 0.3)' : 'none',
+            minWidth: '190px',
+          }}>
+            <Radio size={15} color={isStunReady ? '#f59e0b' : '#64748b'} />
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontWeight: 800, marginBottom: '2px' }}>
+                <span style={{ color: isStunReady ? '#f59e0b' : '#94a3b8' }}>STUN DART [F / Q]</span>
+                <span style={{ color: isStunReady ? '#f59e0b' : '#64748b' }}>{stunAmmo}/{maxStunAmmo} CHARGES</span>
+              </div>
+              <div style={{ display: 'flex', gap: '3px' }}>
+                {Array.from({ length: maxStunAmmo }).map((_, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      flex: 1,
+                      height: '4px',
+                      borderRadius: '2px',
+                      background: i < stunAmmo ? '#f59e0b' : 'rgba(255,255,255,0.1)',
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
         )}
 
         {/* STEALTH SNEAK BADGE */}

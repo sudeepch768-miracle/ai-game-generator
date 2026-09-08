@@ -31,6 +31,7 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showShop, setShowShop] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [currentZoom, setCurrentZoom] = useState<number>(0.68);
 
   useEffect(() => {
     const checkTouch = () => {
@@ -59,6 +60,7 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
     }
 
     const engine = new GameEngine(canvasRef.current, world);
+    setCurrentZoom(engine.getZoom());
 
     engine.onStateChange = (state) => {
       setEngineState(state);
@@ -84,17 +86,29 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
     initEngine();
 
     const handleResize = () => {
-      if (containerRef.current && engineRef.current) {
-        engineRef.current.resize(
-          containerRef.current.clientWidth,
-          containerRef.current.clientHeight
-        );
+      if (containerRef.current && engineRef.current && canvasRef.current) {
+        const w = containerRef.current.clientWidth;
+        const h = containerRef.current.clientHeight;
+        canvasRef.current.width = w;
+        canvasRef.current.height = h;
+        engineRef.current.resize(w, h);
+        setCurrentZoom(engineRef.current.getZoom());
       }
     };
 
     window.addEventListener('resize', handleResize);
+    document.addEventListener('fullscreenchange', handleResize);
+    document.addEventListener('webkitfullscreenchange', handleResize);
+
+    const t1 = setTimeout(handleResize, 100);
+    const t2 = setTimeout(handleResize, 300);
+
     return () => {
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('fullscreenchange', handleResize);
+      document.removeEventListener('webkitfullscreenchange', handleResize);
+      clearTimeout(t1);
+      clearTimeout(t2);
       if (engineRef.current) {
         engineRef.current.stop();
       }
@@ -257,6 +271,13 @@ export const GameView: React.FC<GameViewProps> = ({ world, onExitToMenu, onCreat
           nearbyInteractable={engineState?.nearbyInteractable}
           stealthActive={engineState?.isStealth}
           dashCooldownProgress={engineState?.player ? Math.max(0, Math.min(1, 1 - (engineState.player.dashCooldown || 0) / 1.15)) : 1}
+          currentZoom={currentZoom}
+          onCycleZoom={() => {
+            if (engineRef.current) {
+              const next = engineRef.current.cycleZoom();
+              setCurrentZoom(next);
+            }
+          }}
         />
       )}
 

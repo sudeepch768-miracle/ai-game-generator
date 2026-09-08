@@ -5,16 +5,26 @@ export class CanvasRenderer {
   private ctx: CanvasRenderingContext2D;
   private canvasWidth: number;
   private canvasHeight: number;
+  private zoom: number = 1.0;
 
-  constructor(ctx: CanvasRenderingContext2D, width: number, height: number) {
+  constructor(ctx: CanvasRenderingContext2D, width: number, height: number, zoom: number = 1.0) {
     this.ctx = ctx;
     this.canvasWidth = width;
     this.canvasHeight = height;
+    this.zoom = zoom;
   }
 
   resize(width: number, height: number) {
     this.canvasWidth = width;
     this.canvasHeight = height;
+  }
+
+  setZoom(zoom: number) {
+    this.zoom = zoom;
+  }
+
+  getZoom(): number {
+    return this.zoom;
   }
 
   render(
@@ -34,7 +44,8 @@ export class CanvasRenderer {
     ctx.fillStyle = '#060812';
     ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
 
-    // Apply Camera transform
+    // Apply Camera & Zoom transform
+    ctx.scale(this.zoom, this.zoom);
     ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
 
     // 1. Render Map Floor with Procedural Textures
@@ -88,6 +99,7 @@ export class CanvasRenderer {
 
     // 14. Screen-Space Interaction Prompts
     ctx.save();
+    ctx.scale(this.zoom, this.zoom);
     ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
     this.renderInteractPrompt(state.nearbyInteractable, state.player, time);
     ctx.restore();
@@ -3875,10 +3887,11 @@ export class CanvasRenderer {
     const mapW = world.map.width * tileSize;
     const mapH = world.map.height * tileSize;
 
-    const radarW = 144;
-    const radarH = 96;
-    const rx = this.canvasWidth - radarW - 14;
-    const ry = this.canvasHeight - radarH - 14;
+    const isMobile = this.canvasWidth <= 900;
+    const radarW = isMobile ? 116 : 144;
+    const radarH = isMobile ? 76 : 96;
+    const rx = isMobile ? 14 : this.canvasWidth - radarW - 14;
+    const ry = isMobile ? 68 : this.canvasHeight - radarH - 14;
 
     ctx.save();
     ctx.fillStyle = 'rgba(11, 15, 25, 0.88)';

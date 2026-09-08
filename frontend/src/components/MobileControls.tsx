@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Zap, Eye, Footprints, Terminal, MessageSquare, ShieldAlert, Maximize2, Minimize2 } from 'lucide-react';
+import { Zap, Eye, Footprints, Terminal, MessageSquare, ShieldAlert, Maximize2, Minimize2, ZoomIn, ZoomOut } from 'lucide-react';
 import { EngineState } from '../types/game';
 
 interface MobileControlsProps {
@@ -8,6 +8,8 @@ interface MobileControlsProps {
   nearbyInteractable?: EngineState['nearbyInteractable'];
   dashCooldownProgress?: number; // 0 to 1
   stealthActive?: boolean;
+  currentZoom?: number;
+  onCycleZoom?: () => void;
 }
 
 export const MobileControls: React.FC<MobileControlsProps> = ({
@@ -16,6 +18,8 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   nearbyInteractable,
   dashCooldownProgress = 1,
   stealthActive = false,
+  currentZoom = 0.68,
+  onCycleZoom,
 }) => {
   // Fullscreen State
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
@@ -230,11 +234,8 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
         </div>
       </div>
 
-      {/* TOP-RIGHT: Fullscreen Floating Button */}
-      <button
-        onTouchStart={toggleFullscreen}
-        onClick={toggleFullscreen}
-        aria-label="Toggle Fullscreen"
+      {/* TOP-RIGHT: Fullscreen & Zoom Floating Controls */}
+      <div
         style={{
           position: 'absolute',
           top: '68px',
@@ -242,29 +243,90 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
           pointerEvents: 'auto',
           display: 'flex',
           alignItems: 'center',
-          gap: '6px',
-          background: isFullscreen ? 'rgba(0, 242, 254, 0.25)' : 'rgba(15, 23, 42, 0.85)',
-          backdropFilter: 'blur(10px)',
-          border: `1.5px solid ${isFullscreen ? '#00f2fe' : 'rgba(0, 242, 254, 0.45)'}`,
-          color: isFullscreen ? '#00f2fe' : '#e2e8f0',
-          padding: '7px 13px',
-          borderRadius: '20px',
-          fontSize: '11px',
-          fontWeight: 800,
-          letterSpacing: '0.5px',
-          boxShadow: isFullscreen
-            ? '0 0 16px rgba(0, 242, 254, 0.45), 0 4px 12px rgba(0,0,0,0.5)'
-            : '0 4px 14px rgba(0, 0, 0, 0.5)',
-          cursor: 'pointer',
-          outline: 'none',
+          gap: '8px',
           zIndex: 30,
-          touchAction: 'manipulation',
-          transition: 'all 0.15s ease',
         }}
       >
-        {isFullscreen ? <Minimize2 size={16} color="#00f2fe" /> : <Maximize2 size={16} color="#00f2fe" />}
-        <span>{isFullscreen ? 'EXIT FULL' : 'FULLSCREEN'}</span>
-      </button>
+        {/* Zoom Mode Toggle Button */}
+        {onCycleZoom && (
+          <button
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onCycleZoom();
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onCycleZoom();
+            }}
+            aria-label="Toggle Camera Zoom"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              background: 'rgba(15, 23, 42, 0.88)',
+              backdropFilter: 'blur(10px)',
+              border: '1.5px solid rgba(245, 158, 11, 0.6)',
+              color: '#fbbf24',
+              padding: '7px 11px',
+              borderRadius: '20px',
+              fontSize: '11px',
+              fontWeight: 800,
+              letterSpacing: '0.5px',
+              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(245, 158, 11, 0.25)',
+              cursor: 'pointer',
+              outline: 'none',
+              touchAction: 'manipulation',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            {currentZoom <= 0.72 ? (
+              <ZoomOut size={15} color="#fbbf24" />
+            ) : (
+              <ZoomIn size={15} color="#fbbf24" />
+            )}
+            <span>
+              {currentZoom <= 0.72
+                ? 'WIDE'
+                : currentZoom <= 0.88
+                  ? 'TACTICAL'
+                  : 'CLOSE'}
+            </span>
+          </button>
+        )}
+
+        {/* Fullscreen Floating Button */}
+        <button
+          onTouchStart={toggleFullscreen}
+          onClick={toggleFullscreen}
+          aria-label="Toggle Fullscreen"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: isFullscreen ? 'rgba(0, 242, 254, 0.25)' : 'rgba(15, 23, 42, 0.85)',
+            backdropFilter: 'blur(10px)',
+            border: `1.5px solid ${isFullscreen ? '#00f2fe' : 'rgba(0, 242, 254, 0.45)'}`,
+            color: isFullscreen ? '#00f2fe' : '#e2e8f0',
+            padding: '7px 13px',
+            borderRadius: '20px',
+            fontSize: '11px',
+            fontWeight: 800,
+            letterSpacing: '0.5px',
+            boxShadow: isFullscreen
+              ? '0 0 16px rgba(0, 242, 254, 0.45), 0 4px 12px rgba(0,0,0,0.5)'
+              : '0 4px 14px rgba(0, 0, 0, 0.5)',
+            cursor: 'pointer',
+            outline: 'none',
+            touchAction: 'manipulation',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          {isFullscreen ? <Minimize2 size={16} color="#00f2fe" /> : <Maximize2 size={16} color="#00f2fe" />}
+          <span>{isFullscreen ? 'EXIT FULL' : 'FULLSCREEN'}</span>
+        </button>
+      </div>
 
       {/* RIGHT: Action Cluster */}
       <div

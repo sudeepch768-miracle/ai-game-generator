@@ -118,6 +118,8 @@ export class GameEngine {
   private lastTime: number = 0;
   private elapsedSeconds: number = 0;
   private camera: { x: number; y: number };
+  private zoom: number = 1.0;
+  private userZoomOverride: number | null = null;
 
   private floatingTexts: FloatingText[] = [];
   private particles: Particle[] = [];
@@ -136,6 +138,67 @@ export class GameEngine {
     if (diff === 'hard') return 2;
     if (diff === 'easy') return 4;
     return 3;
+  }
+
+  public resize(width: number, height: number) {
+    this.canvas.width = width;
+    this.canvas.height = height;
+    this.zoom = this.calculateAutoZoom();
+    this.renderer.resize(width, height);
+    this.renderer.setZoom(this.zoom);
+    this.updateCamera();
+  }
+
+  public getZoom(): number {
+    return this.zoom;
+  }
+
+  public setZoom(zoom: number) {
+    this.userZoomOverride = zoom;
+    this.zoom = zoom;
+    this.renderer.setZoom(zoom);
+    this.updateCamera();
+  }
+
+  public cycleZoom(): number {
+    // Cycle: Wide (0.65x) -> Tactical (0.82x) -> Close (1.0x) -> Wide
+    let next = 0.65;
+    if (this.zoom < 0.72) {
+      next = 0.82;
+    } else if (this.zoom < 0.9) {
+      next = 1.0;
+    } else {
+      next = 0.65;
+    }
+    this.setZoom(next);
+    return next;
+  }
+
+  private calculateAutoZoom(): number {
+    if (this.userZoomOverride !== null) {
+      return this.userZoomOverride;
+    }
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const isMobile =
+      (typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) ||
+      w <= 900;
+
+    if (!isMobile) {
+      return 1.0;
+    }
+
+    const tileSize = this.world.map.tileSize || 32;
+    // We want mobile players to see at least 18 horizontal tiles and 14 vertical tiles
+    const targetTilesX = 18;
+    const targetTilesY = 14;
+
+    const zoomX = w / (targetTilesX * tileSize);
+    const zoomY = h / (targetTilesY * tileSize);
+    const idealZoom = Math.min(zoomX, zoomY);
+
+    // Clamp between 0.60 (generous wide field of view) and 0.85
+    return Math.max(0.60, Math.min(0.85, idealZoom));
   }
 
   constructor(
@@ -176,7 +239,8 @@ export class GameEngine {
 
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not create 2D canvas context');
-    this.renderer = new CanvasRenderer(ctx, canvas.width, canvas.height);
+    this.zoom = this.calculateAutoZoom();
+    this.renderer = new CanvasRenderer(ctx, canvas.width, canvas.height, this.zoom);
     this.input = new InputManager();
 
     const tileSize = this.world.map.tileSize;
@@ -569,22 +633,35 @@ export class GameEngine {
     const mapW = this.world.map.width * tileSize;
     const mapH = this.world.map.height * tileSize;
 
+    const zoom = this.zoom || 1.0;
+    const visibleW = this.canvas.width / zoom;
+    const visibleH = this.canvas.height / zoom;
+
     const px = this.state.player.x + this.state.player.width / 2;
     const py = this.state.player.y + this.state.player.height / 2;
 
-    let targetX = px - this.canvas.width / 2;
-    let targetY = py - this.canvas.height / 2;
+    let targetX = px - visibleW / 2;
+    let targetY = py - visibleH / 2;
 
     // Shake offset
     if (this.state.screenShake > 0) {
-      const shakeMagnitude = this.state.screenShake * 9;
+      const shakeMagnitude = (this.state.screenShake * 9) / zoom;
       targetX += (Math.random() - 0.5) * shakeMagnitude;
       targetY += (Math.random() - 0.5) * shakeMagnitude;
     }
 
-    // Clamp camera within map bounds
-    this.camera.x = Math.max(0, Math.min(targetX, Math.max(0, mapW - this.canvas.width)));
-    this.camera.y = Math.max(0, Math.min(targetY, Math.max(0, mapH - this.canvas.height)));
+    // Clamp camera within map bounds (or center map if viewport is larger than map)
+    if (mapW <= visibleW) {
+      this.camera.x = (mapW - visibleW) / 2;
+    } else {
+      this.camera.x = Math.max(0, Math.min(targetX, mapW - visibleW));
+    }
+
+    if (mapH <= visibleH) {
+      this.camera.y = (mapH - visibleH) / 2;
+    } else {
+      this.camera.y = Math.max(0, Math.min(targetY, mapH - visibleH));
+    }
   }
 
   private updateEnemies(dt: number) {
@@ -1281,15 +1358,6 @@ export class GameEngine {
     this.notifyState();
     if (this.onLose) {
       this.onLose(reason, this.state.score);
-    }
-  }
-
-  public resize(width: number, height: number) {
-    this.canvas.width = width;
-    this.canvas.height = height;
-    const ctx = this.canvas.getContext('2d');
-    if (ctx) {
-      this.renderer = new CanvasRenderer(ctx, width, height);
     }
   }
 
