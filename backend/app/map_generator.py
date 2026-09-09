@@ -761,8 +761,8 @@ def generate_procedural_level(
     rooms: List[Room] = []
     terminal_room: Optional[Room] = None
 
-    # For Level >= 2: create a dedicated Terminal Sanctum along an outer boundary
-    if level_num >= 2:
+    # For all levels: create a dedicated Terminal Sanctum along an outer boundary
+    if level_num >= 1:
         trw = rng.randint(6, 7)
         trh = rng.randint(5, 6)
         edge_choices = [
@@ -914,9 +914,9 @@ def generate_procedural_level(
         if r_a != r_b:
             carve_corridor(r_a.center[0], r_a.center[1], r_b.center[0], r_b.center[1])
 
-    # For Level >= 2: Enclose Terminal Sanctum with solid normal walls and exactly ONE doorway
+    # Enclose Terminal Sanctum with solid normal walls and exactly ONE doorway
     terminal_door: Optional[Tuple[int, int]] = None
-    if level_num >= 2 and terminal_room is not None:
+    if level_num >= 1 and terminal_room is not None:
         trx, try_, trw, trh = terminal_room.x, terminal_room.y, terminal_room.w, terminal_room.h
 
         # 1. Carve interior tiles only
@@ -1115,8 +1115,8 @@ def generate_procedural_level(
                 )
                 placed_gems += 1
 
-    # Spawn exactly 2 Healing Items per level (strictly for Level >= 2, 0 on Level 1)
-    if level_num >= 2:
+    # Spawn exactly 2 Healing Items per level (recovers 1 heart each)
+    if level_num >= 1:
         heal_placed = 0
         heal_attempts = 0
         while heal_placed < 2 and heal_attempts < 200:
@@ -1173,8 +1173,8 @@ def generate_procedural_level(
     }
     barrier_name = barrier_titles.get(resolved_theme, f"{clean_env} Security Gate")
 
-    # Add a Theme-Specific Terminal inside dedicated sanctum room (Only Level >= 2)
-    if level_num >= 2 and terminal_room is not None and terminal_door is not None:
+    # Add a Theme-Specific Terminal inside dedicated sanctum room
+    if level_num >= 1 and terminal_room is not None and terminal_door is not None:
         term_id = f"terminal_{level_num}"
         required_terminals.append(term_id)
         tx = terminal_room.center[0]

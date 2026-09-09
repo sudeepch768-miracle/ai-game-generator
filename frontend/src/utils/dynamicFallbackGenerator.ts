@@ -17,6 +17,7 @@ import {
   DEMO_CLASSROOM,
   DEMO_NATURE,
 } from '../demoGames';
+import { enrichGameWorldWithSanctumAndHeals } from './sanctumEnricher';
 
 interface ExtractedColors {
   floorColor: string;
@@ -589,5 +590,5 @@ export async function buildDynamicGameFromPhoto(
 
   level1.objective.requiredScore = baseScore;
   level1.levels = campaignLevels;
-  return level1;
+  return enrichGameWorldWithSanctumAndHeals(level1);
 }

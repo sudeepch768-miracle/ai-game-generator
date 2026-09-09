@@ -23,6 +23,7 @@ import {
   DEMO_NATURE,
   DEMO_OFFICE
 } from './demoGames';
+import { enrichGameWorldWithSanctumAndHeals } from './utils/sanctumEnricher';
 import { GameWorld, CustomGameSettings, Difficulty } from './types/game';
 import { RecommendationItem } from './data/recommendations';
 import { buildDynamicGameFromPhoto } from './utils/dynamicFallbackGenerator';
@@ -47,7 +48,7 @@ export const App: React.FC = () => {
     // Optional stored user API key
   }, []);
 
-  const [currentGameWorld, setCurrentGameWorld] = useState<GameWorld>(DEMO_HAUNTED);
+  const [currentGameWorld, setCurrentGameWorld] = useState<GameWorld>(() => enrichGameWorldWithSanctumAndHeals(DEMO_HAUNTED));
   const [gameSessionId, setGameSessionId] = useState<number>(Date.now());
   const [showShopModal, setShowShopModal] = useState(false);
 
@@ -184,7 +185,7 @@ export const App: React.FC = () => {
       }
 
       console.log('[App] Generated world received:', generatedData.title, '| Theme:', generatedData.map?.theme);
-      setCurrentGameWorld(generatedData);
+      setCurrentGameWorld(enrichGameWorldWithSanctumAndHeals(generatedData));
       setGameSessionId(Date.now());
       setTimeout(() => {
         setGenerationComplete(true);
@@ -199,7 +200,7 @@ export const App: React.FC = () => {
       );
 
       console.log('[App] Client-side dynamic world synthesized:', fallbackGame.title, '| Palette:', fallbackGame.palette);
-      setCurrentGameWorld(fallbackGame);
+      setCurrentGameWorld(enrichGameWorldWithSanctumAndHeals(fallbackGame));
       setGameSessionId(Date.now());
 
       setTimeout(() => {
@@ -214,7 +215,7 @@ export const App: React.FC = () => {
   }, []);
 
   const handlePlayDemo = (demoGame: GameWorld) => {
-    setCurrentGameWorld(demoGame);
+    setCurrentGameWorld(enrichGameWorldWithSanctumAndHeals(demoGame));
     setGameSessionId(Date.now());
     setView('game');
   };
