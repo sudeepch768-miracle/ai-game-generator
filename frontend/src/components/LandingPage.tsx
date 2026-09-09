@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Camera, Gamepad2, Sparkles, Zap, Play, Shield, Compass, Shirt, Terminal, Cpu, Binary, RefreshCw } from 'lucide-react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { Camera, Gamepad2, Sparkles, Zap, Play, Shield, Compass, Shirt, Terminal, Cpu, Binary, RefreshCw, UploadCloud } from 'lucide-react';
 import {
   ALL_DEMO_GAMES,
   DEMO_HAUNTED,
@@ -42,14 +42,17 @@ interface LandingPageProps {
   onPlayDemo: (game: GameWorld) => void;
   onCreateWithPreset?: (rec: RecommendationItem) => void;
   onOpenShop?: () => void;
+  onDirectUpload?: (file: File) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDemo, onCreateWithPreset, onOpenShop }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDemo, onCreateWithPreset, onOpenShop, onDirectUpload }) => {
   const miniCanvasRef = useRef<HTMLCanvasElement>(null);
+  const dropZoneInputRef = useRef<HTMLInputElement>(null);
   const [gemCount, setGemCount] = useState<number>(0);
   const [isHackerMode, setIsHackerMode] = useState<boolean>(false);
   const [warpPhase, setWarpPhase] = useState<'idle' | 'suction' | 'unfolding'>('idle');
   const [showFlash, setShowFlash] = useState<boolean>(false);
+  const [dropZoneDragOver, setDropZoneDragOver] = useState(false);
 
   useEffect(() => {
     setGemCount(getGemBalance());
@@ -576,7 +579,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: '28px',
+          marginBottom: '14px',
           flexWrap: 'wrap',
           gap: '12px',
           zIndex: 20,
@@ -689,7 +692,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          margin: '0 auto 26px auto',
+          margin: '0 auto 12px auto',
           zIndex: 35,
           position: 'relative',
         }}
@@ -698,7 +701,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           isHackerMode={isHackerMode}
           isSucking={warpPhase === 'suction'}
           onClick={handleSingularityTrigger}
-          width={150}
+          width={130}
         />
       </div>
 
@@ -798,7 +801,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
             fontSize: 'clamp(16px, 2.5vw, 22px)',
             color: isHackerMode ? '#00ff66' : '#f8fafc',
             fontWeight: 600,
-            margin: '0 0 14px 0',
+            margin: '0 0 16px 0',
             textAlign: 'center',
             letterSpacing: isHackerMode ? '1px' : 'normal',
           }}
@@ -806,14 +809,203 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
           {isHackerMode ? '> SYSTEM_STATUS: COMPROMISED. ENTER THE CYBER REALM.' : 'Your world. Your game.'}
         </p>
 
+        {/* Primary Action Hub: Directly Above The Fold, Zero Scrolling Required to Create or Generate */}
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDropZoneDragOver(true);
+          }}
+          onDragLeave={() => setDropZoneDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDropZoneDragOver(false);
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+              const file = e.dataTransfer.files[0];
+              if (onDirectUpload) {
+                onDirectUpload(file);
+              } else {
+                onCreateGame();
+              }
+            }
+          }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '26px',
+            zIndex: 20,
+            width: '100%',
+            maxWidth: '660px',
+          }}
+        >
+          {/* Action Buttons Row */}
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              width: '100%',
+            }}
+          >
+            {/* Primary CTA: Create My Game */}
+            <button
+              onClick={onCreateGame}
+              style={{
+                background: isHackerMode
+                  ? 'linear-gradient(90deg, #00ff66 0%, #00f2fe 100%)'
+                  : 'linear-gradient(90deg, #ff007f 0%, #00f2fe 100%)',
+                color: isHackerMode ? '#030805' : '#ffffff',
+                border: 'none',
+                borderRadius: '16px',
+                padding: '16px 30px',
+                fontFamily: '"Press Start 2P", monospace',
+                fontSize: '12px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                boxShadow: isHackerMode
+                  ? '0 8px 25px rgba(0, 255, 102, 0.45), 0 0 15px rgba(0, 242, 254, 0.3)'
+                  : '0 8px 25px rgba(255, 0, 127, 0.4), 0 0 15px rgba(0, 242, 254, 0.3)',
+                transition: 'transform 0.15s, box-shadow 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                e.currentTarget.style.boxShadow = isHackerMode
+                  ? '0 12px 32px rgba(0, 255, 102, 0.65)'
+                  : '0 12px 32px rgba(255, 0, 127, 0.6)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = isHackerMode
+                  ? '0 8px 25px rgba(0, 255, 102, 0.45)'
+                  : '0 8px 25px rgba(255, 0, 127, 0.4)';
+              }}
+            >
+              {isHackerMode ? <Zap size={18} fill="#030805" /> : <Camera size={18} />}
+              <span>{isHackerMode ? '⚡ DECOMPILE & CREATE GAME' : '📸 CREATE MY GAME'}</span>
+            </button>
+
+            {/* Quick Upload Photo File Direct Button */}
+            <input
+              type="file"
+              ref={dropZoneInputRef}
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  const file = e.target.files[0];
+                  if (onDirectUpload) {
+                    onDirectUpload(file);
+                  } else {
+                    onCreateGame();
+                  }
+                }
+              }}
+            />
+
+            <button
+              onClick={() => dropZoneInputRef.current?.click()}
+              style={{
+                background: isHackerMode ? 'rgba(0, 255, 102, 0.12)' : 'rgba(0, 242, 254, 0.12)',
+                color: isHackerMode ? '#00ff66' : '#00f2fe',
+                border: isHackerMode ? '1.5px dashed #00ff66' : '1.5px dashed #00f2fe',
+                borderRadius: '16px',
+                padding: '15px 20px',
+                fontFamily: isHackerMode ? '"Share Tech Mono", monospace' : '"Chakra Petch", sans-serif',
+                fontSize: '12px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = isHackerMode ? 'rgba(0, 255, 102, 0.22)' : 'rgba(0, 242, 254, 0.22)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = isHackerMode ? 'rgba(0, 255, 102, 0.12)' : 'rgba(0, 242, 254, 0.12)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+              title="Upload an image directly to start generating immediately"
+            >
+              <UploadCloud size={16} />
+              <span>{isHackerMode ? 'DROP OR UPLOAD SNAPSHOT' : 'UPLOAD PHOTO & GENERATE'}</span>
+            </button>
+
+            {/* Secondary CTA: Try Demo */}
+            <button
+              onClick={() => onPlayDemo(DEMO_HAUNTED)}
+              style={{
+                background: isHackerMode ? 'rgba(0, 255, 102, 0.08)' : 'rgba(255, 255, 255, 0.06)',
+                color: isHackerMode ? '#00ff66' : '#43e97b',
+                border: isHackerMode ? '2px solid #00ff66' : '2px solid #43e97b',
+                borderRadius: '16px',
+                padding: '16px 22px',
+                fontFamily: '"Press Start 2P", monospace',
+                fontSize: '10.5px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: isHackerMode ? '0 6px 20px rgba(0, 255, 102, 0.2)' : '0 6px 20px rgba(67, 233, 123, 0.2)',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = isHackerMode
+                  ? 'rgba(0, 255, 102, 0.18)'
+                  : 'rgba(67, 233, 123, 0.15)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = isHackerMode
+                  ? 'rgba(0, 255, 102, 0.08)'
+                  : 'rgba(255, 255, 255, 0.06)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              {isHackerMode ? <Binary size={16} /> : <Gamepad2 size={16} />}
+              <span>{isHackerMode ? 'ZERO-DAY DEMO' : 'QUICK DEMO'}</span>
+            </button>
+          </div>
+
+          {/* Direct Drop Hint Banner */}
+          <div
+            style={{
+              fontSize: '11px',
+              color: dropZoneDragOver ? (isHackerMode ? '#00ff66' : '#00f2fe') : (isHackerMode ? '#86efac' : '#94a3b8'),
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontFamily: isHackerMode ? '"Share Tech Mono", monospace' : 'inherit',
+              transition: 'color 0.2s',
+            }}
+          >
+            <Sparkles size={12} color={isHackerMode ? '#00ff66' : '#00f2fe'} />
+            <span>
+              {dropZoneDragOver
+                ? (isHackerMode ? '🔥 RELEASE TO INJECT VISUAL SURVEILLANCE MATRIX' : '🔥 RELEASE IMAGE TO START GENERATING NOW')
+                : (isHackerMode
+                  ? '> Drag & drop any surveillance image anywhere to initiate instant decompilation'
+                  : 'Instant generation: Drop any photo here or click Create My Game above')}
+            </span>
+          </div>
+        </div>
+
         <p
           style={{
-            fontSize: '15px',
+            fontSize: '14px',
             color: isHackerMode ? '#86efac' : '#94a3b8',
             maxWidth: '620px',
             textAlign: 'center',
-            margin: '0 0 36px 0',
-            lineHeight: '1.6',
+            margin: '0 0 24px 0',
+            lineHeight: '1.5',
             fontFamily: isHackerMode ? '"Share Tech Mono", monospace' : 'inherit',
           }}
         >
@@ -915,93 +1107,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
               boxShadow: isHackerMode ? '0 0 25px rgba(0, 255, 102, 0.15)' : '0 0 25px rgba(0, 242, 254, 0.1)',
             }}
           />
-        </div>
-
-        {/* CTA Buttons */}
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '18px',
-            marginBottom: '44px',
-          }}
-        >
-          {/* Primary CTA: Create My Game */}
-          <button
-            onClick={onCreateGame}
-            style={{
-              background: isHackerMode
-                ? 'linear-gradient(90deg, #00ff66 0%, #00f2fe 100%)'
-                : 'linear-gradient(90deg, #ff007f 0%, #00f2fe 100%)',
-              color: isHackerMode ? '#030805' : '#ffffff',
-              border: 'none',
-              borderRadius: '18px',
-              padding: '18px 34px',
-              fontFamily: '"Press Start 2P", monospace',
-              fontSize: '13px',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              boxShadow: isHackerMode
-                ? '0 8px 30px rgba(0, 255, 102, 0.45), 0 0 15px rgba(0, 242, 254, 0.3)'
-                : '0 8px 30px rgba(255, 0, 127, 0.4), 0 0 15px rgba(0, 242, 254, 0.3)',
-              transition: 'transform 0.15s, box-shadow 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
-              e.currentTarget.style.boxShadow = isHackerMode
-                ? '0 12px 35px rgba(0, 255, 102, 0.65)'
-                : '0 12px 35px rgba(255, 0, 127, 0.6)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0) scale(1)';
-              e.currentTarget.style.boxShadow = isHackerMode
-                ? '0 8px 30px rgba(0, 255, 102, 0.45)'
-                : '0 8px 30px rgba(255, 0, 127, 0.4)';
-            }}
-          >
-            {isHackerMode ? <Zap size={20} fill="#030805" /> : <Camera size={20} />}
-            <span>{isHackerMode ? '⚡ DECOMPILE & CREATE GAME' : '📸 CREATE MY GAME'}</span>
-          </button>
-
-          {/* Secondary CTA: Try Demo */}
-          <button
-            onClick={() => onPlayDemo(DEMO_HAUNTED)}
-            style={{
-              background: isHackerMode ? 'rgba(0, 255, 102, 0.08)' : 'rgba(255, 255, 255, 0.06)',
-              color: isHackerMode ? '#00ff66' : '#43e97b',
-              border: isHackerMode ? '2px solid #00ff66' : '2px solid #43e97b',
-              borderRadius: '18px',
-              padding: '18px 30px',
-              fontFamily: '"Press Start 2P", monospace',
-              fontSize: '13px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              boxShadow: isHackerMode ? '0 8px 25px rgba(0, 255, 102, 0.2)' : '0 8px 25px rgba(67, 233, 123, 0.2)',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = isHackerMode
-                ? 'rgba(0, 255, 102, 0.18)'
-                : 'rgba(67, 233, 123, 0.15)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = isHackerMode
-                ? 'rgba(0, 255, 102, 0.08)'
-                : 'rgba(255, 255, 255, 0.06)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            {isHackerMode ? <Binary size={20} /> : <Gamepad2 size={20} />}
-            <span>{isHackerMode ? '💾 EXECUTE ZERO-DAY DEMO' : '🎮 QUICK PLAY DEMO'}</span>
-          </button>
         </div>
 
         {/* RECOMMENDATIONS & CREATIVE IDEAS */}

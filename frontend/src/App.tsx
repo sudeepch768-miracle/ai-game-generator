@@ -83,6 +83,15 @@ export const App: React.FC = () => {
     setView('upload');
   };
 
+  const handleDirectImageUpload = (file: File) => {
+    setSelectedFile(file);
+    setSelectedSampleId(undefined);
+    setPreviewUrl(URL.createObjectURL(file));
+    setInitialCreationPreset(undefined);
+    setGameSessionId(Date.now());
+    setView('upload');
+  };
+
   const handleCreateWithPreset = (rec: RecommendationItem) => {
     setSelectedFile(null);
     setSelectedSampleId(rec.id);
@@ -218,6 +227,7 @@ export const App: React.FC = () => {
           onPlayDemo={handlePlayDemo}
           onCreateWithPreset={handleCreateWithPreset}
           onOpenShop={() => setShowShopModal(true)}
+          onDirectUpload={handleDirectImageUpload}
         />
       )}
 
