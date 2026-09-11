@@ -4,6 +4,7 @@ import { ImageUploader } from './components/ImageUploader';
 import { GenerationModal } from './components/GenerationModal';
 import { GameView } from './components/GameView';
 import { AvatarShopModal } from './components/AvatarShopModal';
+import { WelcomeScreen } from './components/WelcomeScreen';
 import {
   DEMO_HAUNTED,
   DEMO_BANK,
@@ -30,6 +31,8 @@ import { buildDynamicGameFromPhoto } from './utils/dynamicFallbackGenerator';
 type AppView = 'landing' | 'upload' | 'game';
 
 export const App: React.FC = () => {
+  const [showWelcome, setShowWelcome] = useState<boolean>(true);
+  const [isEntering, setIsEntering] = useState<boolean>(false);
   const [view, setView] = useState<AppView>('landing');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedSampleId, setSelectedSampleId] = useState<string | undefined>();
@@ -212,13 +215,35 @@ export const App: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: '#070912' }}>
-      {view === 'landing' && (
-        <LandingPage
-          onCreateGame={handleCreateNew}
-          onPlayDemo={handlePlayDemo}
-          onCreateWithPreset={handleCreateWithPreset}
-          onOpenShop={() => setShowShopModal(true)}
+      {showWelcome && (
+        <WelcomeScreen
+          onTransitionStart={() => setIsEntering(true)}
+          onEnter={() => {
+            setShowWelcome(false);
+            setIsEntering(false);
+          }}
         />
+      )}
+
+      {view === 'landing' && (
+        <div
+          style={{
+            minHeight: '100vh',
+            transform: isEntering ? 'scale3d(1, 1, 1)' : showWelcome ? 'scale3d(0.92, 0.92, 1)' : 'none',
+            filter: isEntering ? 'blur(0px) brightness(1)' : showWelcome ? 'blur(8px) brightness(0.65)' : 'none',
+            opacity: showWelcome && !isEntering ? 0.75 : 1,
+            transition: 'transform 1100ms cubic-bezier(0.22, 1, 0.36, 1), filter 1100ms cubic-bezier(0.22, 1, 0.36, 1), opacity 850ms ease-out',
+            transformOrigin: 'center 40%',
+            willChange: 'transform, filter, opacity',
+          }}
+        >
+          <LandingPage
+            onCreateGame={handleCreateNew}
+            onPlayDemo={handlePlayDemo}
+            onCreateWithPreset={handleCreateWithPreset}
+            onOpenShop={() => setShowShopModal(true)}
+          />
+        </div>
       )}
 
       {view === 'upload' && (

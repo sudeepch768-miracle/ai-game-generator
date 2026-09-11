@@ -537,6 +537,48 @@ class SoundManager {
     });
   }
 
+  playWelcomeIgnition() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+
+    // 1. Deep cinematic sub-bass surge (200Hz -> 32Hz) with smooth 1.1s glide
+    const subOsc = this.ctx.createOscillator();
+    const subGain = this.ctx.createGain();
+    subOsc.type = 'sine';
+    subOsc.frequency.setValueAtTime(200, now);
+    subOsc.frequency.exponentialRampToValueAtTime(32, now + 1.05);
+    subGain.gain.setValueAtTime(0.28, now);
+    subGain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
+    subOsc.connect(subGain);
+    subGain.connect(this.sfxGain || this.ctx.destination);
+    subOsc.start(now);
+    subOsc.stop(now + 1.12);
+
+    // 2. Rising cyber harmonic chord
+    const chord = [261.63, 392.00, 523.25, 622.25, 783.99, 1046.50];
+    chord.forEach((freq, idx) => {
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const t = now + idx * 0.055;
+
+      osc.type = idx % 2 === 0 ? 'sawtooth' : 'triangle';
+      osc.frequency.setValueAtTime(freq * 0.96, t);
+      osc.frequency.exponentialRampToValueAtTime(freq, t + 0.22);
+
+      gain.gain.setValueAtTime(0.12, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.85);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain || this.ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.9);
+    });
+  }
+
   playKey() {
     if (!this.enabled) return;
     this.initCtx();
