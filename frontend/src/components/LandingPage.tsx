@@ -58,6 +58,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
     setGemCount(getGemBalance());
   }, []);
 
+  useEffect(() => {
+    if (isHackerMode) {
+      document.body.classList.add('hacker-theme-active');
+    } else {
+      document.body.classList.remove('hacker-theme-active');
+    }
+    return () => {
+      document.body.classList.remove('hacker-theme-active');
+    };
+  }, [isHackerMode]);
+
   const handleSingularityTrigger = () => {
     if (warpPhase !== 'idle') return;
 
@@ -413,8 +424,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
         position: 'relative',
         minHeight: '100vh',
         background: isHackerMode
-          ? 'radial-gradient(ellipse at 50% 15%, #051a10 0%, #020704 70%)'
+          ? 'linear-gradient(180deg, #051a10 0%, #03110a 20%, #020a06 45%, #03130b 70%, #010603 100%)'
           : 'radial-gradient(ellipse at 50% 15%, #18223d 0%, #080a14 70%)',
+        backgroundImage: isHackerMode
+          ? `radial-gradient(ellipse at 50% 12%, rgba(0, 255, 102, 0.14) 0%, transparent 65%),
+             linear-gradient(rgba(0, 255, 102, 0.035) 1px, transparent 1px),
+             linear-gradient(90deg, rgba(0, 255, 102, 0.035) 1px, transparent 1px)`
+          : undefined,
+        backgroundSize: isHackerMode ? '100% 100%, 36px 36px, 36px 36px' : undefined,
         color: isHackerMode ? '#e6fffa' : '#ffffff',
         fontFamily: isHackerMode ? '"Share Tech Mono", "Chakra Petch", monospace' : '"Chakra Petch", sans-serif',
         padding: '30px 20px',
@@ -1446,6 +1463,102 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onCreateGame, onPlayDe
             <Zap size={15} color={isHackerMode ? '#00ff66' : '#ffd700'} />
             <span>{isHackerMode ? 'Encrypted Token Ledger & Wardrobe' : 'Persistent Gem Wallet & Skins'}</span>
           </div>
+        </div>
+
+        {/* Hacker Mode Bottom Terminal Console / Status Footer */}
+        <div
+          style={{
+            marginTop: '44px',
+            paddingTop: '24px',
+            borderTop: isHackerMode
+              ? '1px solid rgba(0, 255, 102, 0.25)'
+              : '1px solid rgba(255, 255, 255, 0.08)',
+            width: '100%',
+            maxWidth: '980px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px',
+            boxSizing: 'border-box',
+          }}
+        >
+          {isHackerMode ? (
+            <div
+              style={{
+                width: '100%',
+                background: 'rgba(0, 255, 102, 0.04)',
+                border: '1px dashed rgba(0, 255, 102, 0.3)',
+                borderRadius: '12px',
+                padding: '14px 18px',
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: '12px',
+                fontFamily: '"Share Tech Mono", monospace',
+                fontSize: '11px',
+                color: '#00ff66',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Terminal size={14} color="#00ff66" />
+                <span>SYS_CORE // DAEMON_PROCESS: ACTIVE (PID: 0x42A)</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                <span style={{ color: '#00f2fe' }}>SUBNET: 192.168.0.42/24</span>
+                <span style={{ color: '#a7f3d0' }}>NEURAL_MAPS: DECOMPILED</span>
+                <span style={{ color: '#86efac' }}>CIPHER: QUANTUM_RESISTANT</span>
+              </div>
+              <button
+                onClick={handleSingularityTrigger}
+                disabled={warpPhase !== 'idle'}
+                style={{
+                  background: 'rgba(0, 255, 102, 0.12)',
+                  border: '1px solid #00ff66',
+                  borderRadius: '16px',
+                  color: '#00ff66',
+                  padding: '5px 12px',
+                  fontSize: '10px',
+                  fontFamily: '"Press Start 2P", monospace',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(0, 255, 102, 0.25)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(0, 255, 102, 0.12)';
+                }}
+                title="Click to collapse Matrix and return to standard reality"
+              >
+                <RefreshCw size={10} />
+                <span>[RESTORE REALITY]</span>
+              </button>
+            </div>
+          ) : (
+            <div
+              style={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                color: '#64748b',
+                fontSize: '11px',
+                flexWrap: 'wrap',
+                gap: '10px',
+              }}
+            >
+              <span>HOLOVERSE GENERATIVE GAME ENGINE</span>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <span>MULTIMODAL NEURAL SYNTHESIS</span>
+                <span>•</span>
+                <span>DETERMINISTIC 2D CANVAS</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -494,3 +494,31 @@ button {
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 0 14px rgba(255, 0, 127, 0.5));
 }
+
+/* Hacker Mode Global Theme Overrides */
+body.hacker-theme-active {
+  background-color: #010603 !important;
+  color: #e6fffa !important;
+}
+
+body.hacker-theme-active .app-container {
+  background-color: #010603 !important;
+}
+
+body.hacker-theme-active::-webkit-scrollbar {
+  width: 8px;
+}
+
+body.hacker-theme-active::-webkit-scrollbar-track {
+  background: #020a06;
+}
+
+body.hacker-theme-active::-webkit-scrollbar-thumb {
+  background: #00aa44;
+  border-radius: 4px;
+}
+
+body.hacker-theme-active::-webkit-scrollbar-thumb:hover {
+  background: #00ff66;
+  box-shadow: 0 0 8px #00ff66;
+}

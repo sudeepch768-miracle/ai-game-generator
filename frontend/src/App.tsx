@@ -224,7 +224,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#070912' }}>
+    <div className="app-container" style={{ minHeight: '100vh', background: '#070912' }}>
       {showWelcome && (
         <WelcomeScreen
           onTransitionStart={() => setIsEntering(true)}
@@ -244,7 +244,7 @@ export const App: React.FC = () => {
             opacity: showWelcome && !isEntering ? 0.75 : 1,
             transition: 'transform 1100ms cubic-bezier(0.22, 1, 0.36, 1), filter 1100ms cubic-bezier(0.22, 1, 0.36, 1), opacity 850ms ease-out',
             transformOrigin: 'center 40%',
-            willChange: 'transform, filter, opacity',
+            willChange: (showWelcome || isEntering) ? 'transform, filter, opacity' : 'auto',
           }}
         >
           <LandingPage

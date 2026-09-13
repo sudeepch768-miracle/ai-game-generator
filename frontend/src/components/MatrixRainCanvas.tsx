@@ -30,8 +30,8 @@ export const MatrixRainCanvas: React.FC<MatrixRainCanvasProps> = ({
     };
     window.addEventListener('resize', handleResize);
 
-    // Matrix characters: mix of hex, binary, katakana-like symbols, and hacker keywords
-    const chars = '0123456789ABCDEF01010101XYZΩλΨROOTBYPASSHACKNULL0x9F0xDE0x42COREMATRIX';
+    // Authentic Matrix characters: mix of hex, binary, Japanese Katakana, and cyber keywords
+    const chars = '0123456789ABCDEF01010101XYZΩλΨROOTBYPASSHACKNULL0x9F0xDE0x42COREMATRIX日ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ';
     const columns = Math.floor(width / fontSize);
     const drops: number[] = Array.from({ length: columns }).map(() => Math.floor(Math.random() * -50));
 
@@ -45,7 +45,7 @@ export const MatrixRainCanvas: React.FC<MatrixRainCanvasProps> = ({
       lastFrame = now - (elapsed % fpsInterval);
 
       // Semi-transparent fade layer to create cascading trails
-      ctx.fillStyle = 'rgba(4, 10, 7, 0.09)';
+      ctx.fillStyle = 'rgba(2, 8, 4, 0.085)';
       ctx.fillRect(0, 0, width, height);
 
       ctx.font = `${fontSize}px monospace`;
@@ -89,11 +89,14 @@ export const MatrixRainCanvas: React.FC<MatrixRainCanvasProps> = ({
       ref={canvasRef}
       style={{
         position: 'fixed',
-        inset: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         width: '100vw',
         height: '100vh',
         pointerEvents: 'none',
-        zIndex: 0,
+        zIndex: 1,
         opacity,
       }}
     />
